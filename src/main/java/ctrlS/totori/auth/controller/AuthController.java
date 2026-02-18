@@ -1,9 +1,9 @@
-package ctrlS.totori.controller;
+package ctrlS.totori.auth.controller;
 
-import ctrlS.totori.dto.auth.LoginRequest;
-import ctrlS.totori.dto.auth.SignUpRequest;
-import ctrlS.totori.dto.auth.TokenResponse;
-import ctrlS.totori.service.AuthService;
+import ctrlS.totori.auth.dto.LoginRequest;
+import ctrlS.totori.auth.dto.SignUpRequest;
+import ctrlS.totori.auth.dto.TokenResponse;
+import ctrlS.totori.auth.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -1,5 +1,6 @@
-package ctrlS.totori.domain.member;
+package ctrlS.totori.member.repository;
 
+import ctrlS.totori.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

@@ -1,4 +1,4 @@
-package ctrlS.totori.dto.auth;
+package ctrlS.totori.auth.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

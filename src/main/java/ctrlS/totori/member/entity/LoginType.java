@@ -1,4 +1,4 @@
-package ctrlS.totori.domain.member;
+package ctrlS.totori.member.entity;
 
 public enum LoginType {
     NATIVE, KAKAO
