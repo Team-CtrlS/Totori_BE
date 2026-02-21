@@ -1,4 +1,4 @@
-package ctrlS.totori.relation.entity;
+package ctrlS.totori.member.entity;
 
 import ctrlS.totori.global.entity.BaseTimeEntity;
 import ctrlS.totori.member.entity.Member;
