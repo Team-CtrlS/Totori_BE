@@ -33,6 +33,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/test/**").permitAll() // todo: 테스트 끝나면 삭제 요망
                         .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/login/success").permitAll()
                         .requestMatchers("/api/auth/oauth/complete").authenticated()
                         .requestMatchers("/api/parent/**").hasRole("PARENT")
