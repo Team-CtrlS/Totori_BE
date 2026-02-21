@@ -41,7 +41,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String accessToken = jwtTokenProvider.createToken(String.valueOf(member.getId()), roleForToken);
 
         // 앱으로 리다이렉트할 주소 만들기(임의로 localhost로 보냄)
-        // todo: 앱으로 리다이렉트할 주소 넣기
+        // todo: 앱 연동 시 실제 서비스 도메인으로 redirect URL 변경
         String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:8080/login/success")
                 .queryParam("token", accessToken)
                 .queryParam("profileCompleted", profileCompleted)

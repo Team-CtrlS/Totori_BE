@@ -53,7 +53,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         memberRepository.save(member);
 
-        // todo: 프론트 화면 구현 시 삭제
+        // todo: 프론트 화면 구현 시 테스트 로그 제거
         log.info("카카오 로그인 성공: {}", loginId);
 
         // 5. Security 세션에 저장할 정보 반환
