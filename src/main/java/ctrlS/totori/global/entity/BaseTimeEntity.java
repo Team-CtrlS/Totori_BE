@@ -1,4 +1,4 @@
-package ctrlS.totori.domain.common;
+package ctrlS.totori.global.entity;
 
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;

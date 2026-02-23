@@ -1,6 +1,6 @@
-package ctrlS.totori.dto.auth;
+package ctrlS.totori.auth.dto;
 
-import ctrlS.totori.domain.member.Role;
+import ctrlS.totori.member.entity.Role;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;

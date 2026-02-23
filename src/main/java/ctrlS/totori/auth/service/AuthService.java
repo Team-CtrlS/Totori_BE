@@ -1,12 +1,12 @@
-package ctrlS.totori.service;
+package ctrlS.totori.auth.service;
 
-import ctrlS.totori.domain.member.LoginType;
-import ctrlS.totori.domain.member.Member;
-import ctrlS.totori.domain.member.MemberRepository;
-import ctrlS.totori.dto.auth.LoginRequest;
-import ctrlS.totori.dto.auth.SignUpRequest;
-import ctrlS.totori.dto.auth.TokenResponse;
-import ctrlS.totori.global.jwt.JwtTokenProvider;
+import ctrlS.totori.member.entity.LoginType;
+import ctrlS.totori.member.entity.Member;
+import ctrlS.totori.member.repository.MemberRepository;
+import ctrlS.totori.auth.dto.LoginRequest;
+import ctrlS.totori.auth.dto.SignUpRequest;
+import ctrlS.totori.auth.dto.TokenResponse;
+import ctrlS.totori.global.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

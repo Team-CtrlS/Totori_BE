@@ -1,7 +1,7 @@
-package ctrlS.totori.domain.parentchild;
+package ctrlS.totori.member.entity;
 
-import ctrlS.totori.domain.common.BaseTimeEntity;
-import ctrlS.totori.domain.member.Member;
+import ctrlS.totori.global.entity.BaseTimeEntity;
+import ctrlS.totori.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
