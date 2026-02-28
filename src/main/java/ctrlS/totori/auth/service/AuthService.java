@@ -1,5 +1,6 @@
 package ctrlS.totori.auth.service;
 
+import ctrlS.totori.auth.dto.CompleteProfileRequest;
 import ctrlS.totori.member.entity.LoginType;
 import ctrlS.totori.member.entity.Member;
 import ctrlS.totori.member.repository.MemberRepository;
@@ -61,4 +62,10 @@ public class AuthService {
         return new TokenResponse(token, member.getRole().name());
     }
 
+    @Transactional
+    public void completeProfile(Long memberId, CompleteProfileRequest request) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자 없음"));
+        member.completeProfile(request.role(), request.name(), request.birthDate());
+    }
 }
