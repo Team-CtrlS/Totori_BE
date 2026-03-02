@@ -2,16 +2,15 @@ package ctrlS.totori.member.entity;
 
 import ctrlS.totori.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 
+@Builder
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class Member extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,6 +19,7 @@ public class Member extends BaseTimeEntity {
     @Column(unique = true)
     private String loginId;
 
+    @Column(nullable = true)
     private String password;
 
     @Column(nullable = false)
@@ -28,7 +28,7 @@ public class Member extends BaseTimeEntity {
     private LocalDate birthDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = true)
+    @Column(nullable = false)
     private Role role;
 
     @Enumerated(EnumType.STRING)
@@ -36,30 +36,6 @@ public class Member extends BaseTimeEntity {
 
     private Integer level;
 
-    @Column(nullable = false)
-    private int dotori = 5;
-
-    @Builder
-    public Member(String loginId, String password, String name, LocalDate birthDate, Role role, LoginType loginType, Integer level) {
-        this.loginId = loginId;
-        this.password = password;
-        this.name = name;
-        this.birthDate = birthDate;
-        this.role = role;
-        this.loginType = loginType;
-        this.level = level;
-    }
-
-    // 이름 수정 메서드
-    public Member updateName(String name) {
-        this.name = name;
-        return this;
-    }
-
-    // 카카오 로그인 시 추가 정보 입력 메서드
-    public void completeProfile(Role role, String name, LocalDate birthDate) {
-        this.role = role;
-        this.name = name;
-        this.birthDate = birthDate;
-    }
+    @Builder.Default
+    private Integer acorn = 5;
 }

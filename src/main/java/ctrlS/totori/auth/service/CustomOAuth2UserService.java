@@ -42,7 +42,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         // 4. 저장(회원이 아닌 경우 임시로 회원 생성)
         Member member = memberRepository.findByLoginId(loginId)
-                .map(entity -> entity.updateName(nickname))
                 .orElseGet(() -> Member.builder()
                         .loginId(loginId)
                         .password(null)

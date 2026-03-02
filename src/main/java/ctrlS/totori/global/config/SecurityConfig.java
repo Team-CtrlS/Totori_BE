@@ -1,6 +1,7 @@
 package ctrlS.totori.global.config;
 
 import ctrlS.totori.auth.service.CustomOAuth2UserService;
+import ctrlS.totori.global.security.JwtAuthenticationFilter;
 import ctrlS.totori.global.security.oauth.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +13,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -20,6 +22,7 @@ public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -32,17 +35,17 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/test/**").permitAll() // todo: 테스트 끝나면 삭제 요망
                         .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/login/success").permitAll()
-                        .requestMatchers("/api/auth/oauth/complete").authenticated()
-                        .requestMatchers("/api/parent/**").hasRole("PARENT")
-                        .requestMatchers("/api/child/**").hasRole("CHILD")
+                        .requestMatchers("/api/auth/complete").authenticated()
+                        .requestMatchers("/api/parent/**").hasAuthority("PARENT")
+                        .requestMatchers("/api/child/**").hasAuthority("CHILD")
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService))
+                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                         .successHandler(oAuth2SuccessHandler)
                 );
         ;
