@@ -29,7 +29,7 @@ public class ConnectService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
         if (child.getRole() != Role.CHILD) {
-            throw new IllegalArgumentException("아동 계정만 연결 코드를 생성할 수 있습니댜.");
+            throw new IllegalArgumentException("아동 계정만 연결 코드를 생성할 수 있습니다.");
         }
 
         String code = generateConnectCode();
