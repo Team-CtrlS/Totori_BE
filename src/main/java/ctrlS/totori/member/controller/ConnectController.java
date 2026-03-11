@@ -1,5 +1,6 @@
 package ctrlS.totori.member.controller;
 
+import ctrlS.totori.member.dto.ConnectCodeResponse;
 import ctrlS.totori.member.dto.ConnectRequest;
 import ctrlS.totori.member.service.ConnectService;
 import lombok.RequiredArgsConstructor;
@@ -20,14 +21,10 @@ public class ConnectController {
     private final ConnectService connectService;
 
     @PostMapping("/code")
-    public ResponseEntity<Map<String, String>> createCode(@AuthenticationPrincipal Long memberId) {
+    public ResponseEntity<ConnectCodeResponse> createCode(@AuthenticationPrincipal Long memberId) {
         String code = connectService.createConnectCode(memberId);
 
-        Map<String, String> response = new HashMap<>();
-        response.put("code", code);
-        response.put("validTime", "600");
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new ConnectCodeResponse(code, 600));
     }
 
     @PostMapping
