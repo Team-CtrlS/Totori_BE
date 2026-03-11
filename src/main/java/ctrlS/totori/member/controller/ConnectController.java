@@ -30,7 +30,7 @@ public class ConnectController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/link")
+    @PostMapping
     public ResponseEntity<String> linkChild(
             @AuthenticationPrincipal Long memberId,
             @RequestBody ConnectRequest request) {
