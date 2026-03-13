@@ -67,4 +67,15 @@ public class AuthController {
         // 카카오 로그인 주소로 리다이렉트
         response.sendRedirect("/oauth2/authorization/kakao");
     }
+
+    @Operation(summary = "로그아웃", description = "현재 로그인된 사용자의 토큰을 무효화(Redis Blacklist)하여 로그아웃 처리합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "로그아웃 성공"),
+            @ApiResponse(responseCode = "401", description = "유효하지 않은 토큰 혹은 이미 로그아웃된 토큰", content = @Content)
+    })
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestHeader(value = "Authorization", required = false) String bearerToken) {
+        authService.logout(bearerToken);
+        return ResponseEntity.ok().build();
+    }
 }

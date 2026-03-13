@@ -1,5 +1,6 @@
 package ctrlS.totori.auth.service;
 
+import ctrlS.totori.global.util.RedisUtil;
 import ctrlS.totori.member.entity.LoginType;
 import ctrlS.totori.member.entity.Member;
 import ctrlS.totori.member.repository.MemberRepository;
@@ -7,6 +8,7 @@ import ctrlS.totori.auth.dto.LoginRequest;
 import ctrlS.totori.auth.dto.SignUpRequest;
 import ctrlS.totori.auth.dto.TokenResponse;
 import ctrlS.totori.global.security.JwtTokenProvider;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RedisUtil redisUtil;
 
     @Transactional
     public Long signUp(SignUpRequest request) {
@@ -58,5 +61,22 @@ public class AuthService {
 
         // 토큰과 권한 정보 반환
         return new TokenResponse(token, member.getRole().name());
+    }
+
+    @Transactional
+    public void logout(String bearerToken) {
+        String token = resolveToken(bearerToken);
+
+        if (token != null && jwtTokenProvider.validateToken(token)) {
+            long expiration = jwtTokenProvider.getExpiration(token);
+            redisUtil.setBlackList(token, expiration);
+        }
+    }
+
+    private String resolveToken(String bearerToken) {
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
     }
 }

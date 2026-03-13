@@ -1,5 +1,6 @@
 package ctrlS.totori.global.security;
 
+import ctrlS.totori.global.util.RedisUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
+    private final RedisUtil redisUtil;
 
     @Override
     protected void doFilterInternal(
@@ -28,16 +30,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         String token = resolveToken(request);
 
-        // 토큰 존재 & 유효하면 인증 객체 생성
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            Long userPk = Long.valueOf(jwtTokenProvider.getUserPk(token));
-            String role = jwtTokenProvider.getRole(token);
+        if (token != null) {
+            if (redisUtil.hasKeyBlacklisted(token)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"message\":\"이미 로그아웃된 토큰입니다.\"}");
+                return;
+            }
 
-            var authorities = List.of(new SimpleGrantedAuthority(role));
+            if (jwtTokenProvider.validateToken(token)) {
+                Long userPk = Long.valueOf(jwtTokenProvider.getUserPk(token));
+                String role = jwtTokenProvider.getRole(token);
 
-            var authentication = new UsernamePasswordAuthenticationToken(userPk, null, authorities);
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                var authorities = List.of(new SimpleGrantedAuthority(role));
+                var authentication = new UsernamePasswordAuthenticationToken(userPk, null, authorities);
+
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
         }
 
         filterChain.doFilter(request, response);

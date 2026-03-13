@@ -23,12 +23,16 @@ public class RedisUtil {
         return valueOperations.get(key);
     }
 
-    public void deleteData(String key) {
-        stringRedisTemplate.delete(key);
-    }
-
     public String getAndDeleteData(String key) {
         ValueOperations<String, String> valueOperations = stringRedisTemplate.opsForValue();
         return valueOperations.getAndDelete(key);
+    }
+
+    public void setBlackList(String token, long expirationMinutes) {
+        stringRedisTemplate.opsForValue().set(token, "logout", Duration.ofMinutes(expirationMinutes));
+    }
+
+    public boolean hasKeyBlacklisted(String token) {
+        return Boolean.TRUE.equals(stringRedisTemplate.hasKey(token));
     }
 }
