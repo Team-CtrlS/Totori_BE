@@ -15,6 +15,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "book_pages")
 public class BookPage extends BaseTimeEntity {
 
     @Id
