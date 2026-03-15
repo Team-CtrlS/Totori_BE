@@ -1,0 +1,61 @@
+package ctrlS.totori.book.entity;
+
+import ctrlS.totori.global.entity.BaseTimeEntity;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class BookReadingRecord extends BaseTimeEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "book_id", nullable = false)
+    private Book book;
+
+    // 읽기 진행 상태
+    private int readPages;
+    private boolean isCompleted;
+
+    // 학습 통계 데이터
+    private float wcpm;
+    private int totalWordCount;
+    private int wrongWordCount;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "json")
+    private List<String> wrongWords = new ArrayList<>();
+
+    @ElementCollection
+    @CollectionTable(
+            name = "book_mistake_records",
+            joinColumns = @JoinColumn(name = "record_id")
+    )
+    private List<MistakeInfo> mistakes = new ArrayList<>();
+
+    @Builder
+    public BookReadingRecord(Book book, int readPages, boolean isCompleted, float wcpm,
+                             int totalWordCount, int wrongWordCount,
+                             List<String> wrongWords, List<MistakeInfo> mistakes) {
+        this.book = book;
+        this.readPages = readPages;
+        this.isCompleted = isCompleted;
+        this.wcpm = wcpm;
+        this.totalWordCount = totalWordCount;
+        this.wrongWordCount = wrongWordCount;
+        this.wrongWords = wrongWords != null ? wrongWords : new ArrayList<>();
+        this.mistakes = mistakes != null ? mistakes : new ArrayList<>();
+    }
+}

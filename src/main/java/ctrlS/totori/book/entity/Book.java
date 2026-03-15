@@ -36,29 +36,10 @@ public class Book extends BaseTimeEntity {
     @Column(nullable = false)
     private int totalPages;
 
-    //책 읽기 상태
-    private int readPages = 0;
-
-    private boolean isCompleted = false;
-
     private int receivedAcorn = 0; // 0~3개
 
-    private LocalDateTime lastReadAt;
-
-    //학습 통계 데이터
-    private float WCPM;
-
-    private int totalWordCount;
-
-    private int wrongWordCount;
-
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "json")
-    private List<String> wrongWords = new ArrayList<>();
-
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "json")
-    private List<String> mistakeTypes = new ArrayList<>();
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BookPage> pages = new ArrayList<>();
 
     @Builder
     public Book(Member member, String title, String coverImageURL, int totalPages) {
@@ -66,21 +47,5 @@ public class Book extends BaseTimeEntity {
         this.title = title;
         this.coverImageURL = coverImageURL;
         this.totalPages = totalPages;
-    }
-
-    public void updateReadingProgress(int readPages, float WCPM, int totalWordCount, int wrongWordCount,
-                                      List<String> wrongWords, List<String> mistakeTypes) {
-        this.readPages = readPages;
-        this.WCPM = WCPM;
-        this.totalWordCount = totalWordCount;
-        this.wrongWordCount = wrongWordCount;
-        this.lastReadAt = LocalDateTime.now(); // 마지막 읽은 시간 갱신
-
-        this.wrongWords = wrongWords != null ? new ArrayList<>(wrongWords) : new ArrayList<>();
-        this.mistakeTypes = mistakeTypes != null ? new ArrayList<>(mistakeTypes) : new ArrayList<>();
-
-        if (this.readPages >= this.totalPages) {
-            this.isCompleted = true;
-        }
     }
 }
