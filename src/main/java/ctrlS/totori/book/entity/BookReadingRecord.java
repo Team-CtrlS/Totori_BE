@@ -39,11 +39,8 @@ public class BookReadingRecord extends BaseTimeEntity {
     @Column(columnDefinition = "json")
     private List<String> wrongWords = new ArrayList<>();
 
-    @ElementCollection
-    @CollectionTable(
-            name = "book_mistake_records",
-            joinColumns = @JoinColumn(name = "record_id")
-    )
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "json")
     private List<MistakeInfo> mistakes = new ArrayList<>();
 
     @Builder
