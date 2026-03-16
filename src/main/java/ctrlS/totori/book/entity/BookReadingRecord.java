@@ -10,7 +10,9 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Getter
@@ -41,12 +43,12 @@ public class BookReadingRecord extends BaseTimeEntity {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "json")
-    private List<MistakeInfo> mistakes = new ArrayList<>();
+    private Map<String, Integer> mistakes = new HashMap<>();
 
     @Builder
     public BookReadingRecord(Book book, int readPages, boolean isCompleted, float wcpm,
                              int totalWordCount, int wrongWordCount,
-                             List<String> wrongWords, List<MistakeInfo> mistakes) {
+                             List<String> wrongWords, Map<String, Integer> mistakes) {
         this.book = book;
         this.readPages = readPages;
         this.isCompleted = isCompleted;
@@ -54,6 +56,6 @@ public class BookReadingRecord extends BaseTimeEntity {
         this.totalWordCount = totalWordCount;
         this.wrongWordCount = wrongWordCount;
         this.wrongWords = wrongWords != null ? wrongWords : new ArrayList<>();
-        this.mistakes = mistakes != null ? mistakes : new ArrayList<>();
+        this.mistakes = mistakes != null ? mistakes : new HashMap<>();
     }
 }
