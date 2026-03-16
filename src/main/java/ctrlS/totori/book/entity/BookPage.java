@@ -26,6 +26,9 @@ public class BookPage extends BaseTimeEntity {
     @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 
+    @Column(nullable = false)
+    private int pageOrder;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "json", nullable = false)
     private List<String> sentences = new ArrayList<>();
@@ -34,8 +37,9 @@ public class BookPage extends BaseTimeEntity {
     private String imageUrl;
 
     @Builder
-    public BookPage(Book book, List<String> sentences, String imageUrl) {
+    public BookPage(Book book, int pageOrder, List<String> sentences, String imageUrl) {
         this.book = book;
+        this.pageOrder = pageOrder;
         this.sentences = sentences != null ? new ArrayList<>(sentences) : new ArrayList<>();
         this.imageUrl = imageUrl;
     }
