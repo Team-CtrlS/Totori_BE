@@ -20,9 +20,6 @@ public class SignUpRequest {
     @NotBlank(message = "이름은 필수입니다.")
     private String name;
 
-    @NotNull(message = "생년월일은 필수입니다.")
-    private LocalDate birthDate;
-
     @NotNull(message = "역할(PARENT 또는 CHILD)을 선택해주세요.")
     private Role role;
 }

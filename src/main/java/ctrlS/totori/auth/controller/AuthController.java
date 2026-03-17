@@ -1,15 +1,18 @@
 package ctrlS.totori.auth.controller;
 
-import ctrlS.totori.auth.dto.CompleteProfileRequest;
 import ctrlS.totori.auth.dto.LoginRequest;
 import ctrlS.totori.auth.dto.SignUpRequest;
 import ctrlS.totori.auth.dto.TokenResponse;
 import ctrlS.totori.auth.service.AuthService;
+import ctrlS.totori.member.entity.Role;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -18,9 +21,9 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signUp(@Valid @RequestBody SignUpRequest request) {
+    public ResponseEntity<Void> signUp(@Valid @RequestBody SignUpRequest request) {
         authService.signUp(request);
-        return ResponseEntity.ok("회원가입이 완료되었습니다.");
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/login")
@@ -29,10 +32,17 @@ public class AuthController {
         return ResponseEntity.ok(tokenResponse);
     }
 
-    @PostMapping("/oauth/complete")
-    public ResponseEntity<Void> completeProfile(@RequestBody CompleteProfileRequest request, Authentication authentication) {
-        Long memberId = Long.valueOf(authentication.getName());
-        authService.completeProfile(memberId, request);
-        return ResponseEntity.ok().build();
+    @GetMapping("/social/kakao")
+    public void startKakaoLogin(
+            @RequestParam Role role,
+            HttpServletResponse response,
+            HttpSession session
+            ) throws IOException {
+
+        // 역할을 세션에 잠시 저장
+        session.setAttribute("SOCIAL_LOGIN_ROLE", role);
+
+        // 카카오 로그인 주소로 리다이렉트
+        response.sendRedirect("/oauth2/authorization/kakao");
     }
 }

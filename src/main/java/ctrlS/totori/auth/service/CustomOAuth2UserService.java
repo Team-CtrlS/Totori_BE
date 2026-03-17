@@ -1,16 +1,19 @@
 package ctrlS.totori.auth.service;
 
-import ctrlS.totori.auth.dto.KakaoUserInfo;
+import ctrlS.totori.auth.dto.OAuth2Attribute;
 import ctrlS.totori.member.entity.LoginType;
 import ctrlS.totori.member.entity.Member;
 import ctrlS.totori.member.entity.Role;
 import ctrlS.totori.member.repository.MemberRepository;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -18,49 +21,76 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CustomOAuth2UserService extends DefaultOAuth2UserService {
+public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     private final MemberRepository memberRepository;
+    private final HttpSession session;
 
     @Override
     @Transactional
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        // 1. 카카오에서 사용자 정보 가져오기
-        OAuth2User oAuth2User = super.loadUser(userRequest);
 
-        // 2. 데이터 파싱
-        Map<String, Object> attributes = oAuth2User.getAttributes();
-        KakaoUserInfo kakaoInfo = new KakaoUserInfo(attributes);
+        // 카카오에서 사용자 정보 가져오기
+        OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
+        OAuth2User oAuth2User = delegate.loadUser(userRequest);
 
-        // 3. DB에 저장할 ID 생성
-        String loginId = "KAKAO_" + kakaoInfo.getId();
-        String nickname = kakaoInfo.getNickname();
+        // 서비스 구분
+        String registrationId = userRequest.getClientRegistration().getRegistrationId();
+        String userNameAttributeName = userRequest.getClientRegistration()
+                .getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
 
-        // 4. 저장(회원이 아닌 경우 임시로 회원 생성)
-        Member member = memberRepository.findByLoginId(loginId)
-                .map(entity -> entity.updateName(nickname))
-                .orElseGet(() -> Member.builder()
-                        .loginId(loginId)
-                        .password(null)
-                        .name(nickname)
-                        .role(null)
-                        .loginType(LoginType.KAKAO)
-                        .build());
+        OAuth2Attribute attributes = OAuth2Attribute.of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
 
-        memberRepository.save(member);
+        try {
+            // 저장(여기서 Role 결정)
+            Member member = saveOrUpdate(attributes.providerId(), attributes.name());
 
-        // todo: 프론트 화면 구현 시 테스트 로그 제거
-        log.info("카카오 로그인 성공: {}", loginId);
+            // Security 세션에 저장할 정보 반환
+            return new DefaultOAuth2User(
+                    Collections.singleton(new SimpleGrantedAuthority(member.getRole().name())),
+                    attributes.attributes(),
+                    attributes.nameAttributeKey()
+            );
+        } finally {
+            session.removeAttribute("SOCIAL_LOGIN_ROLE");
+        }
+    }
 
-        // 5. Security 세션에 저장할 정보 반환
-        return new DefaultOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority("ROLE_GUEST")),
-                attributes,
-                "id"
-        );
+    private Member saveOrUpdate(String providerId, String nickname) {
+        String loginId = "KAKAO_" + providerId;
+
+        // 이미 가입된 회원
+        Optional<Member> memberOptional = memberRepository.findByLoginId(loginId);
+        if (memberOptional.isPresent()) {
+            return memberOptional.get();
+        }
+
+        // 신규 회원
+        Role role = (Role) session.getAttribute("SOCIAL_LOGIN_ROLE");
+
+        // 세션 만료됐거나 없으면 예외 발생
+        if (role == null) {
+            OAuth2Error oAuth2Error = new OAuth2Error(
+                    "MISSING_ROLE_IN_SESSION",
+                    "세션이 만료되었거나 역할 정보가 없습니다. 처음부터 다시 시도해주세요.",
+                    null
+            );
+            throw new OAuth2AuthenticationException(oAuth2Error, oAuth2Error.toString());
+        }
+
+        Member member = Member.builder()
+                .loginId(loginId)
+                .name(nickname)
+                .password(null)
+                .role(role)
+                .loginType(LoginType.KAKAO)
+                .build();
+
+        return memberRepository.save(member);
     }
 }
