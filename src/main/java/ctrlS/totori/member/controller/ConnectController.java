@@ -32,7 +32,7 @@ public class ConnectController {
     @PostMapping
     public ResponseEntity<Void> linkChild(
             @AuthenticationPrincipal Long memberId,
-            @RequestBody ConnectRequest request) {
+            @Valid @RequestBody ConnectRequest request) {
         connectService.connectToChild(memberId, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
