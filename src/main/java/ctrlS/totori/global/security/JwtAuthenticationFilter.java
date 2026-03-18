@@ -30,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 토큰 존재 & 유효하면 인증 객체 생성
         if (token != null && jwtTokenProvider.validateToken(token)) {
-            String userPk = jwtTokenProvider.getUserPk(token);
+            Long userPk = Long.valueOf(jwtTokenProvider.getUserPk(token));
             String role = jwtTokenProvider.getRole(token);
 
             var authorities = List.of(new SimpleGrantedAuthority(role));
