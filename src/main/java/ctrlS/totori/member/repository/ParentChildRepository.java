@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ParentChildRepository extends JpaRepository<ParentChild, Long> {
 
-    boolean existsByChild(Member child);
+    boolean existsByParentAndChild(Member parent, Member child);
 }

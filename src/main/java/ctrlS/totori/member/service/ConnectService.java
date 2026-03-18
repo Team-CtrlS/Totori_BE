@@ -50,7 +50,7 @@ public class ConnectService {
     }
 
     @Transactional
-    public String connectToChild(Long parentId, ConnectRequest request) {
+    public void connectToChild(Long parentId, ConnectRequest request) {
         Member parent = memberRepository.findById(parentId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
@@ -69,8 +69,8 @@ public class ConnectService {
         Member child = memberRepository.findById(childId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 아동 계정입니다."));
 
-        if (parentChildRepository.existsByChild(child)) {
-            throw new IllegalArgumentException("이미 다른 보호자와 연결된 아동 계정입니다.");
+        if (parentChildRepository.existsByParentAndChild(parent, child)) {
+            throw new IllegalArgumentException("이미 연결된 아동 계정입니다.");
         }
 
         ParentChild connection = ParentChild.builder()
@@ -79,7 +79,5 @@ public class ConnectService {
                 .build();
 
         parentChildRepository.save(connection);
-
-        return child.getName();
     }
 }
