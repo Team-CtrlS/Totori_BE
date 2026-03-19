@@ -34,7 +34,8 @@ public class Member extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private LoginType loginType;
 
-    private Integer level;
+    @Enumerated(EnumType.STRING)
+    private MemberLevel level;
 
     @Builder.Default
     private Integer acorn = 5;
