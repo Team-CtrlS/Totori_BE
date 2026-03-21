@@ -1,5 +1,7 @@
 package ctrlS.totori.book.entity;
 
+import ctrlS.totori.book.dto.FastApiPageResponse;
+import ctrlS.totori.book.dto.FastApiStoryResponse;
 import ctrlS.totori.global.entity.BaseTimeEntity;
 import ctrlS.totori.member.entity.Member;
 import jakarta.persistence.*;
@@ -32,7 +34,7 @@ public class Book extends BaseTimeEntity {
     @Column(nullable = false)
     private String title;
 
-    private String coverImageURL;
+    private String coverImageUrl;
 
     @Column(nullable = false)
     private int totalPages;
@@ -43,10 +45,19 @@ public class Book extends BaseTimeEntity {
     private List<BookPage> pages = new ArrayList<>();
 
     @Builder
-    public Book(Member member, String title, String coverImageURL, int totalPages) {
+    public Book(Member member, String title, String coverImageUrl, int totalPages) {
         this.member = member;
         this.title = title;
-        this.coverImageURL = coverImageURL;
+        this.coverImageUrl = coverImageUrl;
         this.totalPages = totalPages;
+    }
+
+    public static Book of(Member member, FastApiStoryResponse response) {
+        return Book.builder()
+                .member(member)
+                .title(response.title())
+                .coverImageUrl(null)
+                .totalPages(response.pages().size())
+                .build();
     }
 }

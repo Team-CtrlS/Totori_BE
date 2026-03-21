@@ -1,5 +1,6 @@
 package ctrlS.totori.book.entity;
 
+import ctrlS.totori.book.dto.FastApiPageResponse;
 import ctrlS.totori.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -46,5 +47,15 @@ public class BookPage extends BaseTimeEntity {
         this.sentences = sentences != null ? new ArrayList<>(sentences) : new ArrayList<>();
         this.imagePrompt = imagePrompt;
         this.imageUrl = imageUrl;
+    }
+
+    public static BookPage of(Book book, FastApiPageResponse response) {
+        return BookPage.builder()
+                .book(book)
+                .pageOrder(response.pageOrder())
+                .sentences(response.sentences())
+                .imagePrompt(response.imagePrompt())
+                .imageUrl(null)
+                .build();
     }
 }
