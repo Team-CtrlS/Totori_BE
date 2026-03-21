@@ -33,7 +33,7 @@ public class MemberStat extends BaseTimeEntity {
     private int totalAttendanceDays = 0; // 누적 출석일
 
     @Column(nullable = false)
-    private int totalAcquiredDotori = 0; // 누적 획득 도토리
+    private int totalAcquiredAcorn = 0; // 누적 획득 도토리
 
     @Builder
     public MemberStat(Member member) {
@@ -48,8 +48,8 @@ public class MemberStat extends BaseTimeEntity {
         this.totalReadBooks++;
     }
 
-    public void addAcquiredDotori(int amount) {
-        this.totalAcquiredDotori += amount;
+    public void addAcquiredAcorn(int amount) {
+        this.totalAcquiredAcorn += amount;
     }
 
     public void attend(boolean isConsecutive) {
