@@ -31,8 +31,8 @@ public class BookService {
     private final BookReadingRecordRepository bookReadingRecordRepository;
     private final FastApiStoryClient fastApiStoryClient;
 
-    public BookGenerateResponse generateBook(BookGenerateRequest request) {
-        Member member = memberRepository.findById(request.memberId())
+    public BookGenerateResponse generateBook(Long memberId, BookGenerateRequest request) {
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         BookReadingRecord latestRecord = bookReadingRecordRepository
