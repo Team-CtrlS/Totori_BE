@@ -33,14 +33,18 @@ public class BookPage extends BaseTimeEntity {
     @Column(columnDefinition = "json", nullable = false)
     private List<String> sentences = new ArrayList<>();
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String imageUrl;
 
+    @Column(nullable = false)
+    private String imagePrompt;
+
     @Builder
-    public BookPage(Book book, int pageOrder, List<String> sentences, String imageUrl) {
+    public BookPage(Book book, int pageOrder, List<String> sentences, String imagePrompt, String imageUrl) {
         this.book = book;
         this.pageOrder = pageOrder;
         this.sentences = sentences != null ? new ArrayList<>(sentences) : new ArrayList<>();
+        this.imagePrompt = imagePrompt;
         this.imageUrl = imageUrl;
     }
 }
