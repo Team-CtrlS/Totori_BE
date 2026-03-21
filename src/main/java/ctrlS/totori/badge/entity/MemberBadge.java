@@ -31,4 +31,8 @@ public class MemberBadge extends BaseTimeEntity {
         this.member = member;
         this.badge = badge;
     }
+
+    public void updateBadge(Badge newBadge) {
+        this.badge = newBadge;
+    }
 }
