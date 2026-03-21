@@ -30,14 +30,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
-        String token = resolveToken(request);
+        String token = jwtTokenProvider.resolveToken(request.getHeader("Authorization"));
 
         if (token != null) {
-            if (redisUtil.hasKeyBlacklisted(token)) {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setContentType("application/json;charset=UTF-8");
-                response.getWriter().write("{\"message\":\"이미 로그아웃된 토큰입니다.\"}");
-                return;
+            if (authRedisService.isBlacklisted(token)) {
+                throw new CustomAuthenticationException(ErrorCode.LOGGED_OUT_TOKEN);
             }
 
             if (jwtTokenProvider.validateToken(token)) {

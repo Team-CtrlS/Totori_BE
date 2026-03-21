@@ -1,8 +1,12 @@
 package ctrlS.totori.global.security;
 
+import ctrlS.totori.global.exception.ErrorCode;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +23,6 @@ public class JwtTokenProvider {
         this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
     }
 
-    // 토큰 생성
     public String createToken(String userPk, String role) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + validTime);
@@ -33,7 +36,6 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    // 토큰에서 회원 정보 추출
     public String getUserPk(String token) {
         return Jwts.parser()
                 .verifyWith(key)
@@ -60,8 +62,10 @@ public class JwtTokenProvider {
                     .build()
                     .parseSignedClaims(token);
             return true;
-        } catch (Exception e) {
-            return false;
+        } catch (ExpiredJwtException e) {
+            throw new CustomAuthenticationException(ErrorCode.EXPIRED_TOKEN);
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new CustomAuthenticationException(ErrorCode.INVALID_TOKEN);
         }
     }
 
@@ -76,5 +80,12 @@ public class JwtTokenProvider {
         long now = new Date().getTime();
 
         return (expiration.getTime() - now) / (1000 * 60);
+    }
+
+    public String resolveToken(String bearerToken) {
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
     }
 }

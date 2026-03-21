@@ -65,20 +65,12 @@ public class AuthService {
         return new TokenResponse(token, member.getRole().name());
     }
 
-    @Transactional
     public void logout(String bearerToken) {
-        String token = resolveToken(bearerToken);
+        String token = jwtTokenProvider.resolveToken(bearerToken);
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
             long expiration = jwtTokenProvider.getExpiration(token);
-            redisUtil.setBlackList(token, expiration);
+            authRedisService.blacklistToken(token, expiration);
         }
-    }
-
-    private String resolveToken(String bearerToken) {
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
     }
 }
