@@ -30,7 +30,8 @@ public class AuthController {
     @Operation(summary = "자체 회원가입", description = "역할, 아이디, 비밀번호, 이름을 입력받아 회원가입을 진행합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "회원가입 성공"),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청값", content = @Content)})
+            @ApiResponse(responseCode = "400", description = "잘못된 요청값", content = @Content),
+            @ApiResponse(responseCode = "409", description = "이미 존재하는 아이디", content = @Content)})
     @PostMapping("/signup")
     public ResponseEntity<Void> signUp(@Valid @RequestBody SignUpRequest request) {
         authService.signUp(request);
@@ -41,7 +42,8 @@ public class AuthController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "로그인 성공", content = @Content(schema = @Schema(implementation = TokenResponse.class))),
             @ApiResponse(responseCode = "400", description = "잘못된 요청값", content = @Content),
-            @ApiResponse(responseCode = "401", description = "아이디 또는 비밀번호 불일치", content = @Content)
+            @ApiResponse(responseCode = "401", description = "비밀번호 불일치", content = @Content),
+            @ApiResponse(responseCode = "404", description = "가입되지 않은 아이디", content = @Content)
     })
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
@@ -51,7 +53,7 @@ public class AuthController {
 
     @Operation(summary = "카카오 로그인", description = "역할을 전달받아 세션에 저장한 뒤 카카오 OAuth2 로그인 페이지로 리다이렉트합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "카카오 로그인 페이지로 리다이렉트"),
+            @ApiResponse(responseCode = "302", description = "카카오 로그인 페이지로 리다이렉트"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청값", content = @Content)
     })
     @GetMapping("/social/kakao")
