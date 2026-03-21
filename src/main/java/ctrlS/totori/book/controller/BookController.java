@@ -3,6 +3,7 @@ package ctrlS.totori.book.controller;
 import ctrlS.totori.book.dto.BookGenerateRequest;
 import ctrlS.totori.book.dto.BookGenerateResponse;
 import ctrlS.totori.book.service.BookService;
+import ctrlS.totori.global.security.CustomUserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -34,9 +35,9 @@ public class BookController {
     })
     @PostMapping("/generate")
     public ResponseEntity<BookGenerateResponse> generateBook(
-            @AuthenticationPrincipal Long memberId,
+            @AuthenticationPrincipal CustomUserPrincipal principal,
             @Valid @RequestBody BookGenerateRequest request
             ) {
-        return ResponseEntity.ok(bookService.generateBook(memberId, request));
+        return ResponseEntity.ok(bookService.generateBook(principal.getMemberId(), request));
     }
 }
