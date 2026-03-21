@@ -1,5 +1,7 @@
 package ctrlS.totori.global.security;
 
+import ctrlS.totori.auth.service.AuthRedisService;
+import ctrlS.totori.global.exception.ErrorCode;
 import ctrlS.totori.global.util.RedisUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -20,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
-    private final RedisUtil redisUtil;
+    private final AuthRedisService authRedisService;
 
     @Override
     protected void doFilterInternal(
@@ -46,21 +48,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 var authorities = List.of(new SimpleGrantedAuthority(role));
                 var authentication = new UsernamePasswordAuthenticationToken(principal, null, authorities);
-                
+
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
+        }
 
         filterChain.doFilter(request, response);
-    }
-
-    private String resolveToken(HttpServletRequest request) {
-        String bearer = request.getHeader("Authorization");
-        if (bearer == null) return null;
-
-        if (bearer.startsWith("Bearer ")) {
-            return bearer.substring(7);
-        }
-        return null;
     }
 }

@@ -22,7 +22,7 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
-    private final RedisUtil redisUtil;
+    private final AuthRedisService authRedisService;
 
     @Transactional
     public Long signUp(SignUpRequest request) {
