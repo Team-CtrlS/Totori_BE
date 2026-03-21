@@ -39,16 +39,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             if (jwtTokenProvider.validateToken(token)) {
-                Long userPk = Long.valueOf(jwtTokenProvider.getUserPk(token));
+                Long memberId = Long.valueOf(jwtTokenProvider.getUserPk(token));
                 String role = jwtTokenProvider.getRole(token);
 
-                var authorities = List.of(new SimpleGrantedAuthority(role));
-                var authentication = new UsernamePasswordAuthenticationToken(userPk, null, authorities);
+                CustomUserPrincipal principal = new CustomUserPrincipal(memberId, role);
 
+                var authorities = List.of(new SimpleGrantedAuthority(role));
+                var authentication = new UsernamePasswordAuthenticationToken(principal, null, authorities);
+                
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-        }
 
         filterChain.doFilter(request, response);
     }

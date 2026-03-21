@@ -9,7 +9,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,10 +44,10 @@ public class ConnectController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청값 또는 유효하지 않은 연결 코드", content = @Content)
     })
     @PostMapping
-    public ResponseEntity<String> linkChild(
+    public ResponseEntity<Void> linkChild(
             @AuthenticationPrincipal Long memberId,
-            @RequestBody ConnectRequest request) {
-        String childName = connectService.connectToChild(memberId, request);
-        return ResponseEntity.ok(childName + " 아동과 성공적으로 연결되었습니다.");
+            @Valid @RequestBody ConnectRequest request) {
+        connectService.connectToChild(memberId, request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
