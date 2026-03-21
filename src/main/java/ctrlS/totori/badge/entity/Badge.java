@@ -2,6 +2,7 @@ package ctrlS.totori.badge.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -30,4 +31,13 @@ public class Badge {
 
     @Column(nullable = false)
     private String imageURL;
+
+    @Builder
+    public Badge(BadgeCategory category, int level, String name, int targetValue, String imageURL) {
+        this.category = category;
+        this.level = level;
+        this.name = name;
+        this.targetValue = targetValue;
+        this.imageURL = imageURL;
+    }
 }
