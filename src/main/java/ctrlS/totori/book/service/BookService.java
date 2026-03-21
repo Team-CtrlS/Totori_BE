@@ -34,63 +34,40 @@ public class BookService {
     public BookGenerateResponse generateBook(Long memberId, BookGenerateRequest request) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        BookReadingRecord latestRecord = getLatestRecord(memberId);
 
-        BookReadingRecord latestRecord = bookReadingRecordRepository
-                .findTopByBook_Member_IdOrderByCreatedAtDesc(member.getId())
-                .orElse(null);
-
-        float recentWcpm = latestRecord != null ? latestRecord.getWcpm() : 0f;
-
-        List<String> weakPhonemes = extractWeakPhonemes(latestRecord);
-
-        FastApiGenerateStoryRequest fastApiRequest = new FastApiGenerateStoryRequest(
-                request.sttText(),
-                member.getLevel().toString(),
-                recentWcpm,
-                weakPhonemes
-        );
-
+        FastApiGenerateStoryRequest fastApiRequest = createFastApiRequest(request, member, latestRecord);
         FastApiStoryResponse fastApiResponse = fastApiStoryClient.generateStory(fastApiRequest);
 
-        Book book = Book.builder()
-                .member(member)
-                .title(fastApiResponse.title())
-                .coverImageURL(null)
-                .totalPages(fastApiResponse.pages().size())
-                .build();
+        Book book = Book.of(member, fastApiResponse);
 
-        List<BookPage> pages = new ArrayList<>();
-
-        for (FastApiPageResponse pageResponse : fastApiResponse.pages()) {
-            BookPage page = BookPage.builder()
-                    .book(book)
-                    .pageOrder(pageResponse.pageOrder())
-                    .sentences(pageResponse.sentences())
-                    .imagePrompt(pageResponse.imagePrompt())
-                    .imageUrl(null)
-                    .build();
-
-            pages.add(page);
-        }
+        List<BookPage> pages = fastApiResponse.pages().stream()
+                .map(pageResponse -> BookPage.of(book, pageResponse))
+                .toList();
 
         book.getPages().addAll(pages);
 
         Book savedBook = bookRepository.save(book);
 
-        List<BookPageResponse> pageResponses = savedBook.getPages().stream()
-                .map(page -> new BookPageResponse(
-                        page.getId(),
-                        page.getPageOrder(),
-                        page.getSentences(),
-                        page.getImagePrompt(),
-                        page.getImageUrl()
-                )).toList();
+        return BookGenerateResponse.from(savedBook);
+    }
 
-        return new BookGenerateResponse(
-                savedBook.getId(),
-                savedBook.getTitle(),
-                savedBook.getTotalPages(),
-                pageResponses
+    @Transactional(readOnly = true)
+    protected BookReadingRecord getLatestRecord(Long memberId) {
+        return bookReadingRecordRepository
+                .findTopByBook_Member_IdOrderByUpdatedAtDesc(memberId)
+                .orElse(null);
+    }
+
+    private FastApiGenerateStoryRequest createFastApiRequest(BookGenerateRequest request, Member member, BookReadingRecord latestRecord) {
+        float recentWcpm = latestRecord != null ? latestRecord.getWcpm() : 0f;
+        List<String> weakPhonemes = extractWeakPhonemes(latestRecord);
+
+        return new FastApiGenerateStoryRequest(
+                request.sttText(),
+                member.getLevel().toString(),
+                recentWcpm,
+                weakPhonemes
         );
     }
 
