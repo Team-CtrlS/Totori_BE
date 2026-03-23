@@ -4,6 +4,7 @@ import ctrlS.totori.badge.dto.CategoryBadgeResponseDto;
 import ctrlS.totori.badge.dto.MemberBadgeResponseDto;
 import ctrlS.totori.badge.entity.BadgeCategory;
 import ctrlS.totori.badge.service.BadgeService;
+import ctrlS.totori.global.security.CustomUserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,21 +27,21 @@ public class BadgeController {
 
     // 유저의 뱃지 조회
     @GetMapping("/my")
-    public ResponseEntity<List<MemberBadgeResponseDto>> getMemberBadges(@AuthenticationPrincipal Long memberId) {
-        return ResponseEntity.ok(badgeService.getMemberBadges(memberId));
+    public ResponseEntity<List<MemberBadgeResponseDto>> getMemberBadges(@AuthenticationPrincipal CustomUserPrincipal principal) {
+        return ResponseEntity.ok(badgeService.getMemberBadges(principal.getMemberId()));
     }
 
     // 대표 뱃지 조회
     @GetMapping("/my/representative")
-    public ResponseEntity<MemberBadgeResponseDto> getRepresentativeBadge(@AuthenticationPrincipal Long memberId) {
-        return ResponseEntity.ok(badgeService.getRepresentativeBadge(memberId));
+    public ResponseEntity<MemberBadgeResponseDto> getRepresentativeBadge(@AuthenticationPrincipal CustomUserPrincipal principal) {
+        return ResponseEntity.ok(badgeService.getRepresentativeBadge(principal.getMemberId()));
     }
 
     // 특정 카테고리의 상세 뱃지 정보 조회
     @GetMapping("/my/categories/{category}")
     public ResponseEntity<CategoryBadgeResponseDto> getCategoryBadgeDetails(
-            @AuthenticationPrincipal Long memberId,
+            @AuthenticationPrincipal CustomUserPrincipal principal,
             @PathVariable BadgeCategory category) {
-        return ResponseEntity.ok(badgeService.getCategoryBadgeDetail(memberId, category));
+        return ResponseEntity.ok(badgeService.getCategoryBadgeDetail(principal.getMemberId(), category));
     }
 }
