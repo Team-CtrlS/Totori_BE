@@ -34,4 +34,14 @@ public class ReportController {
         WeeklyReportResponse response = reportService.getWeelyReport(principal.getMemberId());
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "전체 레포트 조회", description = "전체 레포트를 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content)
+    })
+    @GetMapping("/total")
+    public ResponseEntity<TotalReportResponse> getTotalReport(@AuthenticationPrincipal CustomUserPrincipal principal){
+        TotalReportResponse response = reportService.getTotalReport(principal.getMemberId());
+        return ResponseEntity.ok(response);
+    }
 }

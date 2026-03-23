@@ -2,6 +2,7 @@ package ctrlS.totori.book.repository;
 
 import ctrlS.totori.book.entity.BookReadingRecord;
 import ctrlS.totori.member.entity.Member;
+import ctrlS.totori.report.dto.common.DataPointDto;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
