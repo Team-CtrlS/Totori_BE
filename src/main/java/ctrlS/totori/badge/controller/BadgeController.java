@@ -1,5 +1,4 @@
 package ctrlS.totori.badge.controller;
-ㅌ₩
 import ctrlS.totori.badge.dto.BadgeResponseDto;
 import ctrlS.totori.badge.dto.CategoryBadgeResponseDto;
 import ctrlS.totori.badge.dto.MemberBadgeResponseDto;
