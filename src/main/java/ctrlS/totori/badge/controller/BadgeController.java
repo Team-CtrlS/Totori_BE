@@ -1,16 +1,11 @@
 package ctrlS.totori.badge.controller;
-
-import ctrlS.totori.auth.service.CustomOAuth2UserService;
+ㅌ₩
 import ctrlS.totori.badge.dto.BadgeResponseDto;
 import ctrlS.totori.badge.dto.CategoryBadgeResponseDto;
 import ctrlS.totori.badge.dto.MemberBadgeResponseDto;
 import ctrlS.totori.badge.entity.BadgeCategory;
-import ctrlS.totori.badge.entity.MemberBadge;
 import ctrlS.totori.badge.service.BadgeService;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -23,8 +18,6 @@ import java.util.List;
 public class BadgeController {
 
     private final BadgeService badgeService;
-    private final ctrlS.totori.member.repository.MemberStatRepository memberStatRepository;
-    private final ctrlS.totori.member.repository.MemberRepository memberRepository; // Member 찾기용
 
     // 전체 뱃지 조회
     @GetMapping
