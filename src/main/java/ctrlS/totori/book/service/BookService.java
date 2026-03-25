@@ -16,10 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +27,8 @@ public class BookService {
     private final BookRepository bookRepository;
     private final BookReadingRecordRepository bookReadingRecordRepository;
     private final FastApiStoryClient fastApiStoryClient;
+    private final StableDiffusionService stableDiffusionService;
+    private final ImageStorageService imageStorageService;
 
     public BookGenerateResponse generateBook(Long memberId, BookGenerateRequest request) {
         Member member = memberRepository.findById(memberId)
@@ -44,6 +43,21 @@ public class BookService {
         List<BookPage> pages = fastApiResponse.pages().stream()
                 .map(pageResponse -> BookPage.of(book, pageResponse))
                 .toList();
+
+        long bookSeed = new Random().nextInt(10000000);
+
+        int pageNumber = 1;
+        for (BookPage page : pages) {
+            String prompt = page.getImagePrompt();
+
+            byte[] imageBytes = stableDiffusionService.generateImage(prompt, bookSeed);
+
+            String fileName = UUID.randomUUID() + "_page_" + pageNumber + ".png";
+            String imageUrl = imageStorageService.uploadImage(imageBytes, fileName);
+
+            page.updateImageUrl(imageUrl);
+            pageNumber++;
+        }
 
         book.getPages().addAll(pages);
 
