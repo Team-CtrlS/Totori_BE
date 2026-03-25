@@ -3,7 +3,9 @@ package ctrlS.totori.member.service;
 import ctrlS.totori.auth.service.AuthRedisService;
 import ctrlS.totori.global.exception.CustomException;
 import ctrlS.totori.global.exception.ErrorCode;
+import ctrlS.totori.global.security.CustomUserPrincipal;
 import ctrlS.totori.global.security.JwtTokenProvider;
+import ctrlS.totori.member.dto.AcornResponse;
 import ctrlS.totori.member.dto.MemberMeResponse;
 import ctrlS.totori.member.dto.UpdateMemberRequest;
 import ctrlS.totori.member.dto.UpdateMemberResponse;
@@ -25,16 +27,29 @@ public class MemberService {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthRedisService authRedisService;
 
+    @Transactional(readOnly = true)
     public MemberMeResponse getMyInfo(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if (member.getRole() == Role.CHILD) {
-            return MemberMeResponse.ofchild(member);
+            return MemberMeResponse.ofChild(member);
         }
 
         List<Member> children = parentChildRepository.findChildrenByParentId(memberId);
         return MemberMeResponse.ofParent(member, children);
+    }
+
+    @Transactional(readOnly = true)
+    public AcornResponse getMyAcorn(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (member.getRole() != Role.CHILD) {
+            throw new CustomException(ErrorCode.FORBIDDEN_CHILD_ONLY);
+        }
+
+        return AcornResponse.from(member);
     }
 
     @Transactional

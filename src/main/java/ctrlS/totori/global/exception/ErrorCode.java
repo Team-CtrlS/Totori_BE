@@ -12,6 +12,8 @@ public enum ErrorCode {
 
     // user
     USER_NOT_FOUND(404, "존재하는 사용자가 없습니다."),
+    FORBIDDEN_CHILD_ONLY(403, "아동 회원만 사용 가능합니다."),
+    INVALID_ROLE(403, "유효하지 않은 역할입니다."),
 
     // auth
     DUPLICATE_LOGIN_ID(409, "이미 존재하는 아이디입니다."),

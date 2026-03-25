@@ -1,6 +1,7 @@
 package ctrlS.totori.member.controller;
 
 import ctrlS.totori.global.security.CustomUserPrincipal;
+import ctrlS.totori.member.dto.AcornResponse;
 import ctrlS.totori.member.dto.MemberMeResponse;
 import ctrlS.totori.member.dto.UpdateMemberRequest;
 import ctrlS.totori.member.dto.UpdateMemberResponse;
@@ -25,6 +26,14 @@ public class MemberController {
     @GetMapping("/me")
     public ResponseEntity<MemberMeResponse> getMyInfo(@AuthenticationPrincipal CustomUserPrincipal principal) {
         return ResponseEntity.ok(memberService.getMyInfo(principal.getMemberId()));
+    }
+
+    // 회원 도토리 개수 조회
+    @GetMapping("/me/acorns")
+    public ResponseEntity<AcornResponse> getMyAcorn(
+            @AuthenticationPrincipal CustomUserPrincipal principal
+    ) {
+        return ResponseEntity.ok(memberService.getMyAcorn(principal.getMemberId()));
     }
 
     // 회원 정보 수정
