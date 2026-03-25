@@ -17,7 +17,7 @@ public record MemberMeResponse(
         Integer acorn,
         List<ConnectedChildResponse>children
 ) {
-    public static MemberMeResponse ofchild(Member member) {
+    public static MemberMeResponse ofChild(Member member) {
         return new MemberMeResponse(
                 member.getId(),
                 member.getName(),

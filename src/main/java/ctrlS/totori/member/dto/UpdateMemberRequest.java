@@ -15,6 +15,6 @@ public record UpdateMemberRequest(
         String loginId,
 
         @PastOrPresent(message = "미래 날짜는 입력할 수 없습니다.")
-        LocalDate birthdate
+        LocalDate birthDate
 ) {
 }
