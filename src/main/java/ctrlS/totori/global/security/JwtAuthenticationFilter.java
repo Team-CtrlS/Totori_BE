@@ -1,5 +1,8 @@
 package ctrlS.totori.global.security;
 
+import ctrlS.totori.auth.service.AuthRedisService;
+import ctrlS.totori.global.exception.ErrorCode;
+import ctrlS.totori.global.util.RedisUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
+    private final AuthRedisService authRedisService;
 
     @Override
     protected void doFilterInternal(
@@ -26,32 +30,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
-        String token = resolveToken(request);
+        String token = jwtTokenProvider.resolveToken(request.getHeader("Authorization"));
 
-        // 토큰 존재 & 유효하면 인증 객체 생성
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            Long memberId = Long.valueOf(jwtTokenProvider.getUserPk(token));
-            String role = jwtTokenProvider.getRole(token);
+        if (token != null) {
+            if (authRedisService.isBlacklisted(token)) {
+                throw new CustomAuthenticationException(ErrorCode.LOGGED_OUT_TOKEN);
+            }
 
-            CustomUserPrincipal principal = new CustomUserPrincipal(memberId, role);
+            if (jwtTokenProvider.validateToken(token)) {
+                Long memberId = Long.valueOf(jwtTokenProvider.getUserPk(token));
+                String role = jwtTokenProvider.getRole(token);
 
-            var authorities = List.of(new SimpleGrantedAuthority(role));
+                CustomUserPrincipal principal = new CustomUserPrincipal(memberId, role);
 
-            var authentication = new UsernamePasswordAuthenticationToken(principal, null, authorities);
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                var authorities = List.of(new SimpleGrantedAuthority(role));
+                var authentication = new UsernamePasswordAuthenticationToken(principal, null, authorities);
+
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    private String resolveToken(HttpServletRequest request) {
-        String bearer = request.getHeader("Authorization");
-        if (bearer == null) return null;
-
-        if (bearer.startsWith("Bearer ")) {
-            return bearer.substring(7);
-        }
-        return null;
     }
 }

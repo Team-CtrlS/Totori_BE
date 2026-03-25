@@ -1,5 +1,8 @@
 package ctrlS.totori.auth.dto;
 
+import ctrlS.totori.global.exception.CustomException;
+import ctrlS.totori.global.exception.ErrorCode;
+
 import java.util.Map;
 
 public record OAuth2Attribute(
@@ -13,7 +16,7 @@ public record OAuth2Attribute(
             if ("kakao".equals(registrationId)) {
                     return ofKakao(userNameAttributeName, attributes);
             }
-            throw new IllegalArgumentException("지원하지 않는 소셜 로그인입니다.");
+            throw new CustomException(ErrorCode.UNSUPPORTED_OAUTH_PROVIDER);
     }
 
     private static OAuth2Attribute ofKakao(String userNameAttributeName, Map<String, Object> attributes) {

@@ -13,22 +13,19 @@ public class RedisUtil {
     private final StringRedisTemplate stringRedisTemplate;
 
     public void setDataExpire(String key, String value, long durationSeconds) {
-        ValueOperations<String, String> valueOperations = stringRedisTemplate.opsForValue();
-        Duration expireDuration = Duration.ofSeconds(durationSeconds);
-        valueOperations.set(key, value, expireDuration);
+        stringRedisTemplate.opsForValue()
+                .set(key, value, Duration.ofSeconds(durationSeconds));
     }
 
     public String getData(String key) {
-        ValueOperations<String, String> valueOperations = stringRedisTemplate.opsForValue();
-        return valueOperations.get(key);
-    }
-
-    public void deleteData(String key) {
-        stringRedisTemplate.delete(key);
+        return stringRedisTemplate.opsForValue().get(key);
     }
 
     public String getAndDeleteData(String key) {
-        ValueOperations<String, String> valueOperations = stringRedisTemplate.opsForValue();
-        return valueOperations.getAndDelete(key);
+        return stringRedisTemplate.opsForValue().getAndDelete(key);
+    }
+
+    public boolean hasKey(String key) {
+        return Boolean.TRUE.equals(stringRedisTemplate.hasKey(key));
     }
 }

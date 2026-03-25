@@ -1,5 +1,7 @@
 package ctrlS.totori.member.service;
 
+import ctrlS.totori.global.exception.CustomException;
+import ctrlS.totori.global.exception.ErrorCode;
 import ctrlS.totori.global.util.RedisUtil;
 import ctrlS.totori.member.dto.ConnectRequest;
 import ctrlS.totori.member.entity.Member;
@@ -26,10 +28,10 @@ public class ConnectService {
     @Transactional(readOnly = true)
     public String createConnectCode(Long childId) {
         Member child = memberRepository.findById(childId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if (child.getRole() != Role.CHILD) {
-            throw new IllegalArgumentException("아동 계정만 연결 코드를 생성할 수 있습니다.");
+            throw new CustomException(ErrorCode.ONLY_CHILD_CAN_CREATE_CONNECT_CODE);
         }
 
         String code = generateConnectCode();
@@ -52,25 +54,25 @@ public class ConnectService {
     @Transactional
     public void connectToChild(Long parentId, ConnectRequest request) {
         Member parent = memberRepository.findById(parentId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if (parent.getRole() != Role.PARENT) {
-            throw new IllegalArgumentException("부모 계정만 연결 코드를 입력할 수 있습니다.");
+            throw new CustomException(ErrorCode.ONLY_PARENT_CAN_CONNECT_CHILD);
         }
 
         String childIdStr = redisUtil.getAndDeleteData(request.getCode());
 
         if (childIdStr == null) {
-            throw new IllegalArgumentException("유효하지 않거나 만료된 코드입니다.");
+            throw new CustomException(ErrorCode.INVALID_OR_EXPIRED_CONNECT_CODE);
         }
 
         Long childId = Long.parseLong(childIdStr);
 
         Member child = memberRepository.findById(childId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 아동 계정입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if (parentChildRepository.existsByParentAndChild(parent, child)) {
-            throw new IllegalArgumentException("이미 연결된 아동 계정입니다.");
+            throw new CustomException(ErrorCode.ALREADY_CONNECTED_CHILD);
         }
 
         ParentChild connection = ParentChild.builder()
