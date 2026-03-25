@@ -61,7 +61,7 @@ public class MemberService {
             throw new CustomException(ErrorCode.DUPLICATE_LOGIN_ID);
         }
 
-        member.updateInfo(request.name(), request.loginId(), request.birthdate());
+        member.updateInfo(request.name(), request.loginId(), request.birthDate());
 
         return UpdateMemberResponse.from(member);
     }
@@ -70,15 +70,19 @@ public class MemberService {
     public void deleteMyAccount(Long memberId, String bearerToken) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-
-        if (member.getRole() == Role.PARENT) {
-            parentChildRepository.deleteByParentId(memberId);
-        } else {
-            parentChildRepository.deleteByChildId(memberId);
+        
+        String token = jwtTokenProvider.resolveToken(bearerToken);
+        if (token != null) {
+            long expiration = jwtTokenProvider.getRemainingSeconds(token);
+            authRedisService.blacklistToken(token, expiration);
         }
 
-        String token = jwtTokenProvider.resolveToken(bearerToken);
-        long expiration = jwtTokenProvider.getRemainingSeconds(token);
-        authRedisService.blacklistToken(token, expiration);
+        switch (member.getRole()) {
+            case PARENT -> parentChildRepository.deleteByParentId(memberId);
+            case CHILD -> parentChildRepository.deleteByChildId(memberId);
+            default -> throw new CustomException(ErrorCode.INVALID_ROLE);
+        }
+
+        memberRepository.delete(member);
     }
 }
