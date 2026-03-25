@@ -40,4 +40,10 @@ public class Member extends BaseTimeEntity {
 
     @Builder.Default
     private Integer acorn = 5;
+
+    public void updateInfo(String name, String loginId, LocalDate birthdate) {
+        this.name = name;
+        this.loginId = loginId;
+        this.birthDate = birthdate;
+    }
 }
