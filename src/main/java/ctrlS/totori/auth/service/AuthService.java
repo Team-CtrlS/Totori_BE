@@ -69,7 +69,7 @@ public class AuthService {
         String token = jwtTokenProvider.resolveToken(bearerToken);
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
-            long expiration = jwtTokenProvider.getExpiration(token);
+            long expiration = jwtTokenProvider.getRemainingSeconds(token);
             authRedisService.blacklistToken(token, expiration);
         }
     }
