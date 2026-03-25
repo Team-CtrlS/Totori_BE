@@ -6,6 +6,7 @@ import ctrlS.totori.member.dto.UpdateMemberRequest;
 import ctrlS.totori.member.dto.UpdateMemberResponse;
 import ctrlS.totori.member.service.MemberService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,13 +21,13 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    // 사용자 정보 조회
+    // 회원 정보 조회
     @GetMapping("/me")
     public ResponseEntity<MemberMeResponse> getMyInfo(@AuthenticationPrincipal CustomUserPrincipal principal) {
         return ResponseEntity.ok(memberService.getMyInfo(principal.getMemberId()));
     }
 
-    // 사용자 정보 수정
+    // 회원 정보 수정
     @PatchMapping("/me")
     public ResponseEntity<UpdateMemberResponse> updateMyInfo(
             @AuthenticationPrincipal CustomUserPrincipal principal,
@@ -35,5 +36,13 @@ public class MemberController {
         return ResponseEntity.ok(memberService.updateMyInfo(principal.getMemberId(), request));
     }
 
-    
+    // 회원 탈퇴
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteMyAccount(
+            @AuthenticationPrincipal CustomUserPrincipal principal,
+            @RequestHeader("Authorization") String bearerToken
+    ) {
+        memberService.deleteMyAccount(principal.getMemberId(), bearerToken);
+        return ResponseEntity.noContent().build();
+    }
 }

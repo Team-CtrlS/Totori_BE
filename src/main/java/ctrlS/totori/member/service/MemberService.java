@@ -1,7 +1,9 @@
 package ctrlS.totori.member.service;
 
+import ctrlS.totori.auth.service.AuthRedisService;
 import ctrlS.totori.global.exception.CustomException;
 import ctrlS.totori.global.exception.ErrorCode;
+import ctrlS.totori.global.security.JwtTokenProvider;
 import ctrlS.totori.member.dto.MemberMeResponse;
 import ctrlS.totori.member.dto.UpdateMemberRequest;
 import ctrlS.totori.member.dto.UpdateMemberResponse;
@@ -20,6 +22,8 @@ import java.util.List;
 public class MemberService {
     private final MemberRepository memberRepository;
     private final ParentChildRepository parentChildRepository;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final AuthRedisService authRedisService;
 
     public MemberMeResponse getMyInfo(Long memberId) {
         Member member = memberRepository.findById(memberId)
@@ -45,5 +49,21 @@ public class MemberService {
         member.updateInfo(request.name(), request.loginId(), request.birthdate());
 
         return UpdateMemberResponse.from(member);
+    }
+
+    @Transactional
+    public void deleteMyAccount(Long memberId, String bearerToken) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (member.getRole() == Role.PARENT) {
+            parentChildRepository.deleteByParentId(memberId);
+        } else {
+            parentChildRepository.deleteByChildId(memberId);
+        }
+
+        String token = jwtTokenProvider.resolveToken(bearerToken);
+        long expiration = jwtTokenProvider.getRemainingSeconds(token);
+        authRedisService.blacklistToken(token, expiration);
     }
 }
