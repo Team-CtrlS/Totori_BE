@@ -36,6 +36,8 @@ public class Book extends BaseTimeEntity {
 
     private String coverImageUrl;
 
+    private String coverImagePrompt;
+
     @Column(nullable = false)
     private int totalPages;
 
@@ -45,10 +47,11 @@ public class Book extends BaseTimeEntity {
     private List<BookPage> pages = new ArrayList<>();
 
     @Builder
-    public Book(Member member, String title, String coverImageUrl, int totalPages) {
+    public Book(Member member, String title, String coverImageUrl, String coverImagePrompt, int totalPages) {
         this.member = member;
         this.title = title;
         this.coverImageUrl = coverImageUrl;
+        this.coverImagePrompt = coverImagePrompt;
         this.totalPages = totalPages;
     }
 
@@ -57,6 +60,7 @@ public class Book extends BaseTimeEntity {
                 .member(member)
                 .title(response.title())
                 .coverImageUrl(null)
+                .coverImagePrompt(response.coverImagePrompt())
                 .totalPages(response.pages().size())
                 .build();
     }
