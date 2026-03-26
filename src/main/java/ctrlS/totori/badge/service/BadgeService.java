@@ -79,13 +79,7 @@ public class BadgeService {
             }
             Badge nextBadge = nextBadgeOpt.get();
 
-            int currentCount = switch (category) {
-                case BOOK_CREATED -> stat.getTotalCreatedBooks();
-                case BOOK_READ -> stat.getTotalReadBooks();
-                case ATTENDANCE -> stat.getTotalAttendanceDays();
-                case ACORN -> stat.getTotalAcquiredAcorn();
-                default -> 0;
-            };
+            int currentCount = category.getCurrentCount(stat);
 
             double denominator = (double) nextBadge.getTargetValue() - currentBadge.getTargetValue();
             double numerator = (double) currentCount - currentBadge.getTargetValue();
@@ -114,12 +108,7 @@ public class BadgeService {
         MemberStat memberStat = memberStatRepository.findByMember(member)
                 .orElseThrow(() -> new CustomException(ErrorCode.STAT_NOT_FOUND));
 
-        int currentCount = switch (category) {
-            case BOOK_CREATED -> memberStat.getTotalCreatedBooks();
-            case BOOK_READ ->  memberStat.getTotalReadBooks();
-            case ATTENDANCE -> memberStat.getTotalAttendanceDays();
-            case ACORN -> memberStat.getTotalAcquiredAcorn();
-        };
+        int currentCount = category.getCurrentCount(memberStat);
 
         List<Badge> categoryBadges = badgeRepository.findAllByCategoryOrderByLevelAsc(category);
 
