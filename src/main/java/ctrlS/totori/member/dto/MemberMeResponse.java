@@ -1,5 +1,6 @@
 package ctrlS.totori.member.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import ctrlS.totori.member.entity.Member;
 import ctrlS.totori.member.entity.Role;
 
@@ -7,6 +8,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public record MemberMeResponse(
         Long memberId,
         String name,
@@ -15,16 +17,20 @@ public record MemberMeResponse(
         LocalDate birthDate,
         Integer age,
         Integer acorn,
-        List<ConnectedChildResponse>children
+        List<ConnectedChildResponse> children
 ) {
     public static MemberMeResponse ofChild(Member member) {
+        Integer age = (member.getBirthDate() != null)
+                ? Period.between(member.getBirthDate(), LocalDate.now()).getYears() + 1
+                : null;
+
         return new MemberMeResponse(
                 member.getId(),
                 member.getName(),
                 member.getLoginId(),
                 member.getRole(),
                 member.getBirthDate(),
-                Period.between(member.getBirthDate(), LocalDate.now()).getYears(),
+                age,
                 member.getAcorn(),
                 null
         );
