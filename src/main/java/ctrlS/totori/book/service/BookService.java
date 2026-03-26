@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +30,7 @@ public class BookService {
     private final FastApiStoryClient fastApiStoryClient;
     private final StableDiffusionService stableDiffusionService;
     private final ImageStorageService imageStorageService;
+    private final PageImageAsyncService pageImageAsyncService;
 
     public BookGenerateResponse generateBook(Long memberId, BookGenerateRequest request) {
         Member member = memberRepository.findById(memberId)
@@ -47,18 +49,24 @@ public class BookService {
         long bookSeed = new Random().nextInt(10000000);
 
         int pageNumber = 1;
+
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+
         for (BookPage page : pages) {
             String prompt = page.getImagePrompt();
 
             byte[] imageBytes = stableDiffusionService.generateImage(prompt, bookSeed);
 
             String fileName = UUID.randomUUID() + "_page_" + pageNumber + ".png";
-            String imageUrl = imageStorageService.uploadImage(imageBytes, fileName);
+            CompletableFuture<Void> future = pageImageAsyncService.generateAndUpload(prompt, bookSeed, fileName)
+                 .thenAccept(imageUrl -> {
+                     page.updateImageUrl(imageUrl);
+                 });
 
-            page.updateImageUrl(imageUrl);
-            pageNumber++;
+         futures.add(future);
         }
 
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         book.getPages().addAll(pages);
 
         Book savedBook = bookRepository.save(book);
