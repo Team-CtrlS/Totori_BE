@@ -99,7 +99,7 @@ public class BadgeService {
         return MemberBadgeResponseDto.from(result);
     }
 
-    // 뱃지 획득 및 레벨업 검
+    // 뱃지 획득 및 레벨업 검사
     @Transactional
     public void checkAndGrantBadge(Long memberId, BadgeCategory category) {
         Member member = memberRepository.findById(memberId)
