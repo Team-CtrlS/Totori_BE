@@ -1,5 +1,7 @@
 package ctrlS.totori.book.service;
 
+import ctrlS.totori.global.exception.CustomException;
+import ctrlS.totori.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -44,7 +46,7 @@ public class StableDiffusionService {
             String base64Image = (String) response.getBody().get("image");
             return Base64.getDecoder().decode(base64Image);
         } catch (Exception e) {
-            throw new RuntimeException("이미지 생성 실패: " + e.getMessage(), e);
+            throw new CustomException(ErrorCode.IMAGE_CREATE_ERROR);
         }
     }
 }

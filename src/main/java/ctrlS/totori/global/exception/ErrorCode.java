@@ -33,6 +33,9 @@ public enum ErrorCode {
     INVALID_OR_EXPIRED_CONNECT_CODE(400, "유효하지 않거나 만료된 연결 코드입니다."),
     ALREADY_CONNECTED_CHILD(409, "이미 연결된 아동 계정입니다.");
 
+    // image
+    IMAGE_CREATE_ERROR(500, "이미지 생성에 실패했습니다");
+
     private final int status;
     private final String message;
 }
