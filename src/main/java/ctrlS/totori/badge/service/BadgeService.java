@@ -153,12 +153,7 @@ public class BadgeService {
         MemberStat memberStat = memberStatRepository.findByMember(member)
                 .orElseThrow(() -> new CustomException(ErrorCode.STAT_NOT_FOUND));
 
-        int currentCount = switch (category) {
-            case BOOK_CREATED -> memberStat.getTotalCreatedBooks();
-            case BOOK_READ -> memberStat.getTotalReadBooks();
-            case ATTENDANCE -> memberStat.getConsecutiveAttendanceDays();
-            case ACORN -> memberStat.getTotalAcquiredAcorn();
-        };
+        int currentCount = category.getCurrentCount(memberStat);
 
         List<Badge> categoryBadges = badgeRepository.findAllByCategoryOrderByLevelAsc(category);
 
