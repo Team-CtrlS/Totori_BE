@@ -18,7 +18,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -63,21 +65,34 @@ public class BadgeService {
             throw new CustomException(ErrorCode.BADGE_NOT_FOUND);
         }
 
+        //카테고리별 가장 높은 레벨 벳지 저장
+        Map<BadgeCategory, MemberBadge> highestBadges = myBadges.stream()
+                .collect(Collectors.toMap(
+                        mb -> mb.getBadge().getCategory(),
+                        mb -> mb,
+                        (mb1, mb2) -> mb1.getBadge().getLevel() > mb2.getBadge().getLevel() ? mb1 : mb2
+                ));
+
+        //전체 뱃지를 한번에 조회하여 메모리에 캐싱
+        Map<BadgeCategory, Map<Integer, Badge>> allBadgesMap = badgeRepository.findAll().stream()
+                .collect(Collectors.groupingBy(
+                        Badge::getCategory,
+                        Collectors.toMap(Badge::getLevel, b -> b)
+                ));
+
         MemberBadge representativeBadge = null;
         double maxProgressPercentage = -1.0;
 
-        for (MemberBadge myBadge: myBadges) {
+        for (MemberBadge myBadge: highestBadges.values()) {
             Badge currentBadge = myBadge.getBadge();
             BadgeCategory category = currentBadge.getCategory();
             int nextLevel = currentBadge.getLevel() + 1;
 
-            Optional<Badge> nextBadgeOpt = badgeRepository.findByCategoryAndLevel(category, nextLevel);
+            Map<Integer, Badge> categoryBadges = allBadgesMap.getOrDefault(category, Collections.emptyMap());
+            Badge nextBadge = categoryBadges.get(nextLevel);
 
             // 레벨이 다 찼으면 스킵
-            if (nextBadgeOpt.isEmpty()) {
-                continue;
-            }
-            Badge nextBadge = nextBadgeOpt.get();
+            if (nextBadge == null) continue;
 
             int currentCount = category.getCurrentCount(stat);
 
