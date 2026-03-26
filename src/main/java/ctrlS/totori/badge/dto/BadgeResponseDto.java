@@ -10,7 +10,7 @@ public record BadgeResponseDto(
         String name,
         int level,
         int targetValue,
-        String imageURL
+        String imageUrl
 ) {
     public static BadgeResponseDto from(Badge badge) {
         return new BadgeResponseDto(
@@ -20,7 +20,7 @@ public record BadgeResponseDto(
                 badge.getName(),
                 badge.getLevel(),
                 badge.getTargetValue(),
-                badge.getImageURL()
+                badge.getImageUrl()
         );
     }
 
@@ -30,7 +30,7 @@ public record BadgeResponseDto(
                 .level(this.level)
                 .name(this.name)
                 .targetValue(this.targetValue)
-                .imageURL(this.imageURL)
+                .imageUrl(this.imageUrl)
                 .build();
     }
 }

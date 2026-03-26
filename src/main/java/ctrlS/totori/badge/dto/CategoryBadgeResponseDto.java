@@ -16,7 +16,7 @@ public record CategoryBadgeResponseDto(
             String name,
             int level,
             int targetValue,
-            String imageURL,
+            String imageUrl,
             boolean isAcquired
     ) {
         public static BadgeDetailDto from(Badge badge, boolean isAcquired) {
@@ -25,7 +25,7 @@ public record CategoryBadgeResponseDto(
                     badge.getName(),
                     badge.getLevel(),
                     badge.getTargetValue(),
-                    badge.getImageURL(),
+                    badge.getImageUrl(),
                     isAcquired
             );
         }
