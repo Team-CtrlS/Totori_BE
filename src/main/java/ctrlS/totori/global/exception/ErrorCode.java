@@ -25,7 +25,7 @@ public enum ErrorCode {
     EXPIRED_TOKEN(401, "만료된 토큰입니다."),
 
     // Badge
-    BADGE_NOT_FOUND(404, "보유한 뱃지가 없습니다.");
+    BADGE_NOT_FOUND(404, "보유한 뱃지가 없습니다."),
 
     // connect
     ONLY_CHILD_CAN_CREATE_CONNECT_CODE(403, "아동 계정만 연결 코드를 생성할 수 있습니다."),
