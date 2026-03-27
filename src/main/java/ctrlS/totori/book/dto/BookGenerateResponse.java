@@ -8,6 +8,7 @@ public record BookGenerateResponse(
         Long bookId,
         String title,
         int totalPages,
+        String coverImagePrompt,
         List<BookPageResponse> pages
 ) {
     public static BookGenerateResponse from(Book book) {
@@ -15,6 +16,7 @@ public record BookGenerateResponse(
                 book.getId(),
                 book.getTitle(),
                 book.getTotalPages(),
+                book.getCoverImagePrompt(),
                 book.getPages().stream()
                         .map(BookPageResponse::from)
                         .toList()
