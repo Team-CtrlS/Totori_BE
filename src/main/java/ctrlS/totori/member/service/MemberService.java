@@ -3,7 +3,6 @@ package ctrlS.totori.member.service;
 import ctrlS.totori.auth.service.AuthRedisService;
 import ctrlS.totori.global.exception.CustomException;
 import ctrlS.totori.global.exception.ErrorCode;
-import ctrlS.totori.global.security.CustomUserPrincipal;
 import ctrlS.totori.global.security.JwtTokenProvider;
 import ctrlS.totori.member.dto.AcornResponse;
 import ctrlS.totori.member.dto.MemberMeResponse;
@@ -70,7 +69,7 @@ public class MemberService {
     public void deleteMyAccount(Long memberId, String bearerToken) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        
+
         String token = jwtTokenProvider.resolveToken(bearerToken);
         if (token != null) {
             long expiration = jwtTokenProvider.getRemainingSeconds(token);

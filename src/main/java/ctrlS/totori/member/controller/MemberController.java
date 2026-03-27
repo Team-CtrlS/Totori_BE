@@ -6,6 +6,7 @@ import ctrlS.totori.member.dto.MemberMeResponse;
 import ctrlS.totori.member.dto.UpdateMemberRequest;
 import ctrlS.totori.member.dto.UpdateMemberResponse;
 import ctrlS.totori.member.service.MemberService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
