@@ -9,6 +9,7 @@ public enum ErrorCode {
     // Default
     ERROR(400, "요청 처리에 실패했습니다."),
     UNAUTHORIZED_ACCESS(401, "인증되지 않은 사용자입니다."),
+    ACCESS_DENIED(403, "접근 권한이 없습니다."),
 
     // Member
     STAT_NOT_FOUND(404, "사용자의 통계 정보를 찾을 수 없습니다."),
