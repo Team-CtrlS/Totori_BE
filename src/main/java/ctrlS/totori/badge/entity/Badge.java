@@ -2,6 +2,7 @@ package ctrlS.totori.badge.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -29,5 +30,14 @@ public class Badge {
     private int targetValue; // 레벨 별 목표 수치
 
     @Column(nullable = false)
-    private String imageURL;
+    private String imageUrl;
+
+    @Builder
+    public Badge(BadgeCategory category, int level, String name, int targetValue, String imageUrl) {
+        this.category = category;
+        this.level = level;
+        this.name = name;
+        this.targetValue = targetValue;
+        this.imageUrl = this.imageUrl;
+    }
 }
