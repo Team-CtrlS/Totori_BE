@@ -28,8 +28,6 @@ public class BookService {
     private final BookRepository bookRepository;
     private final BookReadingRecordRepository bookReadingRecordRepository;
     private final FastApiStoryClient fastApiStoryClient;
-    private final StableDiffusionService stableDiffusionService;
-    private final ImageStorageService imageStorageService;
     private final PageImageAsyncService pageImageAsyncService;
 
     public BookGenerateResponse generateBook(Long memberId, BookGenerateRequest request) {
@@ -48,27 +46,36 @@ public class BookService {
 
         long bookSeed = new Random().nextInt(10000000);
 
-        int pageNumber = 1;
-
         List<CompletableFuture<Void>> futures = new ArrayList<>();
 
+        String coverPrompt = book.getCoverImagePrompt();
+        if (coverPrompt != null && !coverPrompt.isBlank()) {
+            String coverFileName = UUID.randomUUID() + "_cover.png";
+            CompletableFuture<Void> coverFuture = pageImageAsyncService.generateAndUpload(coverPrompt, bookSeed, coverFileName)
+                    .thenAccept(imageUrl -> {
+                        book.updateCoverImageUrl(imageUrl);
+                    });
+
+            futures.add(coverFuture);
+        }
+
+        int pageNumber = 1;
         for (BookPage page : pages) {
             String prompt = page.getImagePrompt();
-
-            byte[] imageBytes = stableDiffusionService.generateImage(prompt, bookSeed);
-
             String fileName = UUID.randomUUID() + "_page_" + pageNumber + ".png";
+
             CompletableFuture<Void> future = pageImageAsyncService.generateAndUpload(prompt, bookSeed, fileName)
-                 .thenAccept(imageUrl -> {
-                     page.updateImageUrl(imageUrl);
-                 });
+                    .thenAccept(imageUrl -> {
+                        page.updateImageUrl(imageUrl);
+                    });
 
          futures.add(future);
+         pageNumber++;
         }
 
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-        book.getPages().addAll(pages);
 
+        book.getPages().addAll(pages);
         Book savedBook = bookRepository.save(book);
 
         return BookGenerateResponse.from(savedBook);

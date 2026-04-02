@@ -46,6 +46,7 @@ public class StableDiffusionService {
             String base64Image = (String) response.getBody().get("image");
             return Base64.getDecoder().decode(base64Image);
         } catch (Exception e) {
+            System.err.println("🚨 기타 에러: " + e.getMessage());
             throw new CustomException(ErrorCode.IMAGE_CREATE_ERROR);
         }
     }
