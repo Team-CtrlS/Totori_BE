@@ -9,11 +9,14 @@ public enum ErrorCode {
     // Default
     ERROR(400, "요청 처리에 실패했습니다."),
     UNAUTHORIZED_ACCESS(401, "인증되지 않은 사용자입니다."),
+    ACCESS_DENIED(403, "접근 권한이 없습니다."),
 
     // Member
     STAT_NOT_FOUND(404, "사용자의 통계 정보를 찾을 수 없습니다."),
     // user
     USER_NOT_FOUND(404, "존재하는 사용자가 없습니다."),
+    FORBIDDEN_CHILD_ONLY(403, "아동 회원만 사용 가능합니다."),
+    INVALID_ROLE(403, "유효하지 않은 역할입니다."),
 
     // auth
     DUPLICATE_LOGIN_ID(409, "이미 존재하는 아이디입니다."),

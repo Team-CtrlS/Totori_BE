@@ -1,5 +1,6 @@
 package ctrlS.totori.member.controller;
 
+import ctrlS.totori.global.security.CustomUserPrincipal;
 import ctrlS.totori.member.dto.ConnectCodeResponse;
 import ctrlS.totori.member.dto.ConnectRequest;
 import ctrlS.totori.member.service.ConnectService;
@@ -32,8 +33,8 @@ public class ConnectController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청값", content = @Content)
     })
     @PostMapping("/code")
-    public ResponseEntity<ConnectCodeResponse> createCode(@AuthenticationPrincipal Long memberId) {
-        String code = connectService.createConnectCode(memberId);
+    public ResponseEntity<ConnectCodeResponse> createCode(@AuthenticationPrincipal CustomUserPrincipal principal) {
+        String code = connectService.createConnectCode(principal.getMemberId());
 
         return ResponseEntity.ok(new ConnectCodeResponse(code, 600));
     }
@@ -45,9 +46,9 @@ public class ConnectController {
     })
     @PostMapping
     public ResponseEntity<Void> linkChild(
-            @AuthenticationPrincipal Long memberId,
+            @AuthenticationPrincipal CustomUserPrincipal principal,
             @Valid @RequestBody ConnectRequest request) {
-        connectService.connectToChild(memberId, request);
+        connectService.connectToChild(principal.getMemberId(), request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
