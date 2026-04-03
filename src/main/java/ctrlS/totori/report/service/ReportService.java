@@ -10,8 +10,8 @@ import ctrlS.totori.report.dto.common.ChildDto;
 import ctrlS.totori.report.dto.common.DataPointDto;
 import ctrlS.totori.report.dto.response.TotalReportResponse;
 import ctrlS.totori.report.dto.response.WeeklyReportResponse;
-import ctrlS.totori.report.entity.ErrorType;
-import ctrlS.totori.report.repository.ErrorTypeRepository;
+import ctrlS.totori.report.entity.SpeakingErrorType;
+import ctrlS.totori.report.repository.SpeakingErrorTypeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 public class ReportService {
     private final MemberRepository memberRepository;
     private final BookReadingRecordRepository bookReadingRecordRepository;
-    private final ErrorTypeRepository errorTypeRepository;
+    private final SpeakingErrorTypeRepository speakingErrorTypeRepository;
 
     @Transactional(readOnly = true)
     public WeeklyReportResponse getWeelyReport(Long memberId) {
@@ -204,8 +204,8 @@ public class ReportService {
      * 에러 유형 분석
      */
     private List<TotalReportResponse.AnalysisItemDto> getErrorType(Member member){
-        List<ErrorType> top4Errors = errorTypeRepository.findTop4ByMemberOrderByCountDesc(member);
-        int totalErrors = errorTypeRepository.sumCountByMember(member);
+        List<SpeakingErrorType> top4Errors = speakingErrorTypeRepository.findTop4ByMemberOrderByCountDesc(member);
+        int totalErrors = speakingErrorTypeRepository.sumCountByMember(member);
 
         return top4Errors.stream()
                 .map(error -> TotalReportResponse.AnalysisItemDto.builder()

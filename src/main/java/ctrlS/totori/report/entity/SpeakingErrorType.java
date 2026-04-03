@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "error_types")
-public class ErrorType {
+public class SpeakingErrorType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,7 +26,7 @@ public class ErrorType {
     private Integer count;
 
     @Builder
-    public ErrorType(Member member, String type, int count) {
+    public SpeakingErrorType(Member member, String type, int count) {
         this.member = member;
         this.type = type;
         this.count = count;
