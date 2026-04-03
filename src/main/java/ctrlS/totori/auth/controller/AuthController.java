@@ -4,6 +4,7 @@ import ctrlS.totori.auth.dto.LoginRequest;
 import ctrlS.totori.auth.dto.SignUpRequest;
 import ctrlS.totori.auth.dto.TokenResponse;
 import ctrlS.totori.auth.service.AuthService;
+import ctrlS.totori.global.response.dto.BaseResponse;
 import ctrlS.totori.member.entity.Role;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -15,7 +16,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -33,9 +33,9 @@ public class AuthController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청값", content = @Content),
             @ApiResponse(responseCode = "409", description = "이미 존재하는 아이디", content = @Content)})
     @PostMapping("/signup")
-    public ResponseEntity<Void> signUp(@Valid @RequestBody SignUpRequest request) {
+    public BaseResponse<Void> signUp(@Valid @RequestBody SignUpRequest request) {
         authService.signUp(request);
-        return ResponseEntity.ok().build();
+        return BaseResponse.created();
     }
 
     @Operation(summary = "자체 로그인", description = "아이디와 비밀번호로 로그인하고 JWT 토큰을 발급받습니다.")
@@ -46,9 +46,9 @@ public class AuthController {
             @ApiResponse(responseCode = "404", description = "가입되지 않은 아이디", content = @Content)
     })
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
+    public BaseResponse<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
         TokenResponse tokenResponse = authService.login(request);
-        return ResponseEntity.ok(tokenResponse);
+        return BaseResponse.ok(tokenResponse);
     }
 
     @Operation(summary = "카카오 로그인", description = "역할을 전달받아 세션에 저장한 뒤 카카오 OAuth2 로그인 페이지로 리다이렉트합니다.")
@@ -76,8 +76,8 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "유효하지 않은 토큰 혹은 이미 로그아웃된 토큰", content = @Content)
     })
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestHeader(value = "Authorization", required = false) String bearerToken) {
+    public BaseResponse<Void> logout(@RequestHeader(value = "Authorization", required = false) String bearerToken) {
         authService.logout(bearerToken);
-        return ResponseEntity.ok().build();
+        return BaseResponse.ok();
     }
 }

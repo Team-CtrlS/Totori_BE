@@ -3,6 +3,7 @@ package ctrlS.totori.book.controller;
 import ctrlS.totori.book.dto.BookGenerateRequest;
 import ctrlS.totori.book.dto.BookGenerateResponse;
 import ctrlS.totori.book.service.BookService;
+import ctrlS.totori.global.response.dto.BaseResponse;
 import ctrlS.totori.global.security.CustomUserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,7 +13,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,10 +34,10 @@ public class BookController {
             @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content)
     })
     @PostMapping("/generate")
-    public ResponseEntity<BookGenerateResponse> generateBook(
+    public BaseResponse<BookGenerateResponse> generateBook(
             @AuthenticationPrincipal CustomUserPrincipal principal,
             @Valid @RequestBody BookGenerateRequest request
             ) {
-        return ResponseEntity.ok(bookService.generateBook(principal.getMemberId(), request));
+        return BaseResponse.ok(bookService.generateBook(principal.getMemberId(), request));
     }
 }
