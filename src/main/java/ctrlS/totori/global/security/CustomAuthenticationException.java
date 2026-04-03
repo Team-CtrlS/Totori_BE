@@ -1,8 +1,11 @@
 package ctrlS.totori.global.security;
 
 import ctrlS.totori.global.exception.ErrorCode;
+import lombok.Getter;
+import org.springframework.security.core.AuthenticationException;
 
-public class CustomAuthenticationException extends RuntimeException {
+@Getter
+public class CustomAuthenticationException extends AuthenticationException {
     private final ErrorCode errorCode;
 
     public CustomAuthenticationException(ErrorCode errorCode) {
@@ -10,7 +13,4 @@ public class CustomAuthenticationException extends RuntimeException {
         this.errorCode = errorCode;
     }
 
-    public ErrorCode getErrorCode() {
-        return errorCode;
-    }
 }
