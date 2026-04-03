@@ -2,6 +2,7 @@ package ctrlS.totori.member.entity;
 
 import ctrlS.totori.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -18,6 +19,7 @@ public class Member extends BaseTimeEntity {
     private Long id;
 
     @Column(unique = true)
+    @Email(message = "이메일 형식이어야 합니다.")
     private String loginId;
 
     @Column(nullable = true)
@@ -25,6 +27,8 @@ public class Member extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String name;
+
+    private Integer age;
 
     private LocalDate birthDate;
 
@@ -40,4 +44,10 @@ public class Member extends BaseTimeEntity {
 
     @Builder.Default
     private Integer acorn = 5;
+
+    public void updateInfo(String name, String loginId, LocalDate birthdate) {
+        this.name = name;
+        this.loginId = loginId;
+        this.birthDate = birthdate;
+    }
 }

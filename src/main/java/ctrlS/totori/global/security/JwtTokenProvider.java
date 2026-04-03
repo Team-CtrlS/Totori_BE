@@ -69,7 +69,7 @@ public class JwtTokenProvider {
         }
     }
 
-    public long getExpiration(String token) {
+    public long getRemainingSeconds(String token) {
         Date expiration = Jwts.parser()
                 .verifyWith(key)
                 .build()
@@ -77,9 +77,10 @@ public class JwtTokenProvider {
                 .getPayload()
                 .getExpiration();
 
-        long now = new Date().getTime();
+        long now = System.currentTimeMillis();
+        long remainingMillis = expiration.getTime() - now;
 
-        return (expiration.getTime() - now) / (1000 * 60);
+        return Math.max(remainingMillis / 1000, 0);
     }
 
     public String resolveToken(String bearerToken) {

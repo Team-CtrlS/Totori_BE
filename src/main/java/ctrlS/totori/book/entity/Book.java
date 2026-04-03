@@ -64,4 +64,8 @@ public class Book extends BaseTimeEntity {
                 .totalPages(response.pages().size())
                 .build();
     }
+
+    public void updateCoverImageUrl(String coverImageUrl) {
+        this.coverImageUrl = coverImageUrl;
+    }
 }
