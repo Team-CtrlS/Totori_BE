@@ -34,7 +34,7 @@ public class ConnectController {
     })
     @PostMapping("/code")
     public ResponseEntity<ConnectCodeResponse> createCode(@AuthenticationPrincipal CustomUserPrincipal principal) {
-        String code = connectService.createConnectCode(principal.getMemberId());
+        String code = connectService.createConnectCode(principal.memberId());
 
         return ResponseEntity.ok(new ConnectCodeResponse(code, 600));
     }
@@ -48,7 +48,7 @@ public class ConnectController {
     public ResponseEntity<Void> linkChild(
             @AuthenticationPrincipal CustomUserPrincipal principal,
             @Valid @RequestBody ConnectRequest request) {
-        connectService.connectToChild(principal.getMemberId(), request);
+        connectService.connectToChild(principal.memberId(), request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
