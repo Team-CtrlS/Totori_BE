@@ -13,6 +13,6 @@ public interface SpeakingErrorTypeRepository extends JpaRepository<SpeakingError
     List<SpeakingErrorType> findTop4ByMemberOrderByCountDesc(Member member);
 
     // 전체 에러 개수 합계
-    @Query("SELECT SUM(e.count) FROM ErrorType e WHERE e.member = :member")
+    @Query("SELECT SUM(e.count) FROM SpeakingErrorType e WHERE e.member = :member")
     int sumCountByMember(@Param("member") Member member);
 }
