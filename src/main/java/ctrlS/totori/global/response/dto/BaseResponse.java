@@ -40,4 +40,14 @@ public class BaseResponse<T> {
                 null
         );
     }
+
+    // 204 No Content
+    public static <T> BaseResponse<T> noContent() {
+        return new BaseResponse<>(
+                SuccessCode.NO_CONTENT.getHttpStatus().value(),
+                SuccessCode.NO_CONTENT.getCode(),
+                SuccessCode.NO_CONTENT.getMessage(),
+                null
+        );
+    }
 }
