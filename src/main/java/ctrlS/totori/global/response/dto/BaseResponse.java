@@ -22,6 +22,15 @@ public class BaseResponse<T> {
         );
     }
 
+    public static <T> BaseResponse<T> ok() {
+        return new BaseResponse<>(
+                SuccessCode.SUCCESS.getHttpStatus().value(),
+                SuccessCode.SUCCESS.getCode(),
+                SuccessCode.SUCCESS.getMessage(),
+                null
+        );
+    }
+
     // 201 Created
     public static <T> BaseResponse<T> created() {
         return new BaseResponse<>(
