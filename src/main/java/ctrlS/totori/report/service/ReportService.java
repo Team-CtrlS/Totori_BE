@@ -35,7 +35,7 @@ public class ReportService {
     private final SpeakingErrorTypeRepository speakingErrorTypeRepository;
 
     @Transactional(readOnly = true)
-    public WeeklyReportResponse getWeelyReport(Long memberId) {
+    public WeeklyReportResponse getWeeklyReport(Long memberId) {
         Member child = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         ChildDto childDto = ChildDto.from(child);

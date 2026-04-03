@@ -1,13 +1,11 @@
 package ctrlS.totori.report.controller;
 
-import ctrlS.totori.auth.dto.TokenResponse;
 import ctrlS.totori.global.security.CustomUserPrincipal;
 import ctrlS.totori.report.dto.response.TotalReportResponse;
 import ctrlS.totori.report.dto.response.WeeklyReportResponse;
 import ctrlS.totori.report.service.ReportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,7 +29,7 @@ public class ReportController {
     })
     @GetMapping("/week")
     public ResponseEntity<WeeklyReportResponse> getWeeklyReport(@AuthenticationPrincipal CustomUserPrincipal principal){
-        WeeklyReportResponse response = reportService.getWeelyReport(principal.getMemberId());
+        WeeklyReportResponse response = reportService.getWeeklyReport(principal.getMemberId());
         return ResponseEntity.ok(response);
     }
 
