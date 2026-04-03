@@ -28,13 +28,16 @@ public enum ErrorCode {
     EXPIRED_TOKEN(401, "만료된 토큰입니다."),
 
     // Badge
-    BADGE_NOT_FOUND(404, "보유한 뱃지가 없습니다.");
+    BADGE_NOT_FOUND(404, "보유한 뱃지가 없습니다."),
 
     // connect
     ONLY_CHILD_CAN_CREATE_CONNECT_CODE(403, "아동 계정만 연결 코드를 생성할 수 있습니다."),
     ONLY_PARENT_CAN_CONNECT_CHILD(403, "부모 계정만 연결 코드를 입력할 수 있습니다."),
     INVALID_OR_EXPIRED_CONNECT_CODE(400, "유효하지 않거나 만료된 연결 코드입니다."),
-    ALREADY_CONNECTED_CHILD(409, "이미 연결된 아동 계정입니다.");
+    ALREADY_CONNECTED_CHILD(409, "이미 연결된 아동 계정입니다."),
+
+    // image
+    IMAGE_CREATE_ERROR(500, "이미지 생성에 실패했습니다");
 
     private final int status;
     private final String message;

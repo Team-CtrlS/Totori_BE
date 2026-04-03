@@ -58,4 +58,8 @@ public class BookPage extends BaseTimeEntity {
                 .imageUrl(null)
                 .build();
     }
+
+    public void updateImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 }
