@@ -56,8 +56,8 @@ public class ReportService {
 
         return WeeklyReportResponse.builder()
                 .child(childDto)
-                .weekStart(today)
-                .weekEnd(lastWeek)
+                .weekStart(lastWeek)
+                .weekEnd(today)
                 .weeklyLearning(weeklyLearning)
                 .completion(completionStatus)
                 .wcpm(wpcmSummary)
