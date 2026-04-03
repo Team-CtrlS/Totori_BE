@@ -23,12 +23,12 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         // 로그인된 사용자 정보 꺼내기
-        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        String targetId = authentication.getName();
+        CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
+        String memberId = String.valueOf(oAuth2User.getMemberId());
         String role = oAuth2User.getAuthorities().iterator().next().getAuthority();
 
         // JWT 토큰 생성
-        String token = jwtTokenProvider.createToken(targetId, role);
+        String token = jwtTokenProvider.createToken(memberId, role);
 
         // 앱으로 리다이렉트할 주소 만들기(임의로 localhost로 보냄)
         // todo: 앱 연동 시 실제 서비스 도메인으로 redirect URL 변경

@@ -1,6 +1,7 @@
 package ctrlS.totori.auth.service;
 
 import ctrlS.totori.auth.dto.OAuth2Attribute;
+import ctrlS.totori.global.security.oauth.CustomOAuth2User;
 import ctrlS.totori.member.entity.LoginType;
 import ctrlS.totori.member.entity.Member;
 import ctrlS.totori.member.entity.Role;
@@ -51,10 +52,11 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             Member member = saveOrUpdate(attributes.providerId(), attributes.name());
 
             // Security 세션에 저장할 정보 반환
-            return new DefaultOAuth2User(
-                    Collections.singleton(new SimpleGrantedAuthority(member.getRole().name())),
+            return new CustomOAuth2User(
+                    member.getId(),
+                    member.getRole().name(),
                     attributes.attributes(),
-                    attributes.nameAttributeKey()
+                    userNameAttributeName
             );
         } finally {
             session.removeAttribute("SOCIAL_LOGIN_ROLE");
