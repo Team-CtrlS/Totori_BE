@@ -88,9 +88,9 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "유효하지 않은 Refresh Token", content = @Content)
     })
     @PostMapping("/reissue")
-    public ResponseEntity<TokenResponse> reissue(
+    public BaseResponse<TokenResponse> reissue(
             @RequestHeader(value = "Authorization", required = false) String bearerToken) {
         TokenResponse tokenResponse = authService.reissue(bearerToken);
-        return ResponseEntity.ok(tokenResponse);
+        return BaseResponse.ok(tokenResponse);
     }
 }
