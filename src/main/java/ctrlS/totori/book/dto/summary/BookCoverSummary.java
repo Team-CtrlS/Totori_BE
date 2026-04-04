@@ -12,16 +12,20 @@ public record BookCoverSummary(
         int totalPage,
         double progress
 ) {
-    public static BookCoverSummary of(Book book, BookReadingRecord record) {
-        double progress = (book.getTotalPages() == 0) ? 0
-                : (double) record.getReadPages() / book.getTotalPages();
+    public static BookCoverSummary of(Book book, BookReadingRecord recentRecord) {
+        double progress = 0.0;
+        if (recentRecord != null) {
+            if (book.getTotalPages() > 0) {
+                progress = (double) recentRecord.getReadPages() / book.getTotalPages();
+            }
+        }
 
         return new BookCoverSummary(
                 book.getId(),
                 book.getTitle(),
                 book.getCoverImageUrl(),
                 book.getReceivedAcorn(),
-                record.getReadPages(),
+                recentRecord.getReadPages(),
                 book.getTotalPages(),
                 progress
         );
