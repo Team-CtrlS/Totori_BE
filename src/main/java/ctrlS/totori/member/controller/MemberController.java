@@ -1,5 +1,6 @@
 package ctrlS.totori.member.controller;
 
+import ctrlS.totori.global.response.dto.BaseResponse;
 import ctrlS.totori.global.security.CustomUserPrincipal;
 import ctrlS.totori.member.dto.AcornResponse;
 import ctrlS.totori.member.dto.MemberMeResponse;
@@ -14,7 +15,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,8 +34,8 @@ public class MemberController {
             @ApiResponse(responseCode = "404", description = "존재하는 사용자가 없습니다.", content = @Content)
     })
     @GetMapping("/me")
-    public ResponseEntity<MemberMeResponse> getMyInfo(@AuthenticationPrincipal CustomUserPrincipal principal) {
-        return ResponseEntity.ok(memberService.getMyInfo(principal.memberId()));
+    public BaseResponse<MemberMeResponse> getMyInfo(@AuthenticationPrincipal CustomUserPrincipal principal) {
+        return BaseResponse.ok(memberService.getMyInfo(principal.memberId()));
     }
 
     // 회원 도토리 개수 조회
@@ -45,10 +45,10 @@ public class MemberController {
             @ApiResponse(responseCode = "404", description = "존재하는 사용자가 없습니다.", content = @Content)
     })
     @GetMapping("/me/acorns")
-    public ResponseEntity<AcornResponse> getMyAcorn(
+    public BaseResponse<AcornResponse> getMyAcorn(
             @AuthenticationPrincipal CustomUserPrincipal principal
     ) {
-        return ResponseEntity.ok(memberService.getMyAcorn(principal.memberId()));
+        return BaseResponse.ok(memberService.getMyAcorn(principal.memberId()));
     }
 
     // 회원 정보 수정
@@ -59,11 +59,11 @@ public class MemberController {
             @ApiResponse(responseCode = "404", description = "존재하는 사용자가 없습니다.", content = @Content)
     })
     @PatchMapping("/me")
-    public ResponseEntity<UpdateMemberResponse> updateMyInfo(
+    public BaseResponse<UpdateMemberResponse> updateMyInfo(
             @AuthenticationPrincipal CustomUserPrincipal principal,
             @RequestBody @Valid UpdateMemberRequest request
             ) {
-        return ResponseEntity.ok(memberService.updateMyInfo(principal.memberId(), request));
+        return BaseResponse.ok(memberService.updateMyInfo(principal.memberId(), request));
     }
 
     // 회원 탈퇴
@@ -73,11 +73,11 @@ public class MemberController {
             @ApiResponse(responseCode = "404", description = "존재하는 사용자가 없습니다.", content = @Content)
     })
     @DeleteMapping("/me")
-    public ResponseEntity<Void> deleteMyAccount(
+    public BaseResponse<Void> deleteMyAccount(
             @AuthenticationPrincipal CustomUserPrincipal principal,
             @RequestHeader("Authorization") String bearerToken
     ) {
         memberService.deleteMyAccount(principal.memberId(), bearerToken);
-        return ResponseEntity.noContent().build();
+        return BaseResponse.noContent();
     }
 }
