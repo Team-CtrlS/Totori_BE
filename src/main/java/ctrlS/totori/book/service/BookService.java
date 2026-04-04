@@ -1,7 +1,10 @@
 package ctrlS.totori.book.service;
 
 import ctrlS.totori.book.client.FastApiStoryClient;
-import ctrlS.totori.book.dto.*;
+import ctrlS.totori.book.dto.fastApi.FastApiGenerateStoryRequest;
+import ctrlS.totori.book.dto.fastApi.FastApiStoryResponse;
+import ctrlS.totori.book.dto.request.BookGenerateRequest;
+import ctrlS.totori.book.dto.response.BookGenerateResponse;
 import ctrlS.totori.book.entity.Book;
 import ctrlS.totori.book.entity.BookPage;
 import ctrlS.totori.book.entity.BookReadingRecord;
@@ -11,7 +14,6 @@ import ctrlS.totori.global.exception.CustomException;
 import ctrlS.totori.global.exception.ErrorCode;
 import ctrlS.totori.member.entity.Member;
 import ctrlS.totori.member.repository.MemberRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

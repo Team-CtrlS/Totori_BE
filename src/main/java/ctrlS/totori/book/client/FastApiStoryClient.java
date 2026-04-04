@@ -1,7 +1,7 @@
 package ctrlS.totori.book.client;
 
-import ctrlS.totori.book.dto.FastApiGenerateStoryRequest;
-import ctrlS.totori.book.dto.FastApiStoryResponse;
+import ctrlS.totori.book.dto.fastApi.FastApiGenerateStoryRequest;
+import ctrlS.totori.book.dto.fastApi.FastApiStoryResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;

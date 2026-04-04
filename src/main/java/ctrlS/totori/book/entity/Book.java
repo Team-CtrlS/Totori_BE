@@ -1,7 +1,6 @@
 package ctrlS.totori.book.entity;
 
-import ctrlS.totori.book.dto.FastApiPageResponse;
-import ctrlS.totori.book.dto.FastApiStoryResponse;
+import ctrlS.totori.book.dto.fastApi.FastApiStoryResponse;
 import ctrlS.totori.global.entity.BaseTimeEntity;
 import ctrlS.totori.member.entity.Member;
 import jakarta.persistence.*;
@@ -9,10 +8,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 

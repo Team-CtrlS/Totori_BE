@@ -1,4 +1,4 @@
-package ctrlS.totori.book.dto;
+package ctrlS.totori.book.dto.response;
 
 import ctrlS.totori.book.entity.BookPage;
 

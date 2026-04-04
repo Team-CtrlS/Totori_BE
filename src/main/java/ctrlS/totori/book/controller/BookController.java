@@ -1,7 +1,7 @@
 package ctrlS.totori.book.controller;
 
-import ctrlS.totori.book.dto.BookGenerateRequest;
-import ctrlS.totori.book.dto.BookGenerateResponse;
+import ctrlS.totori.book.dto.request.BookGenerateRequest;
+import ctrlS.totori.book.dto.response.BookGenerateResponse;
 import ctrlS.totori.book.service.BookService;
 import ctrlS.totori.global.response.dto.BaseResponse;
 import ctrlS.totori.global.security.CustomUserPrincipal;
