@@ -35,4 +35,13 @@ public interface BookReadingRecordRepository extends JpaRepository<BookReadingRe
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end
     );
+
+    // 미완료 도서를 우선적으로, 사용자가 가장 최근에 학습한 독서 기록 1건 조회
+    @Query("SELECT r FROM BookReadingRecord r JOIN FETCH r.book b " +
+            "WHERE b.member.id = :memberId " +
+            "ORDER BY " +
+            "  r.isCompleted ASC, " +   // 미완료 우선
+            "  r.updatedAt DESC " +      // 최근에 읽은 순서
+            "LIMIT 1")
+    Optional<BookReadingRecord> findLatestRecord(@Param("memberId") Long memberId);
 }

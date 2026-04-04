@@ -1,10 +1,14 @@
 package ctrlS.totori.book.service;
 
+import ctrlS.totori.badge.dto.MemberBadgeResponseDto;
+import ctrlS.totori.badge.service.BadgeService;
 import ctrlS.totori.book.client.FastApiStoryClient;
 import ctrlS.totori.book.dto.fastApi.FastApiGenerateStoryRequest;
 import ctrlS.totori.book.dto.fastApi.FastApiStoryResponse;
 import ctrlS.totori.book.dto.request.BookGenerateRequest;
 import ctrlS.totori.book.dto.response.BookGenerateResponse;
+import ctrlS.totori.book.dto.response.MainPageResponse;
+import ctrlS.totori.book.dto.summary.BookCoverSummary;
 import ctrlS.totori.book.entity.Book;
 import ctrlS.totori.book.entity.BookPage;
 import ctrlS.totori.book.entity.BookReadingRecord;
@@ -13,7 +17,7 @@ import ctrlS.totori.book.repository.BookRepository;
 import ctrlS.totori.global.exception.CustomException;
 import ctrlS.totori.global.exception.ErrorCode;
 import ctrlS.totori.member.entity.Member;
-import ctrlS.totori.member.repository.MemberRepository;
+import ctrlS.totori.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,15 +30,15 @@ import java.util.concurrent.CompletableFuture;
 @Transactional
 public class BookService {
 
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
     private final BookRepository bookRepository;
+    private final BadgeService badgeService;
     private final BookReadingRecordRepository bookReadingRecordRepository;
     private final FastApiStoryClient fastApiStoryClient;
     private final PageImageAsyncService pageImageAsyncService;
 
     public BookGenerateResponse generateBook(Long memberId, BookGenerateRequest request) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        Member member = memberService.findById(memberId);
         BookReadingRecord latestRecord = getLatestRecord(memberId);
 
         FastApiGenerateStoryRequest fastApiRequest = createFastApiRequest(request, member, latestRecord);
@@ -84,6 +88,18 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
+    public MainPageResponse getMainStatus(Long memberId) {
+        // 최신 읽기 기록 조회
+        BookReadingRecord latestRecord = bookReadingRecordRepository.findLatestRecord(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_EXIST));
+        BookCoverSummary currentBookDto = BookCoverSummary.of(latestRecord.getBook(), latestRecord);
+
+        // 대표 뱃지 조회
+        MemberBadgeResponseDto badgeDto = badgeService.getRepresentativeBadge(memberId);
+
+        return new MainPageResponse(currentBookDto, badgeDto.badgeResponseDto());
+    }
+
     protected BookReadingRecord getLatestRecord(Long memberId) {
         return bookReadingRecordRepository
                 .findTopByBook_Member_IdOrderByUpdatedAtDesc(memberId)
