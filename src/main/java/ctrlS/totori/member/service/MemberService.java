@@ -84,4 +84,9 @@ public class MemberService {
 
         memberRepository.delete(member);
     }
+
+    public Member findById(Long memberId){
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
 }
