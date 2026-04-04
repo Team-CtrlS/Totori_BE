@@ -10,7 +10,7 @@ public record BookCoverSummary(
         int acornCount,
         int currentPage,
         int totalPage,
-        double progressPercentage
+        double progress
 ) {
     public static BookCoverSummary of(Book book, BookReadingRecord record) {
         double progress = (book.getTotalPages() == 0) ? 0
