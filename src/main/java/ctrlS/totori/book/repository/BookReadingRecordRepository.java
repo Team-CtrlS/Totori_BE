@@ -2,10 +2,9 @@ package ctrlS.totori.book.repository;
 
 import ctrlS.totori.book.entity.BookReadingRecord;
 import ctrlS.totori.member.entity.Member;
-import ctrlS.totori.report.dto.common.DataPointDto;
-import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,4 +43,11 @@ public interface BookReadingRecordRepository extends JpaRepository<BookReadingRe
             "  r.updatedAt DESC " +      // 최근에 읽은 순서
             "LIMIT 1")
     Optional<BookReadingRecord> findLatestRecord(@Param("memberId") Long memberId);
+
+    // 특정 책 ID 리스트들에 대해 각각의 가장 최근 기록들 조회
+    @Query("SELECT r FROM BookReadingRecord r JOIN FETCH r.book b " +
+            "WHERE r.id IN (SELECT MAX(r2.id) FROM BookReadingRecord r2 " +
+            "               WHERE r2.book.id IN :bookIds " +
+            "               GROUP BY r2.book.id)")
+    List<BookReadingRecord> findLatestRecordsByBookIds(@Param("bookIds") List<Long> bookIds);
 }
