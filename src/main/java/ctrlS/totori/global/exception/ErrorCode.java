@@ -37,7 +37,8 @@ public enum ErrorCode {
     ALREADY_CONNECTED_CHILD(409, "이미 연결된 아동 계정입니다."),
 
     // image
-    IMAGE_CREATE_ERROR(500, "이미지 생성에 실패했습니다");
+    IMAGE_CREATE_ERROR(500, "이미지 생성에 실패했습니다"),
+    IMAGE_UPLOAD_ERROR(500, "S3에 이미지를 업로드하는 데 실패했습니다.");
 
     private final int status;
     private final String message;
