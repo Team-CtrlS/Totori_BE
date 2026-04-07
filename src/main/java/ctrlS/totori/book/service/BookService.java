@@ -29,6 +29,7 @@ public class BookService {
     private final BookReadingRecordRepository bookReadingRecordRepository;
     private final FastApiStoryClient fastApiStoryClient;
     private final PageImageAsyncService pageImageAsyncService;
+    private final S3ImageStorageService s3ImageStorageService;
 
     public BookGenerateResponse generateBook(Long memberId, BookGenerateRequest request) {
         Member member = memberRepository.findById(memberId)
@@ -78,7 +79,7 @@ public class BookService {
         book.getPages().addAll(pages);
         Book savedBook = bookRepository.save(book);
 
-        return BookGenerateResponse.from(savedBook);
+        return BookGenerateResponse.from(savedBook, s3ImageStorageService);
     }
 
     @Transactional(readOnly = true)
