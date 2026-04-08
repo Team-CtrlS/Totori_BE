@@ -94,9 +94,9 @@ public class BookService {
 
     @Transactional(readOnly = true)
     public MainPageResponse getMainStatus(Long memberId) {
-        // 최신 읽기 기록 조회
+        // TODO: 레벨테스트 연결 시 없으면 에러처리하도록 수정
         BookReadingRecord latestRecord = bookReadingRecordRepository.findLatestRecord(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_EXIST));
+                .orElse(null);
         BookCoverSummary currentBookDto = BookCoverSummary.of(latestRecord.getBook(), latestRecord);
 
         // 대표 뱃지 조회
