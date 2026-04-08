@@ -14,7 +14,7 @@ public class FastApiStoryClient {
 
     public FastApiStoryResponse generateStory(FastApiGenerateStoryRequest request) {
         return fastApiWebClient.post()
-                .uri("/api/story/generate")
+                .uri("/ai/story/generate")
                 .bodyValue(request)
                 .retrieve()
                 .bodyToMono(FastApiStoryResponse.class)
