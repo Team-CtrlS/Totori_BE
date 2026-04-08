@@ -1,6 +1,7 @@
 package ctrlS.totori.global.config;
 
 import ctrlS.totori.auth.service.CustomOAuth2UserService;
+import ctrlS.totori.global.exception.ErrorCode;
 import ctrlS.totori.global.security.JwtAuthenticationFilter;
 import ctrlS.totori.global.security.oauth.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.time.LocalDateTime;
 
 @Configuration
 @EnableWebSecurity
@@ -33,8 +36,39 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(ErrorCode.UNAUTHORIZED_ACCESS.getStatus());
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.getWriter().write(
+                                    String.format(
+                                            "{\"timestamp\":\"%s\",\"status\":%d,\"errorCode\":\"%s\",\"message\":\"%s\",\"path\":\"%s\"}",
+                                            LocalDateTime.now(),
+                                            ErrorCode.UNAUTHORIZED_ACCESS.getStatus(),
+                                            ErrorCode.UNAUTHORIZED_ACCESS.name(),
+                                            ErrorCode.UNAUTHORIZED_ACCESS.getMessage(),
+                                            request.getRequestURI()
+                                    )
+                            );
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(ErrorCode.ACCESS_DENIED.getStatus());
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.getWriter().write(
+                                    String.format(
+                                            "{\"timestamp\":\"%s\",\"status\":%d,\"errorCode\":\"%s\",\"message\":\"%s\",\"path\":\"%s\"}",
+                                            LocalDateTime.now(),
+                                            ErrorCode.ACCESS_DENIED.getStatus(),
+                                            ErrorCode.ACCESS_DENIED.name(),
+                                            ErrorCode.ACCESS_DENIED.getMessage(),
+                                            request.getRequestURI()
+                                    )
+                            );
+                        })
+                )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/login/success").permitAll()

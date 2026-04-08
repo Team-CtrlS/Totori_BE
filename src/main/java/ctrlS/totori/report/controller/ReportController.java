@@ -29,7 +29,7 @@ public class ReportController {
     })
     @GetMapping("/week")
     public BaseResponse<WeeklyReportResponse> getWeeklyReport(@AuthenticationPrincipal CustomUserPrincipal principal){
-        WeeklyReportResponse response = reportService.getWeeklyReport(principal.getMemberId());
+        WeeklyReportResponse response = reportService.getWeeklyReport(principal.memberId());
         return BaseResponse.ok(response);
     }
 
@@ -39,7 +39,7 @@ public class ReportController {
     })
     @GetMapping("/total")
     public BaseResponse<TotalReportResponse> getTotalReport(@AuthenticationPrincipal CustomUserPrincipal principal){
-        TotalReportResponse response = reportService.getTotalReport(principal.getMemberId());
+        TotalReportResponse response = reportService.getTotalReport(principal.memberId());
         return BaseResponse.ok(response);
     }
 }

@@ -17,15 +17,16 @@ import java.util.Date;
 public class JwtTokenProvider {
 
     private final SecretKey key;
-    private final long validTime = 30 * 60 * 1000L; // 30분
+    private final long accessTokenValidTime = 30 * 60 * 1000L; // 30분
+    private final long refreshTokenValidTime = 14 * 24 * 60 * 60 * 1000L; // 14일
 
     public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
         this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
     }
 
-    public String createToken(String userPk, String role) {
+    public String createAccessToken(String userPk, String role) {
         Date now = new Date();
-        Date expiration = new Date(now.getTime() + validTime);
+        Date expiration = new Date(now.getTime() + accessTokenValidTime);
 
         return Jwts.builder()
                 .subject(userPk) // 토큰 주인(회원 ID)
@@ -33,6 +34,19 @@ public class JwtTokenProvider {
                 .issuedAt(now) // 발행 시간
                 .expiration(expiration) // 만료 시간
                 .signWith(key) // 키로 암호화
+                .compact();
+    }
+
+    // refresh token 발급
+    public String createRefreshToken(String userPk) {
+        Date now = new Date();
+        Date expiration = new Date(now.getTime() + refreshTokenValidTime);
+
+        return Jwts.builder()
+                .subject(userPk)
+                .issuedAt(now)
+                .expiration(expiration)
+                .signWith(key)
                 .compact();
     }
 

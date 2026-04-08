@@ -40,7 +40,7 @@ public class BookController {
             @AuthenticationPrincipal CustomUserPrincipal principal,
             @Valid @RequestBody BookGenerateRequest request
             ) {
-        return BaseResponse.ok(bookService.generateBook(principal.getMemberId(), request));
+        return BaseResponse.ok(bookService.generateBook(principal.memberId(), request));
     }
 
     @Operation(summary = "메인페이지 조회", description = "메인페이지의 가장 최근 읽은 책과 대표 뱃지 정보를 조회합니다.")

@@ -80,4 +80,17 @@ public class AuthController {
         authService.logout(bearerToken);
         return BaseResponse.ok();
     }
+
+    @Operation(summary = "Access Token 재발급", description = "Refresh Token을 Authorization 헤더에 담아 요청하면 새 Access Token과 Refresh Token을 발급합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "재발급 성공",
+                    content = @Content(schema = @Schema(implementation = TokenResponse.class))),
+            @ApiResponse(responseCode = "401", description = "유효하지 않은 Refresh Token", content = @Content)
+    })
+    @PostMapping("/reissue")
+    public BaseResponse<TokenResponse> reissue(
+            @RequestHeader(value = "Authorization", required = false) String bearerToken) {
+        TokenResponse tokenResponse = authService.reissue(bearerToken);
+        return BaseResponse.ok(tokenResponse);
+    }
 }

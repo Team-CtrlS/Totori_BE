@@ -58,11 +58,17 @@ public class AuthService {
             throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
 
+        String memberId = String.valueOf(member.getId());
+        String role = String.valueOf(member.getRole());
+
         // 비밀번호까지 맞으면 JWT 토큰 생성
-        String token = jwtTokenProvider.createToken(String.valueOf(member.getId()), member.getRole().name());
+        String accessToken = jwtTokenProvider.createAccessToken(memberId, role);
+        String refreshToken = jwtTokenProvider.createRefreshToken(memberId);
+
+        authRedisService.saveRefreshToken(member.getId(), refreshToken);
 
         // 토큰과 권한 정보 반환
-        return new TokenResponse(token, member.getRole().name());
+        return new TokenResponse(accessToken, refreshToken, role);
     }
 
     public void logout(String bearerToken) {
@@ -71,6 +77,36 @@ public class AuthService {
         if (token != null && jwtTokenProvider.validateToken(token)) {
             long expiration = jwtTokenProvider.getRemainingSeconds(token);
             authRedisService.blacklistToken(token, expiration);
+
+            Long memberId = Long.valueOf(jwtTokenProvider.getUserPk(token));
+            authRedisService.deleteRefreshToken(memberId);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public TokenResponse reissue(String bearerToken) {
+        String refreshToken = jwtTokenProvider.resolveToken(bearerToken);
+
+        if (refreshToken == null || !jwtTokenProvider.validateToken(refreshToken)) {
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
+        }
+
+        Long memberId = Long.valueOf(jwtTokenProvider.getUserPk(refreshToken));
+
+        if (!authRedisService.isValidRefreshToken(memberId, refreshToken)) {
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
+        }
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        String role = member.getRole().name();
+
+        String newAccessToken = jwtTokenProvider.createAccessToken(String.valueOf(memberId), role);
+        String newRefreshToken = jwtTokenProvider.createRefreshToken(String.valueOf(memberId));
+
+        authRedisService.saveRefreshToken(memberId, newRefreshToken);
+
+        return new TokenResponse(newAccessToken, newRefreshToken, role);
     }
 }
