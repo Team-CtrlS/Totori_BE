@@ -1,11 +1,6 @@
 package ctrlS.totori.global.security;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import ctrlS.totori.member.entity.Role;
 
-@Getter
-@RequiredArgsConstructor
-public class CustomUserPrincipal {
-    private final Long memberId;
-    private final String role;
+public record CustomUserPrincipal(Long memberId, Role role) {
 }

@@ -29,13 +29,13 @@ public class BadgeController {
     // 유저의 뱃지 조회
     @GetMapping("/my")
     public BaseResponse<List<MemberBadgeResponseDto>> getMemberBadges(@AuthenticationPrincipal CustomUserPrincipal principal) {
-        return BaseResponse.ok(badgeService.getMemberBadges(principal.getMemberId()));
+        return BaseResponse.ok(badgeService.getMemberBadges(principal.memberId()));
     }
 
     // 대표 뱃지 조회
     @GetMapping("/my/representative")
     public BaseResponse<MemberBadgeResponseDto> getRepresentativeBadge(@AuthenticationPrincipal CustomUserPrincipal principal) {
-        return BaseResponse.ok(badgeService.getRepresentativeBadge(principal.getMemberId()));
+        return BaseResponse.ok(badgeService.getRepresentativeBadge(principal.memberId()));
     }
 
     // 특정 카테고리의 상세 뱃지 정보 조회
@@ -43,6 +43,6 @@ public class BadgeController {
     public BaseResponse<CategoryBadgeResponseDto> getCategoryBadgeDetails(
             @AuthenticationPrincipal CustomUserPrincipal principal,
             @PathVariable BadgeCategory category) {
-        return BaseResponse.ok(badgeService.getCategoryBadgeDetail(principal.getMemberId(), category));
+        return BaseResponse.ok(badgeService.getCategoryBadgeDetail(principal.memberId(), category));
     }
 }

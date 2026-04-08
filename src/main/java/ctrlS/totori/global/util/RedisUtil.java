@@ -28,4 +28,8 @@ public class RedisUtil {
     public boolean hasKey(String key) {
         return Boolean.TRUE.equals(stringRedisTemplate.hasKey(key));
     }
+
+    public void deleteData(String key) {
+        stringRedisTemplate.delete(key);
+    }
 }

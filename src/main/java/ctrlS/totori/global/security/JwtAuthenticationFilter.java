@@ -3,6 +3,7 @@ package ctrlS.totori.global.security;
 import ctrlS.totori.auth.service.AuthRedisService;
 import ctrlS.totori.global.exception.ErrorCode;
 import ctrlS.totori.global.util.RedisUtil;
+import ctrlS.totori.member.entity.Role;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -44,7 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Long memberId = Long.valueOf(jwtTokenProvider.getUserPk(token));
             String role = jwtTokenProvider.getRole(token);
 
-            CustomUserPrincipal principal = new CustomUserPrincipal(memberId, role);
+            CustomUserPrincipal principal = new CustomUserPrincipal(memberId, Role.valueOf(role));
 
             var authorities = List.of(new SimpleGrantedAuthority(role));
             var authentication = new UsernamePasswordAuthenticationToken(principal, null, authorities);

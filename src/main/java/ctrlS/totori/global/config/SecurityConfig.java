@@ -16,6 +16,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.time.LocalDateTime;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -43,9 +45,12 @@ public class SecurityConfig {
                             response.setContentType("application/json;charset=UTF-8");
                             response.getWriter().write(
                                     String.format(
-                                            "{\"status\":%d,\"message\":\"%s\"}",
+                                            "{\"timestamp\":\"%s\",\"status\":%d,\"errorCode\":\"%s\",\"message\":\"%s\",\"path\":\"%s\"}",
+                                            LocalDateTime.now(),
                                             ErrorCode.UNAUTHORIZED_ACCESS.getStatus(),
-                                            ErrorCode.UNAUTHORIZED_ACCESS.getMessage()
+                                            ErrorCode.UNAUTHORIZED_ACCESS.name(),
+                                            ErrorCode.UNAUTHORIZED_ACCESS.getMessage(),
+                                            request.getRequestURI()
                                     )
                             );
                         })
@@ -54,9 +59,12 @@ public class SecurityConfig {
                             response.setContentType("application/json;charset=UTF-8");
                             response.getWriter().write(
                                     String.format(
-                                            "{\"status\":%d,\"message\":\"%s\"}",
+                                            "{\"timestamp\":\"%s\",\"status\":%d,\"errorCode\":\"%s\",\"message\":\"%s\",\"path\":\"%s\"}",
+                                            LocalDateTime.now(),
                                             ErrorCode.ACCESS_DENIED.getStatus(),
-                                            ErrorCode.ACCESS_DENIED.getMessage()
+                                            ErrorCode.ACCESS_DENIED.name(),
+                                            ErrorCode.ACCESS_DENIED.getMessage(),
+                                            request.getRequestURI()
                                     )
                             );
                         })

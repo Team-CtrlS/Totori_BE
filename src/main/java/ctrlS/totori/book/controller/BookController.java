@@ -38,6 +38,6 @@ public class BookController {
             @AuthenticationPrincipal CustomUserPrincipal principal,
             @Valid @RequestBody BookGenerateRequest request
             ) {
-        return BaseResponse.ok(bookService.generateBook(principal.getMemberId(), request));
+        return BaseResponse.ok(bookService.generateBook(principal.memberId(), request));
     }
 }
