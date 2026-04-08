@@ -1,6 +1,7 @@
-package ctrlS.totori.book.dto;
+package ctrlS.totori.book.dto.response;
 
 import ctrlS.totori.book.entity.Book;
+import ctrlS.totori.book.service.S3ImageStorageService;
 
 import java.util.List;
 
@@ -12,16 +13,14 @@ public record BookGenerateResponse(
         String coverImageUrl,
         List<BookPageResponse> pages
 ) {
-    public static BookGenerateResponse from(Book book) {
+    public static BookGenerateResponse of(Book book, String presignedCoverUrl, List<BookPageResponse> pages) {
         return new BookGenerateResponse(
                 book.getId(),
                 book.getTitle(),
                 book.getTotalPages(),
                 book.getCoverImagePrompt(),
-                book.getCoverImageUrl(),
-                book.getPages().stream()
-                        .map(BookPageResponse::from)
-                        .toList()
+                presignedCoverUrl,
+                pages
         );
     }
 }

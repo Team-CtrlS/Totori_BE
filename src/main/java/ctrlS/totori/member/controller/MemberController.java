@@ -35,7 +35,7 @@ public class MemberController {
     })
     @GetMapping("/me")
     public BaseResponse<MemberMeResponse> getMyInfo(@AuthenticationPrincipal CustomUserPrincipal principal) {
-        return BaseResponse.ok(memberService.getMyInfo(principal.getMemberId()));
+        return BaseResponse.ok(memberService.getMyInfo(principal.memberId()));
     }
 
     // 회원 도토리 개수 조회
@@ -48,7 +48,7 @@ public class MemberController {
     public BaseResponse<AcornResponse> getMyAcorn(
             @AuthenticationPrincipal CustomUserPrincipal principal
     ) {
-        return BaseResponse.ok(memberService.getMyAcorn(principal.getMemberId()));
+        return BaseResponse.ok(memberService.getMyAcorn(principal.memberId()));
     }
 
     // 회원 정보 수정
@@ -63,7 +63,7 @@ public class MemberController {
             @AuthenticationPrincipal CustomUserPrincipal principal,
             @RequestBody @Valid UpdateMemberRequest request
             ) {
-        return BaseResponse.ok(memberService.updateMyInfo(principal.getMemberId(), request));
+        return BaseResponse.ok(memberService.updateMyInfo(principal.memberId(), request));
     }
 
     // 회원 탈퇴
@@ -77,7 +77,7 @@ public class MemberController {
             @AuthenticationPrincipal CustomUserPrincipal principal,
             @RequestHeader("Authorization") String bearerToken
     ) {
-        memberService.deleteMyAccount(principal.getMemberId(), bearerToken);
+        memberService.deleteMyAccount(principal.memberId(), bearerToken);
         return BaseResponse.noContent();
     }
 }

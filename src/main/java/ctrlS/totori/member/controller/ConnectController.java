@@ -33,7 +33,7 @@ public class ConnectController {
     })
     @PostMapping("/code")
     public BaseResponse<ConnectCodeResponse> createCode(@AuthenticationPrincipal CustomUserPrincipal principal) {
-        String code = connectService.createConnectCode(principal.getMemberId());
+        String code = connectService.createConnectCode(principal.memberId());
 
         return BaseResponse.ok(new ConnectCodeResponse(code, 600));
     }
@@ -47,7 +47,7 @@ public class ConnectController {
     public BaseResponse<Void> linkChild(
             @AuthenticationPrincipal CustomUserPrincipal principal,
             @Valid @RequestBody ConnectRequest request) {
-        connectService.connectToChild(principal.getMemberId(), request);
+        connectService.connectToChild(principal.memberId(), request);
         return BaseResponse.ok();
     }
 }
