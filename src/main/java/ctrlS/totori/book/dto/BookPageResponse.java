@@ -12,13 +12,13 @@ public record BookPageResponse(
         String imagePrompt,
         String imageUrl
 ) {
-    public static BookPageResponse from(BookPage page, S3ImageStorageService s3Service) {
+    public static BookPageResponse of(BookPage page, String presignedUrl) {
         return new BookPageResponse(
                 page.getId(),
                 page.getPageOrder(),
                 page.getSentences(),
                 page.getImagePrompt(),
-                page.getImageUrl() != null ? s3Service.getPresignedUrl(page.getImageUrl()) : null
+                presignedUrl
         );
     }
 }

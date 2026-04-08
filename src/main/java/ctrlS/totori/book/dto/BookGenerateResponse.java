@@ -13,16 +13,14 @@ public record BookGenerateResponse(
         String coverImageUrl,
         List<BookPageResponse> pages
 ) {
-    public static BookGenerateResponse from(Book book, S3ImageStorageService s3Service) {
+    public static BookGenerateResponse of(Book book, String presignedCoverUrl, List<BookPageResponse> pages) {
         return new BookGenerateResponse(
                 book.getId(),
                 book.getTitle(),
                 book.getTotalPages(),
                 book.getCoverImagePrompt(),
-                book.getCoverImageUrl() != null ? s3Service.getPresignedUrl(book.getCoverImageUrl()) : null,
-                book.getPages().stream()
-                        .map(page -> BookPageResponse.from(page, s3Service))
-                        .toList()
+                presignedCoverUrl,
+                pages
         );
     }
 }
