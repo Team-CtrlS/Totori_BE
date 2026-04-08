@@ -29,6 +29,7 @@ public class BookService {
     private final BookReadingRecordRepository bookReadingRecordRepository;
     private final FastApiStoryClient fastApiStoryClient;
     private final PageImageAsyncService pageImageAsyncService;
+    private final S3ImageStorageService s3ImageStorageService;
 
     public BookGenerateResponse generateBook(Long memberId, BookGenerateRequest request) {
         Member member = memberRepository.findById(memberId)
@@ -78,7 +79,20 @@ public class BookService {
         book.getPages().addAll(pages);
         Book savedBook = bookRepository.save(book);
 
-        return BookGenerateResponse.from(savedBook);
+        String presignedCoverUrl = savedBook.getCoverImageUrl() != null
+                ? s3ImageStorageService.getPresignedUrl(savedBook.getCoverImageUrl())
+                : null;
+
+        List<BookPageResponse> pageResponses = savedBook.getPages().stream()
+                .map(page -> {
+                    String presignedPageUrl = page.getImageUrl() != null
+                            ? s3ImageStorageService.getPresignedUrl(page.getImageUrl())
+                            : null;
+                    return BookPageResponse.of(page, presignedPageUrl);
+                })
+                .toList();
+
+        return BookGenerateResponse.of(savedBook, presignedCoverUrl, pageResponses);
     }
 
     @Transactional(readOnly = true)
