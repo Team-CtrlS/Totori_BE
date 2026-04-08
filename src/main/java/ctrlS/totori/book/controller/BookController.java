@@ -49,7 +49,7 @@ public class BookController {
     })
     @GetMapping("/main-status")
     public BaseResponse<MainPageResponse> getBookList(@AuthenticationPrincipal CustomUserPrincipal principal){
-        return BaseResponse.ok(bookService.getMainStatus(principal.getMemberId()));
+        return BaseResponse.ok(bookService.getMainStatus(principal.memberId()));
     }
 
     @Operation(summary = "유저의 전체 책 조회(페이징)", description = "유저의 전체 책을 조회합니다.")
@@ -61,7 +61,7 @@ public class BookController {
             @AuthenticationPrincipal CustomUserPrincipal principal,
             @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        BookListResponse response = bookService.getBookList(principal.getMemberId(), pageable);
+        BookListResponse response = bookService.getBookList(principal.memberId(), pageable);
         return BaseResponse.ok(response);
     }
 }
