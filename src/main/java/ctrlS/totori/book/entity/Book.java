@@ -1,7 +1,6 @@
 package ctrlS.totori.book.entity;
 
-import ctrlS.totori.book.dto.FastApiPageResponse;
-import ctrlS.totori.book.dto.FastApiStoryResponse;
+import ctrlS.totori.book.dto.fastApi.FastApiStoryResponse;
 import ctrlS.totori.global.entity.BaseTimeEntity;
 import ctrlS.totori.member.entity.Member;
 import jakarta.persistence.*;
@@ -9,10 +8,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +39,8 @@ public class Book extends BaseTimeEntity {
 
     private int receivedAcorn = 0; // 0~3개
 
+    public static final int MAX_ACORN_COUNT = 3;    // 한 번에 획득 가능한 도토리 개수
+
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BookPage> pages = new ArrayList<>();
 
@@ -67,5 +65,9 @@ public class Book extends BaseTimeEntity {
 
     public void updateCoverImageUrl(String coverImageUrl) {
         this.coverImageUrl = coverImageUrl;
+    }
+
+    public boolean isFullyAcorned() {
+        return this.receivedAcorn == MAX_ACORN_COUNT;
     }
 }

@@ -1,6 +1,6 @@
 package ctrlS.totori.book.entity;
 
-import ctrlS.totori.book.dto.FastApiPageResponse;
+import ctrlS.totori.book.dto.fastApi.FastApiPageResponse;
 import ctrlS.totori.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

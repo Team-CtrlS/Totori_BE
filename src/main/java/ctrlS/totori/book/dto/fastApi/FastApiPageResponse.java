@@ -1,4 +1,4 @@
-package ctrlS.totori.book.dto;
+package ctrlS.totori.book.dto.fastApi;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;

@@ -1,4 +1,4 @@
-package ctrlS.totori.book.dto;
+package ctrlS.totori.book.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 
