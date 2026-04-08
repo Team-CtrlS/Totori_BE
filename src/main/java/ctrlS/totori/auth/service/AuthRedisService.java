@@ -32,7 +32,7 @@ public class AuthRedisService {
     }
 
     public void deleteRefreshToken(Long memberId) {
-        redisUtil.deleteDate(REFRESH_TOKEN_PREFIX + memberId);
+        redisUtil.deleteData(REFRESH_TOKEN_PREFIX + memberId);
     }
 
     public boolean isValidRefreshToken(Long memberId, String refreshToken) {

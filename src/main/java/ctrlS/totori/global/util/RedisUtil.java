@@ -29,7 +29,7 @@ public class RedisUtil {
         return Boolean.TRUE.equals(stringRedisTemplate.hasKey(key));
     }
 
-    public void deleteDate(String key) {
+    public void deleteData(String key) {
         stringRedisTemplate.delete(key);
     }
 }
