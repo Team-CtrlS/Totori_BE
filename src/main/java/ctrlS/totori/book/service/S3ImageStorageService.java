@@ -31,7 +31,7 @@ public class S3ImageStorageService implements ImageStorageService {
         try {
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucket)
-                    .key("images/" + fileName)
+                    .key("bookImages/" + fileName)
                     .contentType("image/png")
                     .build();
 
@@ -47,7 +47,7 @@ public class S3ImageStorageService implements ImageStorageService {
         try {
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                     .bucket(bucket)
-                    .key("images/" + fileName)
+                    .key("bookImages/" + fileName)
                     .build();
 
             GetObjectPresignRequest getObjectPresignRequest = GetObjectPresignRequest.builder()
