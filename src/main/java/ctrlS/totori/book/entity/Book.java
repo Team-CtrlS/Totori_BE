@@ -39,6 +39,8 @@ public class Book extends BaseTimeEntity {
 
     private int receivedAcorn = 0; // 0~3개
 
+    public static final int MAX_ACORN_COUNT = 3;    // 한 번에 획득 가능한 도토리 개수
+
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BookPage> pages = new ArrayList<>();
 
@@ -63,5 +65,9 @@ public class Book extends BaseTimeEntity {
 
     public void updateCoverImageUrl(String coverImageUrl) {
         this.coverImageUrl = coverImageUrl;
+    }
+
+    public boolean isFullyAcorned() {
+        return this.receivedAcorn == MAX_ACORN_COUNT;
     }
 }

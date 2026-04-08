@@ -18,7 +18,7 @@ public record BookCardSummary(
             if (book.getTotalPages() > 0) {
                 progress = (double) recentRecord.getReadPages() / book.getTotalPages();
             }
-            hasBadge = (book.getReceivedAcorn() == 3);
+            hasBadge = book.isFullyAcorned();
         }
 
         return new BookCardSummary(
