@@ -14,13 +14,11 @@ public class CustomOAuth2User implements OAuth2User {
     private final Long memberId;
     private final String role;
     private final Map<String, Object> attributes;
-    private final String nameAttributeKey;
 
-    public CustomOAuth2User(Long memberId, String role, Map<String, Object> attributes, String nameAttributeKey) {
+    public CustomOAuth2User(Long memberId, String role, Map<String, Object> attributes) {
         this.memberId = memberId;
         this.role = role;
         this.attributes = attributes;
-        this.nameAttributeKey = nameAttributeKey;
     }
 
     @Override

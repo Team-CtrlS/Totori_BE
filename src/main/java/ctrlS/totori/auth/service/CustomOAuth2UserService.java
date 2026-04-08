@@ -42,10 +42,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         // 서비스 구분
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        String userNameAttributeName = userRequest.getClientRegistration()
-                .getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
 
-        OAuth2Attribute attributes = OAuth2Attribute.of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
+        OAuth2Attribute attributes = OAuth2Attribute.of(registrationId, oAuth2User.getAttributes());
 
         try {
             // 저장(여기서 Role 결정)
@@ -55,8 +53,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             return new CustomOAuth2User(
                     member.getId(),
                     member.getRole().name(),
-                    attributes.attributes(),
-                    userNameAttributeName
+                    attributes.attributes()
             );
         } finally {
             session.removeAttribute("SOCIAL_LOGIN_ROLE");
