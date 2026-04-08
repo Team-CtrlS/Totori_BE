@@ -17,7 +17,7 @@ import java.util.Date;
 public class JwtTokenProvider {
 
     private final SecretKey key;
-    private final long accessTokenValidTime = 30 * 60 * 1000L; // 30분
+    private final long accessTokenValidTime = 2 * 60 * 1000L; // 30분 (임의로 2분 설정. 테스트 후 다시 수정 예정)
     private final long refreshTokenValidTime = 14 * 24 * 60 * 60 * 1000L; // 14일
 
     public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
