@@ -89,7 +89,7 @@ public class AuthController {
     })
     @PostMapping("/reissue")
     public BaseResponse<TokenResponse> reissue(
-            @RequestHeader(value = "Authorization", required = false) String bearerToken) {
+            @RequestHeader(value = "RefreshToken", required = false) String bearerToken) {
         TokenResponse tokenResponse = authService.reissue(bearerToken);
         return BaseResponse.ok(tokenResponse);
     }
