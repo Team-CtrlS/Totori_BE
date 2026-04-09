@@ -71,8 +71,8 @@ public class SecurityConfig {
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/login/success").permitAll()
                         .requestMatchers("/api/auth/complete").authenticated()
+                        .requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/social/kakao", "/api/auth/reissue", "/oauth2/authorization/kakao", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/parent/**").hasAuthority("PARENT")
                         .requestMatchers("/api/child/**").hasAuthority("CHILD")
                         .anyRequest().authenticated()
