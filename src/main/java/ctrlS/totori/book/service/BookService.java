@@ -110,7 +110,12 @@ public class BookService {
         // TODO: 레벨테스트 연결 시 없으면 에러처리하도록 수정
         BookReadingRecord latestRecord = bookReadingRecordRepository.findLatestRecord(memberId)
                 .orElse(null);
-        BookCoverSummary currentBookDto = BookCoverSummary.of(latestRecord.getBook(), latestRecord);
+
+        String presignedCoverUrl = latestRecord != null && latestRecord.getBook().getCoverImageUrl() != null
+                ? s3ImageStorageService.getPresignedUrl(latestRecord.getBook().getCoverImageUrl())
+                : null;
+
+        BookCoverSummary currentBookDto = BookCoverSummary.of(latestRecord.getBook(), latestRecord, presignedCoverUrl);
 
         // 대표 뱃지 조회
         MemberBadgeResponseDto badgeDto = badgeService.getRepresentativeBadge(memberId);
@@ -129,9 +134,12 @@ public class BookService {
                 .stream()
                 .collect(Collectors.toMap(r -> r.getBook().getId(), r -> r));
 
-        Page<BookCardSummary> summaryPage = bookPage.map(book ->
-                BookCardSummary.of(book, latestRecordMap.get(book.getId()))
-        );
+        Page<BookCardSummary> summaryPage = bookPage.map(book -> {
+                String presignedCoverUrl = book.getCoverImageUrl() != null
+                ? s3ImageStorageService.getPresignedUrl(book.getCoverImageUrl())
+                : null;
+                return BookCardSummary.of(book, latestRecordMap.get(book.getId()), presignedCoverUrl);
+        });
         return BookListResponse.of(summaryPage);
     }
 

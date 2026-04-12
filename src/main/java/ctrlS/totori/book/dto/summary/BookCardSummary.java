@@ -11,7 +11,7 @@ public record BookCardSummary(
         boolean hasBadge
 
 ) {
-    public static BookCardSummary of(Book book, BookReadingRecord recentRecord) {
+    public static BookCardSummary of(Book book, BookReadingRecord recentRecord, String presignedUrl) {
         double progress = 0.0;
         boolean hasBadge = false;
         if (recentRecord != null) {
@@ -24,7 +24,7 @@ public record BookCardSummary(
         return new BookCardSummary(
                 book.getId(),
                 book.getTitle(),
-                book.getCoverImageUrl(),
+                presignedUrl,
                 progress,
                 hasBadge
         );
