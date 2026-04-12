@@ -89,15 +89,11 @@ public class BookService {
         book.getPages().addAll(pages);
         Book savedBook = bookRepository.save(book);
 
-        String presignedCoverUrl = savedBook.getCoverImageUrl() != null
-                ? s3ImageStorageService.getPresignedUrl(savedBook.getCoverImageUrl())
-                : null;
+        String presignedCoverUrl = s3ImageStorageService.getPresignedUrl(savedBook.getCoverImageUrl());
 
         List<BookPageResponse> pageResponses = savedBook.getPages().stream()
                 .map(page -> {
-                    String presignedPageUrl = page.getImageUrl() != null
-                            ? s3ImageStorageService.getPresignedUrl(page.getImageUrl())
-                            : null;
+                    String presignedPageUrl = s3ImageStorageService.getPresignedUrl(page.getImageUrl());
                     return BookPageResponse.of(page, presignedPageUrl);
                 })
                 .toList();
@@ -111,9 +107,7 @@ public class BookService {
         BookReadingRecord latestRecord = bookReadingRecordRepository.findLatestRecord(memberId)
                 .orElse(null);
 
-        String presignedCoverUrl = latestRecord != null && latestRecord.getBook().getCoverImageUrl() != null
-                ? s3ImageStorageService.getPresignedUrl(latestRecord.getBook().getCoverImageUrl())
-                : null;
+        String presignedCoverUrl = s3ImageStorageService.getPresignedUrl(latestRecord.getBook().getCoverImageUrl());
 
         BookCoverSummary currentBookDto = BookCoverSummary.of(latestRecord.getBook(), latestRecord, presignedCoverUrl);
 
@@ -135,9 +129,7 @@ public class BookService {
                 .collect(Collectors.toMap(r -> r.getBook().getId(), r -> r));
 
         Page<BookCardSummary> summaryPage = bookPage.map(book -> {
-                String presignedCoverUrl = book.getCoverImageUrl() != null
-                ? s3ImageStorageService.getPresignedUrl(book.getCoverImageUrl())
-                : null;
+                String presignedCoverUrl = s3ImageStorageService.getPresignedUrl(book.getCoverImageUrl());
                 return BookCardSummary.of(book, latestRecordMap.get(book.getId()), presignedCoverUrl);
         });
         return BookListResponse.of(summaryPage);
