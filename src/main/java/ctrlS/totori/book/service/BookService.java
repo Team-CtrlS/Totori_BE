@@ -17,6 +17,7 @@ import ctrlS.totori.book.entity.BookPage;
 import ctrlS.totori.book.entity.BookReadingRecord;
 import ctrlS.totori.book.repository.BookReadingRecordRepository;
 import ctrlS.totori.book.repository.BookRepository;
+import ctrlS.totori.member.dto.AcornResponse;
 import ctrlS.totori.member.entity.Member;
 import ctrlS.totori.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -107,6 +108,7 @@ public class BookService {
 
     @Transactional(readOnly = true)
     public MainPageResponse getMainStatus(Long memberId) {
+        Member member = memberService.findById(memberId);
         // TODO: 레벨테스트 연결 시 없으면 에러처리하도록 수정
         BookReadingRecord latestRecord = bookReadingRecordRepository.findLatestRecord(memberId)
                 .orElse(null);
@@ -115,7 +117,7 @@ public class BookService {
         // 대표 뱃지 조회
         MemberBadgeResponseDto badgeDto = badgeService.getRepresentativeBadge(memberId);
 
-        return new MainPageResponse(currentBookDto, badgeDto.badgeResponseDto());
+        return new MainPageResponse(AcornResponse.from(member), currentBookDto, badgeDto.badgeResponseDto());
     }
 
     @Transactional(readOnly = true)
