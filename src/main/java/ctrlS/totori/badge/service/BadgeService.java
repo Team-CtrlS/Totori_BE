@@ -60,7 +60,7 @@ public class BadgeService {
 
         List<MemberBadge> myBadges = memberBadgeRepository.findAllByMember(member);
 
-        if(myBadges.isEmpty()) {
+        if (myBadges.isEmpty()) {
             //TODO: 보유한 뱃지가 없을 때 표시할 뱃지 설정하기
             throw new CustomException(ErrorCode.BADGE_NOT_FOUND);
         }
@@ -83,7 +83,7 @@ public class BadgeService {
         MemberBadge representativeBadge = null;
         double maxProgressPercentage = -1.0;
 
-        for (MemberBadge myBadge: highestBadges.values()) {
+        for (MemberBadge myBadge : highestBadges.values()) {
             Badge currentBadge = myBadge.getBadge();
             BadgeCategory category = currentBadge.getCategory();
             int nextLevel = currentBadge.getLevel() + 1;
@@ -116,7 +116,7 @@ public class BadgeService {
 
     // 뱃지 획득 및 레벨업 검사
     @Transactional
-    public void checkAndGrantBadge(Long memberId, BadgeCategory category) {
+    public List<BadgeResponseDto> checkAndGrantBadge(Long memberId, BadgeCategory category) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -127,22 +127,26 @@ public class BadgeService {
 
         List<Badge> categoryBadges = badgeRepository.findAllByCategoryOrderByLevelAsc(category);
 
+        List<BadgeResponseDto> newlyGrantedBadges = new java.util.ArrayList<>();
+
         for (Badge badge : categoryBadges) {
             if (currentCount >= badge.getTargetValue()) {
                 boolean alreadyHas = memberBadgeRepository.existsByMemberAndBadge(member, badge);
 
-                if(!alreadyHas) {
+                if (!alreadyHas) {
                     MemberBadge newMemberBadge = MemberBadge.builder()
                             .member(member)
                             .badge(badge)
                             .build();
                     memberBadgeRepository.save(newMemberBadge);
+
+                    newlyGrantedBadges.add(BadgeResponseDto.from(badge));
                 }
             } else {
                 break;
             }
         }
-
+        return newlyGrantedBadges;
     }
 
     // 특정 카테고리의 상세 뱃지 리스트 조회
@@ -158,7 +162,7 @@ public class BadgeService {
         List<Badge> categoryBadges = badgeRepository.findAllByCategoryOrderByLevelAsc(category);
 
         List<CategoryBadgeResponseDto.BadgeDetailDto> badgeDetails = new java.util.ArrayList<>();
-        for (Badge badge: categoryBadges) {
+        for (Badge badge : categoryBadges) {
             boolean isAcquired = currentCount >= badge.getTargetValue();
             badgeDetails.add(CategoryBadgeResponseDto.BadgeDetailDto.from(badge, isAcquired));
         }
