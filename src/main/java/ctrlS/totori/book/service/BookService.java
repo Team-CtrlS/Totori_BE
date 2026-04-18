@@ -43,6 +43,8 @@ public class BookService {
     private final PageImageAsyncService pageImageAsyncService;
     private final S3ImageStorageService s3ImageStorageService;
 
+    private final static String BOOK_IMAGE_PREFIX = "bookImages";
+
     public BookGenerateResponse generateBook(Long memberId, BookGenerateRequest request) {
         Member member = memberService.findById(memberId);
         BookReadingRecord latestRecord = getLatestRecord(memberId);
@@ -90,11 +92,11 @@ public class BookService {
         book.getPages().addAll(pages);
         Book savedBook = bookRepository.save(book);
 
-        String presignedCoverUrl = s3ImageStorageService.getPresignedUrl(savedBook.getCoverImageUrl());
+        String presignedCoverUrl = s3ImageStorageService.getPresignedUrl(BOOK_IMAGE_PREFIX, savedBook.getCoverImageUrl());
 
         List<BookPageResponse> pageResponses = savedBook.getPages().stream()
                 .map(page -> {
-                    String presignedPageUrl = s3ImageStorageService.getPresignedUrl(page.getImageUrl());
+                    String presignedPageUrl = s3ImageStorageService.getPresignedUrl(BOOK_IMAGE_PREFIX, page.getImageUrl());
                     return BookPageResponse.of(page, presignedPageUrl);
                 })
                 .toList();
@@ -113,7 +115,7 @@ public class BookService {
         // TODO: 레벨테스트 연결 시 수정
         if (latestRecord == null) return new MainPageResponse(AcornResponse.from(member), null, badgeDto.badgeResponseDto());
 
-        String presignedCoverUrl = s3ImageStorageService.getPresignedUrl(latestRecord.getBook().getCoverImageUrl());
+        String presignedCoverUrl = s3ImageStorageService.getPresignedUrl(BOOK_IMAGE_PREFIX, latestRecord.getBook().getCoverImageUrl());
         BookCoverSummary currentBookDto = BookCoverSummary.of(latestRecord.getBook(), latestRecord, presignedCoverUrl);
 
         return new MainPageResponse(AcornResponse.from(member), currentBookDto, badgeDto.badgeResponseDto());
@@ -131,7 +133,7 @@ public class BookService {
                 .collect(Collectors.toMap(r -> r.getBook().getId(), r -> r));
 
         Page<BookCardSummary> summaryPage = bookPage.map(book -> {
-                String presignedCoverUrl = s3ImageStorageService.getPresignedUrl(book.getCoverImageUrl());
+                String presignedCoverUrl = s3ImageStorageService.getPresignedUrl(BOOK_IMAGE_PREFIX, book.getCoverImageUrl());
                 return BookCardSummary.of(book, latestRecordMap.get(book.getId()), presignedCoverUrl);
         });
         return BookListResponse.of(summaryPage);
