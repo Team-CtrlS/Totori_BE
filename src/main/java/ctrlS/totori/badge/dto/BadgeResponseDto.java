@@ -12,7 +12,7 @@ public record BadgeResponseDto(
         int targetValue,
         String imageUrl
 ) {
-    public static BadgeResponseDto from(Badge badge) {
+    public static BadgeResponseDto from(Badge badge, String badgeImage) {
         return new BadgeResponseDto(
                 badge.getId(),
                 badge.getCategory(),
@@ -20,7 +20,7 @@ public record BadgeResponseDto(
                 badge.getName(),
                 badge.getLevel(),
                 badge.getTargetValue(),
-                badge.getImageUrl()
+                badgeImage
         );
     }
 

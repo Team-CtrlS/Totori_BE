@@ -9,10 +9,10 @@ public record MemberBadgeResponseDto(
         BadgeResponseDto badgeResponseDto,
         LocalDateTime acquiredAt
 ) {
-    public static MemberBadgeResponseDto from(MemberBadge memberBadge) {
+    public static MemberBadgeResponseDto from(MemberBadge memberBadge, String badgeImage) {
         return new MemberBadgeResponseDto(
                 memberBadge.getId(),
-                BadgeResponseDto.from(memberBadge.getBadge()),
+                BadgeResponseDto.from(memberBadge.getBadge(), badgeImage),
                 memberBadge.getCreatedAt()
         );
     }
