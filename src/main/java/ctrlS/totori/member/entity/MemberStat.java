@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -30,6 +32,8 @@ public class MemberStat extends BaseTimeEntity {
     @Column(nullable = false)
     private int totalAttendanceDays = 0; // 누적 출석일
 
+    private LocalDate lastAttendedDate; // 마지막 출석일
+
     @Column(nullable = false)
     private int totalAcquiredAcorn = 0; // 누적 획득 도토리
 
@@ -50,7 +54,12 @@ public class MemberStat extends BaseTimeEntity {
         this.totalAcquiredAcorn += amount;
     }
 
-    public void attend(boolean isConsecutive) {
+    public boolean canAttendToday(LocalDate today) {
+        return lastAttendedDate == null || !lastAttendedDate.isEqual(today);
+    }
+
+    public void attend(LocalDate today) {
         this.totalAttendanceDays++;
+        this.lastAttendedDate = today;
     }
 }
