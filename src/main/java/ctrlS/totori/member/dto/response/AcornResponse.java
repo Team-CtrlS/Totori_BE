@@ -1,12 +1,12 @@
-package ctrlS.totori.member.dto;
+package ctrlS.totori.member.dto.response;
 
 import ctrlS.totori.member.entity.Member;
 
 public record AcornResponse(
-        Long memberId,
+        String name,
         Integer acorn
 ) {
     public static AcornResponse from(Member member) {
-        return new AcornResponse(member.getId(), member.getAcorn());
+        return new AcornResponse(member.getName(), member.getAcorn());
     }
 }

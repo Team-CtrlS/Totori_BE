@@ -1,7 +1,7 @@
-package ctrlS.totori.member.repository;
+package ctrlS.totori.connect.repository;
 
 import ctrlS.totori.member.entity.Member;
-import ctrlS.totori.member.entity.ParentChild;
+import ctrlS.totori.connect.entity.ParentChild;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

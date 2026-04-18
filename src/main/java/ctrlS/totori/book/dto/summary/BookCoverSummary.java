@@ -12,7 +12,7 @@ public record BookCoverSummary(
         int totalPage,
         double progress
 ) {
-    public static BookCoverSummary of(Book book, BookReadingRecord recentRecord) {
+    public static BookCoverSummary of(Book book, BookReadingRecord recentRecord, String presignedCoverUrl) {
         double progress = 0.0;
         if (recentRecord != null) {
             if (book.getTotalPages() > 0) {
@@ -23,7 +23,7 @@ public record BookCoverSummary(
         return new BookCoverSummary(
                 book.getId(),
                 book.getTitle(),
-                book.getCoverImageUrl(),
+                presignedCoverUrl,
                 book.getReceivedAcorn(),
                 recentRecord.getReadPages(),
                 book.getTotalPages(),

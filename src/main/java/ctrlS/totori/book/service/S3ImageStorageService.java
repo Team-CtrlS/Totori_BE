@@ -44,6 +44,10 @@ public class S3ImageStorageService implements ImageStorageService {
     }
 
     public String getPresignedUrl(String fileName) {
+        if (fileName == null || fileName.isBlank()) {
+            return null;
+        }
+
         try {
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                     .bucket(bucket)

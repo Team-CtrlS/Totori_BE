@@ -1,4 +1,4 @@
-package ctrlS.totori.member.dto;
+package ctrlS.totori.member.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

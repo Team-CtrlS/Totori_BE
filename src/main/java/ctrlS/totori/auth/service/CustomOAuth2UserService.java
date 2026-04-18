@@ -4,8 +4,10 @@ import ctrlS.totori.auth.dto.OAuth2Attribute;
 import ctrlS.totori.global.security.oauth.CustomOAuth2User;
 import ctrlS.totori.member.entity.LoginType;
 import ctrlS.totori.member.entity.Member;
+import ctrlS.totori.member.entity.MemberStat;
 import ctrlS.totori.member.entity.Role;
 import ctrlS.totori.member.repository.MemberRepository;
+import ctrlS.totori.member.repository.MemberStatRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +32,7 @@ import java.util.Optional;
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     private final MemberRepository memberRepository;
+    private final MemberStatRepository memberStatRepository;
     private final HttpSession session;
 
     @Override
@@ -90,6 +93,9 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 .loginType(LoginType.KAKAO)
                 .build();
 
-        return memberRepository.save(member);
+        Member savedMember = memberRepository.save(member);
+        memberStatRepository.save(MemberStat.builder().member(savedMember).build());
+
+        return savedMember;
     }
 }

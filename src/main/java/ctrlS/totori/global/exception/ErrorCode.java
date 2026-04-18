@@ -13,7 +13,6 @@ public enum ErrorCode {
 
     // Member
     STAT_NOT_FOUND(404, "사용자의 통계 정보를 찾을 수 없습니다."),
-    // user
     USER_NOT_FOUND(404, "존재하는 사용자가 없습니다."),
     FORBIDDEN_CHILD_ONLY(403, "아동 회원만 사용 가능합니다."),
     INVALID_ROLE(403, "유효하지 않은 역할입니다."),

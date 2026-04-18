@@ -17,6 +17,7 @@ import ctrlS.totori.book.entity.BookPage;
 import ctrlS.totori.book.entity.BookReadingRecord;
 import ctrlS.totori.book.repository.BookReadingRecordRepository;
 import ctrlS.totori.book.repository.BookRepository;
+import ctrlS.totori.member.dto.AcornResponse;
 import ctrlS.totori.member.entity.Member;
 import ctrlS.totori.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -89,15 +90,11 @@ public class BookService {
         book.getPages().addAll(pages);
         Book savedBook = bookRepository.save(book);
 
-        String presignedCoverUrl = savedBook.getCoverImageUrl() != null
-                ? s3ImageStorageService.getPresignedUrl(savedBook.getCoverImageUrl())
-                : null;
+        String presignedCoverUrl = s3ImageStorageService.getPresignedUrl(savedBook.getCoverImageUrl());
 
         List<BookPageResponse> pageResponses = savedBook.getPages().stream()
                 .map(page -> {
-                    String presignedPageUrl = page.getImageUrl() != null
-                            ? s3ImageStorageService.getPresignedUrl(page.getImageUrl())
-                            : null;
+                    String presignedPageUrl = s3ImageStorageService.getPresignedUrl(page.getImageUrl());
                     return BookPageResponse.of(page, presignedPageUrl);
                 })
                 .toList();
@@ -107,15 +104,19 @@ public class BookService {
 
     @Transactional(readOnly = true)
     public MainPageResponse getMainStatus(Long memberId) {
+        Member member = memberService.findById(memberId);
         // TODO: 레벨테스트 연결 시 없으면 에러처리하도록 수정
         BookReadingRecord latestRecord = bookReadingRecordRepository.findLatestRecord(memberId)
                 .orElse(null);
-        BookCoverSummary currentBookDto = BookCoverSummary.of(latestRecord.getBook(), latestRecord);
+
+        String presignedCoverUrl = s3ImageStorageService.getPresignedUrl(latestRecord.getBook().getCoverImageUrl());
+
+        BookCoverSummary currentBookDto = BookCoverSummary.of(latestRecord.getBook(), latestRecord, presignedCoverUrl);
 
         // 대표 뱃지 조회
         MemberBadgeResponseDto badgeDto = badgeService.getRepresentativeBadge(memberId);
 
-        return new MainPageResponse(currentBookDto, badgeDto.badgeResponseDto());
+        return new MainPageResponse(AcornResponse.from(member), currentBookDto, badgeDto.badgeResponseDto());
     }
 
     @Transactional(readOnly = true)
@@ -129,9 +130,10 @@ public class BookService {
                 .stream()
                 .collect(Collectors.toMap(r -> r.getBook().getId(), r -> r));
 
-        Page<BookCardSummary> summaryPage = bookPage.map(book ->
-                BookCardSummary.of(book, latestRecordMap.get(book.getId()))
-        );
+        Page<BookCardSummary> summaryPage = bookPage.map(book -> {
+                String presignedCoverUrl = s3ImageStorageService.getPresignedUrl(book.getCoverImageUrl());
+                return BookCardSummary.of(book, latestRecordMap.get(book.getId()), presignedCoverUrl);
+        });
         return BookListResponse.of(summaryPage);
     }
 

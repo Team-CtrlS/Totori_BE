@@ -1,4 +1,4 @@
-package ctrlS.totori.member.dto;
+package ctrlS.totori.connect.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
