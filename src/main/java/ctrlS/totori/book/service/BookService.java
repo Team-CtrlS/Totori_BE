@@ -116,6 +116,8 @@ public class BookService {
         // 대표 뱃지 조회
         MemberBadgeResponseDto badgeDto = badgeService.getRepresentativeBadge(memberId);
 
+        // 레벨테스트 연결 시 수정
+        if (latestRecord == null) return new MainPageResponse(AcornResponse.from(member), null, badgeDto.badgeResponseDto());
         return new MainPageResponse(AcornResponse.from(member), currentBookDto, badgeDto.badgeResponseDto());
     }
 
