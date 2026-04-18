@@ -108,16 +108,14 @@ public class BookService {
         // TODO: 레벨테스트 연결 시 없으면 에러처리하도록 수정
         BookReadingRecord latestRecord = bookReadingRecordRepository.findLatestRecord(memberId)
                 .orElse(null);
-
-        String presignedCoverUrl = s3ImageStorageService.getPresignedUrl(latestRecord.getBook().getCoverImageUrl());
-
-        BookCoverSummary currentBookDto = BookCoverSummary.of(latestRecord.getBook(), latestRecord, presignedCoverUrl);
-
         // 대표 뱃지 조회
         MemberBadgeResponseDto badgeDto = badgeService.getRepresentativeBadge(memberId);
-
-        // 레벨테스트 연결 시 수정
+        // TODO: 레벨테스트 연결 시 수정
         if (latestRecord == null) return new MainPageResponse(AcornResponse.from(member), null, badgeDto.badgeResponseDto());
+
+        String presignedCoverUrl = s3ImageStorageService.getPresignedUrl(latestRecord.getBook().getCoverImageUrl());
+        BookCoverSummary currentBookDto = BookCoverSummary.of(latestRecord.getBook(), latestRecord, presignedCoverUrl);
+
         return new MainPageResponse(AcornResponse.from(member), currentBookDto, badgeDto.badgeResponseDto());
     }
 
