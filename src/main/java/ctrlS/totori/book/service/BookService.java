@@ -17,6 +17,8 @@ import ctrlS.totori.book.entity.BookPage;
 import ctrlS.totori.book.entity.BookReadingRecord;
 import ctrlS.totori.book.repository.BookReadingRecordRepository;
 import ctrlS.totori.book.repository.BookRepository;
+import ctrlS.totori.book.service.image.PageImageAsyncService;
+import ctrlS.totori.book.service.image.S3ImageStorageService;
 import ctrlS.totori.member.dto.response.AcornResponse;
 import ctrlS.totori.member.entity.Member;
 import ctrlS.totori.member.service.MemberService;

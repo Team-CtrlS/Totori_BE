@@ -8,7 +8,7 @@ import ctrlS.totori.badge.entity.BadgeCategory;
 import ctrlS.totori.badge.entity.MemberBadge;
 import ctrlS.totori.badge.repository.BadgeRepository;
 import ctrlS.totori.badge.repository.MemberBadgeRepository;
-import ctrlS.totori.book.service.S3ImageStorageService;
+import ctrlS.totori.book.service.image.S3ImageStorageService;
 import ctrlS.totori.global.exception.CustomException;
 import ctrlS.totori.global.exception.ErrorCode;
 import ctrlS.totori.member.entity.Member;
@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service

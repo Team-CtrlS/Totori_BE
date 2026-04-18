@@ -1,7 +1,6 @@
 package ctrlS.totori.book.dto.response;
 
 import ctrlS.totori.book.entity.Book;
-import ctrlS.totori.book.service.S3ImageStorageService;
 
 import java.util.List;
 
