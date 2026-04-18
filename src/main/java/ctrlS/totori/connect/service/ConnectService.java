@@ -1,14 +1,14 @@
-package ctrlS.totori.member.service;
+package ctrlS.totori.connect.service;
 
 import ctrlS.totori.global.exception.CustomException;
 import ctrlS.totori.global.exception.ErrorCode;
 import ctrlS.totori.global.util.RedisUtil;
-import ctrlS.totori.member.dto.ConnectRequest;
+import ctrlS.totori.connect.dto.request.ConnectRequest;
 import ctrlS.totori.member.entity.Member;
-import ctrlS.totori.member.entity.ParentChild;
+import ctrlS.totori.connect.entity.ParentChild;
 import ctrlS.totori.member.entity.Role;
 import ctrlS.totori.member.repository.MemberRepository;
-import ctrlS.totori.member.repository.ParentChildRepository;
+import ctrlS.totori.connect.repository.ParentChildRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

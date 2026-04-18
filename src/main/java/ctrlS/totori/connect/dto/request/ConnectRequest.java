@@ -1,4 +1,4 @@
-package ctrlS.totori.member.dto;
+package ctrlS.totori.connect.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
