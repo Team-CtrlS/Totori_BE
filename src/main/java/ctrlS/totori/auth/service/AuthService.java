@@ -2,15 +2,15 @@ package ctrlS.totori.auth.service;
 
 import ctrlS.totori.global.exception.CustomException;
 import ctrlS.totori.global.exception.ErrorCode;
-import ctrlS.totori.global.util.RedisUtil;
 import ctrlS.totori.member.entity.LoginType;
 import ctrlS.totori.member.entity.Member;
+import ctrlS.totori.member.entity.MemberStat;
 import ctrlS.totori.member.repository.MemberRepository;
 import ctrlS.totori.auth.dto.LoginRequest;
 import ctrlS.totori.auth.dto.SignUpRequest;
 import ctrlS.totori.auth.dto.TokenResponse;
 import ctrlS.totori.global.security.JwtTokenProvider;
-import jakarta.servlet.http.HttpSession;
+import ctrlS.totori.member.repository.MemberStatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,12 +20,13 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AuthService {
     private final MemberRepository memberRepository;
+    private final MemberStatRepository memberStatRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthRedisService authRedisService;
 
     @Transactional
-    public Long signUp(SignUpRequest request) {
+    public void signUp(SignUpRequest request) {
         // 아이디 중복 검사
         if (memberRepository.existsByLoginId(request.getLoginId())) {
             throw new CustomException(ErrorCode.DUPLICATE_LOGIN_ID);
@@ -43,8 +44,9 @@ public class AuthService {
                 .loginType(LoginType.NATIVE)
                 .build();
 
-        // DB에 저장하고 회원 고유 Id 반환
-        return memberRepository.save(member).getId();
+        // DB에 저장
+        Member savedMember = memberRepository.save(member);
+        memberStatRepository.save(MemberStat.builder().member(savedMember).build());
     }
 
     @Transactional(readOnly = true)
