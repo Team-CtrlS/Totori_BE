@@ -17,7 +17,7 @@ import ctrlS.totori.book.entity.BookPage;
 import ctrlS.totori.book.entity.BookReadingRecord;
 import ctrlS.totori.book.repository.BookReadingRecordRepository;
 import ctrlS.totori.book.repository.BookRepository;
-import ctrlS.totori.member.dto.AcornResponse;
+import ctrlS.totori.member.dto.response.AcornResponse;
 import ctrlS.totori.member.entity.Member;
 import ctrlS.totori.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
