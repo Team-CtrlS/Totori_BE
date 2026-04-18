@@ -28,9 +28,6 @@ public class MemberStat extends BaseTimeEntity {
     private int totalReadBooks = 0;
 
     @Column(nullable = false)
-    private int consecutiveAttendanceDays = 0; // 연속 출석일
-
-    @Column(nullable = false)
     private int totalAttendanceDays = 0; // 누적 출석일
 
     @Column(nullable = false)
@@ -55,10 +52,5 @@ public class MemberStat extends BaseTimeEntity {
 
     public void attend(boolean isConsecutive) {
         this.totalAttendanceDays++;
-        if (isConsecutive) {
-            this.consecutiveAttendanceDays++;
-        } else {
-            this.consecutiveAttendanceDays = 1;
-        }
     }
 }
