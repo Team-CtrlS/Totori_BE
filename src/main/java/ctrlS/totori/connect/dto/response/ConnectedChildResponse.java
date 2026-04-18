@@ -1,4 +1,4 @@
-package ctrlS.totori.member.dto;
+package ctrlS.totori.connect.dto.response;
 
 import ctrlS.totori.member.entity.Member;
 

@@ -1,6 +1,7 @@
 package ctrlS.totori.member.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import ctrlS.totori.connect.dto.response.ConnectedChildResponse;
 import ctrlS.totori.member.entity.Member;
 import ctrlS.totori.member.entity.Role;
 

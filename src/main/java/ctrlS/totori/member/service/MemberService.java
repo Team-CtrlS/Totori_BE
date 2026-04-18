@@ -11,7 +11,7 @@ import ctrlS.totori.member.dto.UpdateMemberResponse;
 import ctrlS.totori.member.entity.Member;
 import ctrlS.totori.member.entity.Role;
 import ctrlS.totori.member.repository.MemberRepository;
-import ctrlS.totori.member.repository.ParentChildRepository;
+import ctrlS.totori.connect.repository.ParentChildRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

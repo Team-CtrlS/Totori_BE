@@ -1,10 +1,10 @@
-package ctrlS.totori.member.controller;
+package ctrlS.totori.connect.controller;
 
 import ctrlS.totori.global.response.dto.BaseResponse;
 import ctrlS.totori.global.security.CustomUserPrincipal;
-import ctrlS.totori.member.dto.ConnectCodeResponse;
-import ctrlS.totori.member.dto.ConnectRequest;
-import ctrlS.totori.member.service.ConnectService;
+import ctrlS.totori.connect.dto.response.ConnectCodeResponse;
+import ctrlS.totori.connect.dto.request.ConnectRequest;
+import ctrlS.totori.connect.service.ConnectService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
