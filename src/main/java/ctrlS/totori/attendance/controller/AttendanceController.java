@@ -29,7 +29,6 @@ public class AttendanceController {
             @ApiResponse(responseCode = "200", description = "출석 체크 성공", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AttendanceResponse.class))),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자입니다.", content = @Content),
             @ApiResponse(responseCode = "404", description = "존재하는 사용자가 없습니다.", content = @Content),
-            @ApiResponse(responseCode = "404", description = "존재하는 스탯이 없습니다.", content = @Content)
     })
     @PostMapping
     public BaseResponse<AttendanceResponse> checkAttendance(
