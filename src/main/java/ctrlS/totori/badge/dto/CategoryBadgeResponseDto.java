@@ -19,13 +19,13 @@ public record CategoryBadgeResponseDto(
             String imageUrl,
             boolean isAcquired
     ) {
-        public static BadgeDetailDto from(Badge badge, boolean isAcquired) {
+        public static BadgeDetailDto from(Badge badge, boolean isAcquired, String badgeImage) {
             return new BadgeDetailDto(
                     badge.getId(),
                     badge.getName(),
                     badge.getLevel(),
                     badge.getTargetValue(),
-                    badge.getImageUrl(),
+                    badgeImage,
                     isAcquired
             );
         }

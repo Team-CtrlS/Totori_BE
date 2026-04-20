@@ -8,6 +8,7 @@ import ctrlS.totori.badge.entity.BadgeCategory;
 import ctrlS.totori.badge.entity.MemberBadge;
 import ctrlS.totori.badge.repository.BadgeRepository;
 import ctrlS.totori.badge.repository.MemberBadgeRepository;
+import ctrlS.totori.book.service.image.S3ImageStorageService;
 import ctrlS.totori.global.exception.CustomException;
 import ctrlS.totori.global.exception.ErrorCode;
 import ctrlS.totori.member.entity.Member;
@@ -21,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,11 +33,17 @@ public class BadgeService {
     private final MemberBadgeRepository memberBadgeRepository;
     private final MemberRepository memberRepository;
     private final MemberStatRepository memberStatRepository;
+    private final S3ImageStorageService s3ImageStorageService;
+
+    private final static String BADGE_IMAGE_PREFIX = "badges";
 
     //전체 뱃지 조회
     public List<BadgeResponseDto> getAllBadges() {
         return badgeRepository.findAll().stream()
-                .map(BadgeResponseDto::from)
+                .map(badge -> {
+                    String presignedBadgeImg = s3ImageStorageService.getPresignedUrl(BADGE_IMAGE_PREFIX, badge.getImageUrl());
+                    return BadgeResponseDto.from(badge, presignedBadgeImg);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -46,7 +52,10 @@ public class BadgeService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         return memberBadgeRepository.findAllByMember(member).stream()
-                .map(MemberBadgeResponseDto::from)
+                .map(memberBadge -> {
+                    String presignedBadgeImg = s3ImageStorageService.getPresignedUrl(BADGE_IMAGE_PREFIX, memberBadge.getBadge().getImageUrl());
+                    return MemberBadgeResponseDto.from(memberBadge, presignedBadgeImg);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -111,7 +120,8 @@ public class BadgeService {
         }
 
         MemberBadge result = representativeBadge != null ? representativeBadge : myBadges.get(0);
-        return MemberBadgeResponseDto.from(result);
+        String presignedBadgeImg = s3ImageStorageService.getPresignedUrl(BADGE_IMAGE_PREFIX, result.getBadge().getImageUrl());
+        return MemberBadgeResponseDto.from(result, presignedBadgeImg);
     }
 
     // 뱃지 획득 및 레벨업 검사
@@ -140,7 +150,8 @@ public class BadgeService {
                             .build();
                     memberBadgeRepository.save(newMemberBadge);
 
-                    newlyGrantedBadges.add(BadgeResponseDto.from(badge));
+                    String presignedBadgeImg = s3ImageStorageService.getPresignedUrl(BADGE_IMAGE_PREFIX, badge.getImageUrl());
+                    newlyGrantedBadges.add(BadgeResponseDto.from(badge, presignedBadgeImg));
                 }
             } else {
                 break;
@@ -164,7 +175,8 @@ public class BadgeService {
         List<CategoryBadgeResponseDto.BadgeDetailDto> badgeDetails = new java.util.ArrayList<>();
         for (Badge badge : categoryBadges) {
             boolean isAcquired = currentCount >= badge.getTargetValue();
-            badgeDetails.add(CategoryBadgeResponseDto.BadgeDetailDto.from(badge, isAcquired));
+            String presignedBadgeImg = s3ImageStorageService.getPresignedUrl(BADGE_IMAGE_PREFIX, badge.getImageUrl());
+            badgeDetails.add(CategoryBadgeResponseDto.BadgeDetailDto.from(badge, isAcquired, presignedBadgeImg));
         }
 
         return new CategoryBadgeResponseDto(

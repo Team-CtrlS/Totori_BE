@@ -1,4 +1,4 @@
-package ctrlS.totori.book.service;
+package ctrlS.totori.book.service.image;
 
 import ctrlS.totori.global.exception.CustomException;
 import ctrlS.totori.global.exception.ErrorCode;
@@ -13,7 +13,6 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
-import java.awt.*;
 import java.time.Duration;
 
 @Service
@@ -43,15 +42,19 @@ public class S3ImageStorageService implements ImageStorageService {
         }
     }
 
-    public String getPresignedUrl(String fileName) {
+    public String getPresignedUrl(String prefix, String fileName) {
         if (fileName == null || fileName.isBlank()) {
             return null;
         }
 
         try {
+            String key = (prefix != null && !prefix.isBlank())
+                    ? prefix + "/" + fileName
+                    : fileName;
+
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                     .bucket(bucket)
-                    .key("bookImages/" + fileName)
+                    .key(key)
                     .build();
 
             GetObjectPresignRequest getObjectPresignRequest = GetObjectPresignRequest.builder()
