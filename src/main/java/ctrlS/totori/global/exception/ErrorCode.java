@@ -46,7 +46,9 @@ public enum ErrorCode {
     // stt
     STT_FILE_READ_FAILED(500, "음성 파일 읽는 데 실패했습니다."),
     STT_TRANSCRIBE_FAILED(502, "STT 서버 요청에 실패했습니다."),
-    STT_EMPTY_RESULT(422, "음성에서 텍스트를 인식하지 못했습니다.");
+    STT_EMPTY_RESULT(422, "음성에서 텍스트를 인식하지 못했습니다."),
+    INVALID_AUDIO_FILE(400, "유효하지 않은 음성 파일입니다."),
+    AUDIO_FILE_TOO_LARGE(400, "음성 파일의 크기가 너무 큽니다.");
 
     private final int status;
     private final String message;
