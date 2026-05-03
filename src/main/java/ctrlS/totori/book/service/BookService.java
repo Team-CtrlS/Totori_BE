@@ -3,6 +3,7 @@ package ctrlS.totori.book.service;
 import ctrlS.totori.badge.dto.MemberBadgeResponseDto;
 import ctrlS.totori.badge.service.BadgeService;
 import ctrlS.totori.book.client.FastApiStoryClient;
+import ctrlS.totori.book.client.FastApiSttClient;
 import ctrlS.totori.book.dto.fastApi.FastApiGenerateStoryRequest;
 import ctrlS.totori.book.dto.fastApi.FastApiStoryResponse;
 import ctrlS.totori.book.dto.request.BookGenerateRequest;
@@ -27,6 +28,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -44,6 +46,7 @@ public class BookService {
     private final FastApiStoryClient fastApiStoryClient;
     private final PageImageAsyncService pageImageAsyncService;
     private final S3ImageStorageService s3ImageStorageService;
+    private final FastApiSttClient fastApiSttClient;
 
     private final static String BOOK_IMAGE_PREFIX = "bookImages";
 
@@ -104,6 +107,12 @@ public class BookService {
                 .toList();
 
         return BookGenerateResponse.of(savedBook, presignedCoverUrl, pageResponses);
+    }
+
+    public BookGenerateResponse makeBookFromVoice(Long memberId, MultipartFile audioFile) {
+        String sttText = fastApiSttClient.transcribe(audioFile);
+        BookGenerateRequest request = new BookGenerateRequest(sttText);
+        return generateBook(memberId, request);
     }
 
     @Transactional(readOnly = true)
