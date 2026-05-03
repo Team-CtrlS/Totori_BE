@@ -41,7 +41,12 @@ public enum ErrorCode {
 
     // image
     IMAGE_CREATE_ERROR(500, "이미지 생성에 실패했습니다."),
-    IMAGE_UPLOAD_ERROR(500, "S3에 이미지를 업로드하는 데 실패했습니다.");
+    IMAGE_UPLOAD_ERROR(500, "S3에 이미지를 업로드하는 데 실패했습니다."),
+
+    // stt
+    STT_FILE_READ_FAILED(500, "음성 파일 읽는 데 실패했습니다."),
+    STT_TRANSCRIBE_FAILED(502, "STT 서버 요청에 실패했습니다."),
+    STT_EMPTY_RESULT(422, "음성에서 텍스트를 인식하지 못했습니다.");
 
     private final int status;
     private final String message;
