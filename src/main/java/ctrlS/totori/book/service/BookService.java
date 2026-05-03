@@ -20,6 +20,8 @@ import ctrlS.totori.book.repository.BookReadingRecordRepository;
 import ctrlS.totori.book.repository.BookRepository;
 import ctrlS.totori.book.service.image.PageImageAsyncService;
 import ctrlS.totori.book.service.image.S3ImageStorageService;
+import ctrlS.totori.global.exception.CustomException;
+import ctrlS.totori.global.exception.ErrorCode;
 import ctrlS.totori.member.dto.response.AcornResponse;
 import ctrlS.totori.member.entity.Member;
 import ctrlS.totori.member.service.MemberService;
@@ -110,6 +112,7 @@ public class BookService {
     }
 
     public BookGenerateResponse makeBookFromVoice(Long memberId, MultipartFile audioFile) {
+        validateAudioFile(audioFile);
         String sttText = fastApiSttClient.transcribe(audioFile);
         BookGenerateRequest request = new BookGenerateRequest(sttText);
         return generateBook(memberId, request);
@@ -179,5 +182,21 @@ public class BookService {
                 .limit(3)
                 .map(Map.Entry::getKey)
                 .toList();
+    }
+
+    private void validateAudioFile(MultipartFile audioFile) {
+        if (audioFile == null || audioFile.isEmpty()) {
+            throw new CustomException(ErrorCode.STT_EMPTY_RESULT);
+        }
+
+        String contentType = audioFile.getContentType();
+        if (!contentType.startsWith("audio/")) {
+            throw new CustomException(ErrorCode.INVALID_AUDIO_FILE);
+        }
+
+        // 음성 파일 30MB 제한
+        if (audioFile.getSize() > 30 * 1024 * 1024) {
+            throw new CustomException(ErrorCode.AUDIO_FILE_TOO_LARGE);
+        }
     }
 }
