@@ -18,8 +18,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "동화 API", description = "동화 관련 API")
 @RestController
@@ -28,6 +30,18 @@ import org.springframework.web.bind.annotation.*;
 public class BookController {
 
     private final BookService bookService;
+
+    @Operation(summary = "관심사 음성 기반 동화 생성", description = "아동의 음성 녹음을 받아 STT 변환 후 맞춤형 동화를 생성합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "동화 생성 성공", content = @Content(mediaType = "application/json", schema = @Schema(implementation = BookGenerateResponse.class)))
+    })
+    @PostMapping( value = "/make", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public BaseResponse<BookGenerateResponse> makeBookFromVoice(
+            @AuthenticationPrincipal CustomUserPrincipal principal,
+            @RequestPart("audio") MultipartFile audioFile
+            ) {
+        return BaseResponse.ok(bookService.makeBookFromVoice(principal.memberId(), audioFile));
+    }
 
     @Operation(summary = "동화 생성", description = "아동의 입력값을 바탕으로 맞춤형 동화를 생성합니다.")
     @ApiResponses(value = {
