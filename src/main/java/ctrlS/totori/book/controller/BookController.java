@@ -33,7 +33,8 @@ public class BookController {
 
     @Operation(summary = "관심사 음성 기반 동화 생성", description = "아동의 음성 녹음을 받아 STT 변환 후 맞춤형 동화를 생성합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "동화 생성 성공", content = @Content(mediaType = "application/json", schema = @Schema(implementation = BookGenerateResponse.class)))
+            @ApiResponse(responseCode = "200", description = "동화 생성 성공",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BookGenerateResponse.class)))
     })
     @PostMapping( value = "/make", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponse<BookGenerateResponse> makeBookFromVoice(
@@ -45,7 +46,8 @@ public class BookController {
 
     @Operation(summary = "동화 생성", description = "아동의 입력값을 바탕으로 맞춤형 동화를 생성합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "동화 생성 성공", content = @Content(mediaType = "application/json", schema = @Schema(implementation = BookGenerateResponse.class))),
+            @ApiResponse(responseCode = "200", description = "동화 생성 성공",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BookGenerateResponse.class))),
             @ApiResponse(responseCode = "400", description = "잘못된 요청 값", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content)
     })
@@ -59,7 +61,8 @@ public class BookController {
 
     @Operation(summary = "메인페이지 조회", description = "메인페이지의 가장 최근 읽은 책과 대표 뱃지 정보를 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "메인페이지 조회 성공", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MainPageResponse.class)))
+            @ApiResponse(responseCode = "200", description = "메인페이지 조회 성공",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = MainPageResponse.class)))
     })
     @GetMapping("/main-status")
     public BaseResponse<MainPageResponse> getBookList(@AuthenticationPrincipal CustomUserPrincipal principal){
@@ -68,7 +71,8 @@ public class BookController {
 
     @Operation(summary = "유저의 전체 책 조회(페이징)", description = "유저의 전체 책을 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "책 리스트 조회 성공", content = @Content(mediaType = "application/json", schema = @Schema(implementation = BookListResponse.class)))
+            @ApiResponse(responseCode = "200", description = "책 리스트 조회 성공",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BookListResponse.class)))
     })
     @GetMapping
     public BaseResponse<BookListResponse> getBooks(
