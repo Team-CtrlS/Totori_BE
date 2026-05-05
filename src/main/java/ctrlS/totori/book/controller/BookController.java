@@ -41,7 +41,7 @@ public class BookController {
             @AuthenticationPrincipal CustomUserPrincipal principal,
             @RequestPart("audio") MultipartFile audioFile
             ) {
-        return BaseResponse.ok(bookService.makeBookFromVoice(principal.memberId(), audioFile));
+        return BaseResponse.ok(bookService.generateBookFromVoice(principal.memberId(), audioFile));
     }
 
     @Operation(summary = "동화 생성", description = "아동의 입력값을 바탕으로 맞춤형 동화를 생성합니다.")
