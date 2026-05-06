@@ -40,7 +40,8 @@ public class AuthController {
 
     @Operation(summary = "자체 로그인", description = "아이디와 비밀번호로 로그인하고 JWT 토큰을 발급받습니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "로그인 성공", content = @Content(schema = @Schema(implementation = TokenResponse.class))),
+            @ApiResponse(responseCode = "200", description = "로그인 성공",
+                    content = @Content(schema = @Schema(implementation = TokenResponse.class))),
             @ApiResponse(responseCode = "400", description = "잘못된 요청값", content = @Content),
             @ApiResponse(responseCode = "401", description = "비밀번호 불일치", content = @Content),
             @ApiResponse(responseCode = "404", description = "가입되지 않은 아이디", content = @Content)

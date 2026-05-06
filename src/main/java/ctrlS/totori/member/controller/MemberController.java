@@ -29,7 +29,8 @@ public class MemberController {
     // 회원 정보 조회
     @Operation(summary = "내 정보 조회", description = "현재 로그인한 회원의 정보를 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "회원 정보 조회 성공", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MemberMeResponse.class))),
+            @ApiResponse(responseCode = "200", description = "회원 정보 조회 성공",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = MemberMeResponse.class))),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자입니다.", content = @Content),
             @ApiResponse(responseCode = "404", description = "존재하는 사용자가 없습니다.", content = @Content)
     })
@@ -40,7 +41,9 @@ public class MemberController {
 
     // 회원 도토리 개수 조회
     @Operation(summary = "내 도토리 개수 조회", description = "현재 로그인한 회원의 도토리 개수를 조회합니다.")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "도토리 개수 조회 성공", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AcornResponse.class))),
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "도토리 개수 조회 성공",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AcornResponse.class))),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자입니다.", content = @Content),
             @ApiResponse(responseCode = "404", description = "존재하는 사용자가 없습니다.", content = @Content)
     })
@@ -53,7 +56,9 @@ public class MemberController {
 
     // 회원 정보 수정
     @Operation(summary = "내 정보 수정", description = "현재 로그인한 회원의 정보를 수정합니다.")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "회원 정보 수정 성공", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UpdateMemberResponse.class))),
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "회원 정보 수정 성공",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UpdateMemberResponse.class))),
             @ApiResponse(responseCode = "400", description = "잘못된 요청 값입니다.", content = @Content),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자입니다.", content = @Content),
             @ApiResponse(responseCode = "404", description = "존재하는 사용자가 없습니다.", content = @Content)
@@ -68,7 +73,8 @@ public class MemberController {
 
     // 회원 탈퇴
     @Operation(summary = "회원 탈퇴", description = "현재 로그인한 회원의 계정을 삭제합니다.")
-    @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "회원 탈퇴 성공", content = @Content),
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "회원 탈퇴 성공", content = @Content),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자입니다.", content = @Content),
             @ApiResponse(responseCode = "404", description = "존재하는 사용자가 없습니다.", content = @Content)
     })

@@ -19,6 +19,8 @@ import ctrlS.totori.book.repository.BookReadingRecordRepository;
 import ctrlS.totori.book.repository.BookRepository;
 import ctrlS.totori.book.service.image.PageImageAsyncService;
 import ctrlS.totori.book.service.image.S3ImageStorageService;
+import ctrlS.totori.global.exception.CustomException;
+import ctrlS.totori.global.exception.ErrorCode;
 import ctrlS.totori.member.dto.response.AcornResponse;
 import ctrlS.totori.member.entity.Member;
 import ctrlS.totori.member.service.MemberService;
@@ -27,9 +29,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 @Service
@@ -54,56 +58,22 @@ public class BookService {
         FastApiGenerateStoryRequest fastApiRequest = createFastApiRequest(request, member, latestRecord);
         FastApiStoryResponse fastApiResponse = fastApiStoryClient.generateStory(fastApiRequest);
 
-        Book book = Book.of(member, fastApiResponse);
+        return buildAndSaveBook(member, fastApiResponse);
+    }
 
-        List<BookPage> pages = fastApiResponse.pages().stream()
-                .map(pageResponse -> BookPage.of(book, pageResponse))
-                .toList();
+    public BookGenerateResponse generateBookFromVoice(Long memberId, MultipartFile audioFile) {
+        validateAudioFile(audioFile);
 
-        long bookSeed = new Random().nextInt(10000000);
+        Member member = memberService.findById(memberId);
+        BookReadingRecord latestRecord = getLatestRecord(memberId);
 
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        float recentWcpm = latestRecord != null ? latestRecord.getWcpm() : 0f;
+        List<String> weakPhonemes = extractWeakPhonemes(latestRecord);
 
-        String coverPrompt = book.getCoverImagePrompt();
-        if (coverPrompt != null && !coverPrompt.isBlank()) {
-            String coverFileName = UUID.randomUUID() + "_cover.png";
-            CompletableFuture<Void> coverFuture = pageImageAsyncService.generateAndUpload(coverPrompt, bookSeed, coverFileName)
-                    .thenAccept(imageUrl -> {
-                        book.updateCoverImageUrl(imageUrl);
-                    });
+        FastApiStoryResponse fastApiStoryResponse = fastApiStoryClient.generateStoryFromAudio(
+                audioFile, member.getLevel().toString(), recentWcpm, weakPhonemes);
 
-            futures.add(coverFuture);
-        }
-
-        int pageNumber = 1;
-        for (BookPage page : pages) {
-            String prompt = page.getImagePrompt();
-            String fileName = UUID.randomUUID() + "_page_" + pageNumber + ".png";
-
-            CompletableFuture<Void> future = pageImageAsyncService.generateAndUpload(prompt, bookSeed, fileName)
-                    .thenAccept(imageUrl -> {
-                        page.updateImageUrl(imageUrl);
-                    });
-
-         futures.add(future);
-         pageNumber++;
-        }
-
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-
-        book.getPages().addAll(pages);
-        Book savedBook = bookRepository.save(book);
-
-        String presignedCoverUrl = s3ImageStorageService.getPresignedUrl(BOOK_IMAGE_PREFIX, savedBook.getCoverImageUrl());
-
-        List<BookPageResponse> pageResponses = savedBook.getPages().stream()
-                .map(page -> {
-                    String presignedPageUrl = s3ImageStorageService.getPresignedUrl(BOOK_IMAGE_PREFIX, page.getImageUrl());
-                    return BookPageResponse.of(page, presignedPageUrl);
-                })
-                .toList();
-
-        return BookGenerateResponse.of(savedBook, presignedCoverUrl, pageResponses);
+        return buildAndSaveBook(member, fastApiStoryResponse);
     }
 
     @Transactional(readOnly = true)
@@ -170,5 +140,72 @@ public class BookService {
                 .limit(3)
                 .map(Map.Entry::getKey)
                 .toList();
+    }
+
+    private void validateAudioFile(MultipartFile audioFile) {
+        if (audioFile == null || audioFile.isEmpty()) {
+            throw new CustomException(ErrorCode.STT_EMPTY_RESULT);
+        }
+
+        String contentType = audioFile.getContentType();
+        if (!contentType.startsWith("audio/")) {
+            throw new CustomException(ErrorCode.INVALID_AUDIO_FILE);
+        }
+
+        // 음성 파일 30MB 제한
+        if (audioFile.getSize() > 30 * 1024 * 1024) {
+            throw new CustomException(ErrorCode.AUDIO_FILE_TOO_LARGE);
+        }
+    }
+
+    private BookGenerateResponse buildAndSaveBook(Member member, FastApiStoryResponse fastApiResponse) {
+        Book book = Book.of(member, fastApiResponse);
+
+        List<BookPage> pages = fastApiResponse.pages().stream()
+                .map(pageResponse -> BookPage.of(book, pageResponse))
+                .toList();
+
+        long bookSeed = ThreadLocalRandom.current().nextInt(10000000);
+
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+
+        String coverPrompt = book.getCoverImagePrompt();
+        if (coverPrompt != null && !coverPrompt.isBlank()) {
+            String coverFileName = UUID.randomUUID() + "_cover.png";
+            CompletableFuture<Void> coverFuture = pageImageAsyncService.generateAndUpload(coverPrompt, bookSeed, coverFileName)
+                    .thenAccept(imageUrl -> {
+                        book.updateCoverImageUrl(imageUrl);
+                    });
+
+            futures.add(coverFuture);
+        }
+
+        int pageNumber = 1;
+        for (BookPage page : pages) {
+            String prompt = page.getImagePrompt();
+            String fileName = UUID.randomUUID() + "_page_" + pageNumber + ".png";
+
+            CompletableFuture<Void> future = pageImageAsyncService.generateAndUpload(prompt, bookSeed, fileName)
+                    .thenAccept(page::updateImageUrl);
+
+            futures.add(future);
+            pageNumber++;
+        }
+
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+        book.getPages().addAll(pages);
+        Book savedBook = bookRepository.save(book);
+
+        String presignedCoverUrl = s3ImageStorageService.getPresignedUrl(BOOK_IMAGE_PREFIX, savedBook.getCoverImageUrl());
+
+        List<BookPageResponse> pageResponses = savedBook.getPages().stream()
+                .map(page -> {
+                    String presignedPageUrl = s3ImageStorageService.getPresignedUrl(BOOK_IMAGE_PREFIX, page.getImageUrl());
+                    return BookPageResponse.of(page, presignedPageUrl);
+                })
+                .toList();
+
+        return BookGenerateResponse.of(savedBook, presignedCoverUrl, pageResponses);
     }
 }

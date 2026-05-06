@@ -26,7 +26,8 @@ public class AttendanceController {
 
     @Operation(summary = "출석 체크", description = "현재 로그인한 아동의 출석을 체크합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "출석 체크 성공", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AttendanceResponse.class))),
+            @ApiResponse(responseCode = "200", description = "출석 체크 성공",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AttendanceResponse.class))),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자입니다.", content = @Content),
             @ApiResponse(responseCode = "404", description = "존재하는 사용자가 없습니다.", content = @Content),
     })
