@@ -1,6 +1,7 @@
 package ctrlS.totori.book.controller;
 
 import ctrlS.totori.book.dto.request.BookGenerateRequest;
+import ctrlS.totori.book.dto.response.BookDetailResponse;
 import ctrlS.totori.book.dto.response.BookGenerateResponse;
 import ctrlS.totori.book.dto.response.BookListResponse;
 import ctrlS.totori.book.dto.response.MainPageResponse;
@@ -96,5 +97,21 @@ public class BookController {
     ) {
         bookService.forwardReadingAudio(principal.memberId(), bookId, sentenceNum, audioFile);
         return BaseResponse.ok();
+    }
+
+    @Operation(summary = "동화 상세 조회", description = "특정 동화의 표지, 페이지 내용, 읽기 진행 정보를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "동화 상세 조회 성공",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = BookDetailResponse.class))),
+            @ApiResponse(responseCode = "403", description = "본인의 책이 아님", content = @Content),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 책", content = @Content)
+    })
+    @GetMapping("/{bookId}")
+    public BaseResponse<BookDetailResponse> getBookDetail(
+            @AuthenticationPrincipal CustomUserPrincipal principal,
+            @PathVariable Long bookId
+    ) {
+        return BaseResponse.ok(bookService.getBookDetail(principal.memberId(), bookId));
     }
 }

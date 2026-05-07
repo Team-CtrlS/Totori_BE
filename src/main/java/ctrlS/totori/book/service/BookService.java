@@ -146,6 +146,36 @@ public class BookService {
         );
     }
 
+    @Transactional
+    public BookDetailResponse getBookDetail(Long memberId, Long bookId) {
+        Book book = bookRepository.findByIdWithPages(bookId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_FOUND));
+
+        if (!book.getMember().getId().equals(memberId)) {
+            throw new CustomException(ErrorCode.BOOK_ACCESS_DENIED);
+        }
+
+        BookReadingRecord latestRecord = bookReadingRecordRepository
+                .findLatestRecord(bookId)
+                .orElse(null);
+
+        String presignedCoverUrl = s3ImageStorageService
+                .getPresignedUrl(BOOK_IMAGE_PREFIX, book.getCoverImageUrl());
+
+        BookCoverSummary cover = BookCoverSummary.of(book, latestRecord, presignedCoverUrl);
+
+        List<BookPageDetailResponse> pageResponses = book.getPages().stream()
+                .sorted(Comparator.comparingInt(BookPage::getPageOrder))
+                .map(page -> {
+                    String presignedPageUrl = s3ImageStorageService
+                            .getPresignedUrl(BOOK_IMAGE_PREFIX, page.getImageUrl());
+                    return BookPageDetailResponse.of(page, presignedPageUrl);
+                })
+                .toList();
+
+        return BookDetailResponse.of(cover, pageResponses);
+    }
+
     protected BookReadingRecord getLatestRecord(Long memberId) {
         return bookReadingRecordRepository
                 .findTopByBook_Member_IdOrderByUpdatedAtDesc(memberId)
