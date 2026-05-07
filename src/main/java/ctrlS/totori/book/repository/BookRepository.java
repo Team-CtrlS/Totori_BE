@@ -20,4 +20,10 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             ORDER BY p.pageOrder ASC
             """)
     Optional<Book> findByIdWithPages(@Param("bookId") Long bookId);
+
+    @Query("""
+        SELECT b FROM Book b
+        WHERE b.id = :bookId AND b.member.id = :memberId
+        """)
+    Optional<Book> findByIdAndMemberId(@Param("bookId") Long bookId, @Param("memberId") Long memberId);
 }

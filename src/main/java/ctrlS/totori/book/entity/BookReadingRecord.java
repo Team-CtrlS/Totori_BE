@@ -58,4 +58,9 @@ public class BookReadingRecord extends BaseTimeEntity {
         this.wrongWords = wrongWords != null ? wrongWords : new ArrayList<>();
         this.mistakes = mistakes != null ? mistakes : new HashMap<>();
     }
+
+    public void markAsCompleted() {
+        this.isCompleted = true;
+        this.readPages = this.book.getTotalPages();
+    }
 }

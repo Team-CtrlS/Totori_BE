@@ -1,10 +1,8 @@
 package ctrlS.totori.book.controller;
 
+import ctrlS.totori.book.dto.request.BookCompleteRequest;
 import ctrlS.totori.book.dto.request.BookGenerateRequest;
-import ctrlS.totori.book.dto.response.BookDetailResponse;
-import ctrlS.totori.book.dto.response.BookGenerateResponse;
-import ctrlS.totori.book.dto.response.BookListResponse;
-import ctrlS.totori.book.dto.response.MainPageResponse;
+import ctrlS.totori.book.dto.response.*;
 import ctrlS.totori.book.service.BookService;
 import ctrlS.totori.global.response.dto.BaseResponse;
 import ctrlS.totori.global.security.CustomUserPrincipal;
@@ -113,5 +111,22 @@ public class BookController {
             @PathVariable Long bookId
     ) {
         return BaseResponse.ok(bookService.getBookDetail(principal.memberId(), bookId));
+    }
+
+    @Operation(summary = "책 완독 처리", description = "책 읽기를 완료하고 획득한 뱃지를 반환합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "완독 처리 성공",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = BookCompleteResponse.class))),
+            @ApiResponse(responseCode = "404", description = "책 또는 읽기 기록 없음", content = @Content),
+            @ApiResponse(responseCode = "409", description = "이미 완독된 책", content = @Content)
+    })
+    @PostMapping("/{bookId}/complete")
+    public BaseResponse<BookCompleteResponse> completeBook(
+            @AuthenticationPrincipal CustomUserPrincipal principal,
+            @PathVariable Long bookId,
+            @Valid @RequestBody BookCompleteRequest request
+    ) {
+        return BaseResponse.ok(bookService.completeBook(principal.memberId(), bookId, request));
     }
 }

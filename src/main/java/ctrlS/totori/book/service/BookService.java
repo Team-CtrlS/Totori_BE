@@ -1,10 +1,13 @@
 package ctrlS.totori.book.service;
 
+import ctrlS.totori.badge.dto.BadgeResponseDto;
 import ctrlS.totori.badge.dto.MemberBadgeResponseDto;
+import ctrlS.totori.badge.entity.BadgeCategory;
 import ctrlS.totori.badge.service.BadgeService;
 import ctrlS.totori.book.client.FastApiStoryClient;
 import ctrlS.totori.book.dto.fastApi.FastApiGenerateStoryRequest;
 import ctrlS.totori.book.dto.fastApi.FastApiStoryResponse;
+import ctrlS.totori.book.dto.request.BookCompleteRequest;
 import ctrlS.totori.book.dto.request.BookGenerateRequest;
 import ctrlS.totori.book.dto.response.*;
 import ctrlS.totori.book.dto.summary.BookCardSummary;
@@ -23,6 +26,8 @@ import ctrlS.totori.global.exception.CustomException;
 import ctrlS.totori.global.exception.ErrorCode;
 import ctrlS.totori.member.dto.response.AcornResponse;
 import ctrlS.totori.member.entity.Member;
+import ctrlS.totori.member.entity.MemberStat;
+import ctrlS.totori.member.repository.MemberStatRepository;
 import ctrlS.totori.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,6 +58,7 @@ public class BookService {
     private final S3ImageStorageService s3ImageStorageService;
     private final TtsService ttsService;
     private final S3AudioStorageService s3AudioStorageService;
+    private final MemberStatRepository memberStatRepository;
 
     private final static String BOOK_IMAGE_PREFIX = "bookImages";
     private final static String BOOK_AUDIO_PREFIX = "bookAudios";
@@ -263,6 +269,11 @@ public class BookService {
 
         Book savedBook = bookRepository.save(book);
 
+        MemberStat memberStat = memberStatRepository.findByMember(member)
+                .orElseThrow(() -> new CustomException(ErrorCode.STAT_NOT_FOUND));
+        memberStat.addCreatedBook();
+        badgeService.checkAndGrantBadge(member.getId(), BadgeCategory.BOOK_CREATED);
+
         try {
             ttsService.generateAllAudios(savedBook);
             bookRepository.save(savedBook);
@@ -283,5 +294,41 @@ public class BookService {
                 .toList();
 
         return BookGenerateResponse.of(savedBook, presignedCoverUrl, pageResponses);
+    }
+
+    @Transactional
+    public BookCompleteResponse completeBook(Long memberId, Long bookId, BookCompleteRequest request) {
+        Book book = bookRepository.findByIdAndMemberId(bookId, memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOOK_ACCESS_DENIED));
+
+        BookReadingRecord latestRecord = bookReadingRecordRepository.findLatestByBookId(bookId)
+                .orElseThrow(() -> new CustomException(ErrorCode.READING_RECORD_NOT_EXIST));
+
+        if (latestRecord.isCompleted()) {
+            return BookCompleteResponse.of(book, 0, List.of());
+        }
+
+        latestRecord.markAsCompleted();
+
+        int acornCount = request.acornCount();
+        book.addReceivedAcorn(acornCount);
+
+        Member member = memberService.findById(memberId);
+        MemberStat memberStat = memberStatRepository.findByMember(member)
+                .orElseThrow(() -> new CustomException(ErrorCode.STAT_NOT_FOUND));
+
+        memberStat.addReadBook();
+
+        if (acornCount > 0) {
+            memberStat.addAcquiredAcorn(acornCount);
+        }
+
+        List<BadgeResponseDto> newlyAcquiredBadges = new ArrayList<>();
+        newlyAcquiredBadges.addAll(badgeService.checkAndGrantBadge(memberId, BadgeCategory.BOOK_READ));
+        if (acornCount > 0) {
+            newlyAcquiredBadges.addAll(badgeService.checkAndGrantBadge(memberId, BadgeCategory.ACORN));
+        }
+
+        return BookCompleteResponse.of(book, acornCount, newlyAcquiredBadges);
     }
 }

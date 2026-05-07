@@ -38,6 +38,6 @@ public class Badge {
         this.level = level;
         this.name = name;
         this.targetValue = targetValue;
-        this.imageUrl = this.imageUrl;
+        this.imageUrl = imageUrl;
     }
 }
