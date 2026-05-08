@@ -112,8 +112,8 @@ public class BookService {
         return BookListResponse.of(summaryPage);
     }
 
-    // 동화 낭독 음성 분석
-    public void analyzePageReading(
+    // 동화 낭독 음성 전송
+    public void forwardReadingAudio(
             Long memberId, Long bookId, int sentenceNum, MultipartFile audioFile) {
         validateAudioFile(audioFile);
 
