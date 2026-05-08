@@ -28,7 +28,8 @@ public class ConnectController {
 
     @Operation(summary = "연결 코드 생성 (아동용)", description = "아동이 보호자와 연결하기 위한 5자리 난수 코드를 생성합니다. (유효시간 10분)")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "연결 코드 생성 성공", content = @Content(schema = @Schema(implementation = ConnectCodeResponse.class))),
+            @ApiResponse(responseCode = "200", description = "연결 코드 생성 성공",
+                    content = @Content(schema = @Schema(implementation = ConnectCodeResponse.class))),
             @ApiResponse(responseCode = "400", description = "잘못된 요청값", content = @Content)
     })
     @PostMapping("/code")
@@ -40,7 +41,8 @@ public class ConnectController {
 
     @Operation(summary = "아동-보호자 계정 연결")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "계정 연결 성공", content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "200", description = "계정 연결 성공",
+                    content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "잘못된 요청값 또는 유효하지 않은 연결 코드", content = @Content)
     })
     @PostMapping
