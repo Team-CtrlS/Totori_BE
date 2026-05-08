@@ -82,4 +82,19 @@ public class BookController {
         BookListResponse response = bookService.getBookList(principal.memberId(), pageable);
         return BaseResponse.ok(response);
     }
+
+    @Operation(summary = "동화 낭독 음성 분석", description = "페이지 낭독 음성을 수신하여 읽기 오류를 분석합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "동화 낭독 음성 분석 성공", content = @Content)
+    })
+    @PostMapping(value = "/{bookId}/reading/{sentenceNum}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public BaseResponse<Void> analyzeReading(
+            @AuthenticationPrincipal CustomUserPrincipal principal,
+            @PathVariable Long bookId,
+            @PathVariable int sentenceNum,
+            @RequestPart("audio") MultipartFile audioFile
+    ) {
+        bookService.analyzePageReading(principal.memberId(), bookId, sentenceNum, audioFile);
+        return BaseResponse.ok();
+    }
 }
