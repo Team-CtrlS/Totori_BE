@@ -32,7 +32,8 @@ public class FastApiStoryClient {
                 .uri("/ai/story/generate")
                 .bodyValue(request)
                 .retrieve()
-                .onStatus(HttpStatusCode::isError, clientResponse -> Mono.error(new CustomException(ErrorCode.STT_TRANSCRIBE_FAILED)))
+                .onStatus(HttpStatusCode::isError, clientResponse ->
+                        Mono.error(new CustomException(ErrorCode.STT_TRANSCRIBE_FAILED)))
                 .bodyToMono(FastApiStoryResponse.class)
                 .block();
     }
@@ -52,6 +53,25 @@ public class FastApiStoryClient {
                 .onStatus(HttpStatusCode::isError, clientResponse ->
                         Mono.error(new CustomException(ErrorCode.STT_TRANSCRIBE_FAILED)))
                 .bodyToMono(FastApiStoryResponse.class)
+                .block();
+    }
+
+    public void analyzeReading(
+            MultipartFile audioFile,
+            String originalText,
+            Long childId,
+            Long bookId,
+            String level) {
+        MultipartBodyBuilder builder = buildReadingMultipartBody(audioFile, originalText, childId, bookId, level);
+
+        fastApiSttWebClient.post()
+                .uri("/ai/reading/analyze")
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(BodyInserters.fromMultipartData((builder.build())))
+                .retrieve()
+                .onStatus(HttpStatusCode::isError, clientResponse ->
+                        Mono.error(new CustomException(ErrorCode.STT_TRANSCRIBE_FAILED)))
+                .bodyToMono(Void.class)
                 .block();
     }
 
@@ -80,6 +100,35 @@ public class FastApiStoryClient {
             if (weakPhonemes != null && !weakPhonemes.isEmpty()) {
                 builder.part("weak_phonemes", objectMapper.writeValueAsString(weakPhonemes));
             }
+            return builder;
+        } catch (IOException e) {
+            throw new CustomException(ErrorCode.STT_FILE_READ_FAILED);
+        }
+    }
+
+    private MultipartBodyBuilder buildReadingMultipartBody(
+            MultipartFile audioFile,
+            String originalText,
+            Long childId,
+            Long bookId,
+            String level) {
+        try {
+            String filename = audioFile.getOriginalFilename();
+            MediaType contentType = MediaType.parseMediaType(audioFile.getContentType());
+
+            ByteArrayResource resource = new ByteArrayResource(audioFile.getBytes()) {
+                @Override
+                public String getFilename() {
+                    return filename;
+                }
+            };
+
+            MultipartBodyBuilder builder = new MultipartBodyBuilder();
+            builder.part("file", resource).contentType(contentType);
+            builder.part("original_text", originalText);
+            builder.part("child_id", childId.toString());
+            builder.part("book_id", bookId.toString());
+            builder.part("level", level);
             return builder;
         } catch (IOException e) {
             throw new CustomException(ErrorCode.STT_FILE_READ_FAILED);
