@@ -117,7 +117,7 @@ public class BookService {
             Long memberId, Long bookId, int sentenceNum, MultipartFile audioFile) {
         validateAudioFile(audioFile);
 
-        Member member = memberService.findById(bookId);
+        Member member = memberService.findById(memberId);
         bookRepository.findById(bookId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_FOUND));
 
