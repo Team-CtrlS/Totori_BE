@@ -51,15 +51,31 @@ public class TtsService {
                     }
 
                     CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                        try {
-                            byte[] audio = elevenLabsClient.synthesize(sentence.getText());
-                            String fileName = String.format("%d_%d_%d.mp3", book.getId(), pageOrder, sentenceIdx);
-                            s3AudioStorageService.uploadAudio(audio, fileName);
-                            sentence.updateAudio(fileName, null);
-                        } catch (Exception e) {
-                            log.error("문장 TTS 실패: bookId={}, page={}, idx={}, error={}",
-                                    book.getId(), pageOrder, sentenceIdx, e.getMessage());
-                            // 개별 문장 실패는 무시하고 계속
+                        int maxRetries = 3;
+                        for (int attempt = 1; attempt <= maxRetries; attempt++) {
+                            try {
+                                byte[] audio = elevenLabsClient.synthesize(sentence.getText());
+                                String fileName = String.format("%d_%d_%d.mp3",
+                                        book.getId(), pageOrder, sentenceIdx);
+                                s3AudioStorageService.uploadAudio(audio, fileName);
+                                sentence.updateAudio(fileName, null);
+                                return; // 성공
+                            } catch (Exception e) {
+                                log.warn("문장 TTS 시도 {}/{} 실패: bookId={}, page={}, idx={}",
+                                        attempt, maxRetries, book.getId(), pageOrder, sentenceIdx);
+
+                                if (attempt < maxRetries) {
+                                    try {
+                                        Thread.sleep(1000L * (1L << (attempt - 1)));
+                                    } catch (InterruptedException ie) {
+                                        Thread.currentThread().interrupt();
+                                        return;
+                                    }
+                                } else {
+                                    log.error("문장 TTS 최종 실패: bookId={}, page={}, idx={}",
+                                            book.getId(), pageOrder, sentenceIdx, e);
+                                }
+                            }
                         }
                     }, executor);
 
