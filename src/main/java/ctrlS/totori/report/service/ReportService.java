@@ -2,10 +2,8 @@ package ctrlS.totori.report.service;
 
 import ctrlS.totori.book.entity.BookReadingRecord;
 import ctrlS.totori.book.repository.BookReadingRecordRepository;
-import ctrlS.totori.global.exception.CustomException;
-import ctrlS.totori.global.exception.ErrorCode;
 import ctrlS.totori.member.entity.Member;
-import ctrlS.totori.member.repository.MemberRepository;
+import ctrlS.totori.member.service.MemberService;
 import ctrlS.totori.report.dto.common.ChildDto;
 import ctrlS.totori.report.dto.common.DataPointDto;
 import ctrlS.totori.report.dto.response.TotalReportResponse;
@@ -30,14 +28,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class ReportService {
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
     private final BookReadingRecordRepository bookReadingRecordRepository;
     private final SpeakingErrorTypeRepository speakingErrorTypeRepository;
 
     @Transactional(readOnly = true)
     public WeeklyReportResponse getWeeklyReport(Long memberId) {
-        Member child = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        Member child = memberService.findChildByParentId(memberId);
         ChildDto childDto = ChildDto.from(child);
 
         LocalDate today = LocalDate.now();
@@ -66,8 +63,7 @@ public class ReportService {
 
     @Transactional(readOnly = true)
     public TotalReportResponse getTotalReport(Long memberId) {
-        Member child = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        Member child = memberService.findChildByParentId(memberId);
         ChildDto childDto = ChildDto.from(child);
 
         LocalDateTime now = LocalDateTime.now();
