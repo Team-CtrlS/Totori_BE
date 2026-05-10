@@ -38,6 +38,7 @@ public enum ErrorCode {
     ONLY_PARENT_CAN_CONNECT_CHILD(403, "부모 계정만 연결 코드를 입력할 수 있습니다."),
     INVALID_OR_EXPIRED_CONNECT_CODE(400, "유효하지 않거나 만료된 연결 코드입니다."),
     ALREADY_CONNECTED_CHILD(409, "이미 연결된 아동 계정입니다."),
+    CHILD_NOT_EXIST_FROM_PARENT(404, "부모에 연결된 아동이 없습니다."),
 
     // image
     IMAGE_CREATE_ERROR(500, "이미지 생성에 실패했습니다."),
