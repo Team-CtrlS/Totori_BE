@@ -35,7 +35,7 @@ public class StableDiffusionService {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("prompt", enhancedPrompt);
         body.add("model", "sd3.5-flash");
-        body.add("aspect-ratio", "4:6");
+        body.add("aspect-ratio", "3:7");
         body.add("output_format", "png");
         body.add("seed", seed); //하나의 동화책에 같은 시드를 부여하여 이미지간 연결성을 높입니다.
 
