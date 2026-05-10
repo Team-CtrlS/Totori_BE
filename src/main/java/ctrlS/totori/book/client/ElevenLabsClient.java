@@ -30,8 +30,10 @@ public class ElevenLabsClient {
                 "text", text,
                 "model_id", defaultModelId,
                 "voice_settings", Map.of(
-                        "stability", 0.5,
-                        "similarity_boost", 0.75
+                        "stability", 0.75,
+                        "similarity_boost", 0.75,
+                        "style", 0.5,
+                        "speed", 0.80
                 )
         );
 
