@@ -1,4 +1,4 @@
-package ctrlS.totori.book.service;
+package ctrlS.totori.book.service.audio;
 
 import ctrlS.totori.global.exception.CustomException;
 import ctrlS.totori.global.exception.ErrorCode;

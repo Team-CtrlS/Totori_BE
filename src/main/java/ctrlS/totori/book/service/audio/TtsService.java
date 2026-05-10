@@ -1,11 +1,10 @@
-package ctrlS.totori.book.service;
+package ctrlS.totori.book.service.audio;
 
 import ctrlS.totori.book.client.ElevenLabsClient;
 import ctrlS.totori.book.entity.Book;
 import ctrlS.totori.book.entity.BookPage;
 import ctrlS.totori.book.entity.SentenceData;
 import ctrlS.totori.book.repository.BookRepository;
-import ctrlS.totori.book.service.image.S3ImageStorageService;
 import ctrlS.totori.global.exception.CustomException;
 import ctrlS.totori.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

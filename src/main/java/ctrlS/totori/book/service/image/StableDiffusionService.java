@@ -1,4 +1,4 @@
-package ctrlS.totori.book.service;
+package ctrlS.totori.book.service.image;
 
 import ctrlS.totori.global.exception.CustomException;
 import ctrlS.totori.global.exception.ErrorCode;

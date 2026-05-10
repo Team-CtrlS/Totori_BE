@@ -1,8 +1,7 @@
 package ctrlS.totori.book.dto.response;
 
 import ctrlS.totori.book.entity.BookPage;
-import ctrlS.totori.book.entity.SentenceData;
-import ctrlS.totori.book.service.S3AudioStorageService;
+import ctrlS.totori.book.service.audio.S3AudioStorageService;
 
 import java.util.List;
 
