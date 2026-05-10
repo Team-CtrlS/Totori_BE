@@ -89,4 +89,11 @@ public class MemberService {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
+
+    // TODO: 부모-아동 일대다 연결 가능할 경우 수정
+    public Member findChildByParentId(Long parentId){
+        return parentChildRepository.findChildrenByParentId(parentId)
+                .stream().findFirst()
+                .orElseThrow(() -> new CustomException(ErrorCode.CHILD_NOT_EXIST_FROM_PARENT));
+    }
 }

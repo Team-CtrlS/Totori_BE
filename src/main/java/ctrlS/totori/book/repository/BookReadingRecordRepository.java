@@ -28,7 +28,7 @@ public interface BookReadingRecordRepository extends JpaRepository<BookReadingRe
     @Query("SELECT brr FROM BookReadingRecord brr " +
             "JOIN FETCH brr.book b " +
             "WHERE b.member = :member " +
-            "AND brr.createdAt BETWEEN :start AND :end")
+            "AND b.createdAt BETWEEN :start AND :end")
     List<BookReadingRecord> findAllByMemberAndCreatedAtBetween(
             @Param("member") Member member,
             @Param("start") LocalDateTime start,
