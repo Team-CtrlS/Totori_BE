@@ -29,6 +29,7 @@ public enum ErrorCode {
     // Book
     BOOK_NOT_EXIST(401, "해당 회원이 보유하고 있는 책이 없습니다."),
     BOOK_NOT_FOUND(404, "해당 책이 존재하지 않습니다."),
+    PAGE_NOT_FOUND(404, "해당 페이지가 존재하지 않습니다."),
 
     // Badge
     BADGE_NOT_FOUND(404, "보유한 뱃지가 없습니다."),

@@ -12,6 +12,7 @@ import ctrlS.totori.book.dto.summary.BookCoverSummary;
 import ctrlS.totori.book.entity.Book;
 import ctrlS.totori.book.entity.BookPage;
 import ctrlS.totori.book.entity.BookReadingRecord;
+import ctrlS.totori.book.repository.BookPageRepository;
 import ctrlS.totori.book.repository.BookReadingRecordRepository;
 import ctrlS.totori.book.repository.BookRepository;
 import ctrlS.totori.book.service.audio.S3AudioStorageService;
@@ -46,6 +47,7 @@ public class BookService {
     private final BookRepository bookRepository;
     private final BadgeService badgeService;
     private final BookReadingRecordRepository bookReadingRecordRepository;
+    private final BookPageRepository bookPageRepository;
     private final FastApiStoryClient fastApiStoryClient;
     private final PageImageAsyncService pageImageAsyncService;
     private final S3ImageStorageService s3ImageStorageService;
@@ -55,6 +57,7 @@ public class BookService {
     private final static String BOOK_IMAGE_PREFIX = "bookImages";
     private final static String BOOK_AUDIO_PREFIX = "bookAudios";
 
+    // 텍스트 기반 동화 생성
     public BookGenerateResponse generateBook(Long memberId, BookGenerateRequest request) {
         Member member = memberService.findById(memberId);
         BookReadingRecord latestRecord = getLatestRecord(memberId);
@@ -65,6 +68,7 @@ public class BookService {
         return buildAndSaveBook(member, fastApiResponse);
     }
 
+    // 관심사 음성 기반 동화 생성
     public BookGenerateResponse generateBookFromVoice(Long memberId, MultipartFile audioFile) {
         validateAudioFile(audioFile);
 
@@ -114,6 +118,32 @@ public class BookService {
             return BookCardSummary.of(book, latestRecordMap.get(book.getId()), presignedCoverUrl);
         });
         return BookListResponse.of(summaryPage);
+    }
+
+    // 동화 낭독 음성 전송
+    public void forwardReadingAudio(
+            Long memberId, Long bookId, int sentenceNum, MultipartFile audioFile) {
+        validateAudioFile(audioFile);
+
+        Member member = memberService.findById(memberId);
+        bookRepository.findById(bookId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_FOUND));
+
+        int pageOrder = (sentenceNum - 1) / 3 + 1;
+        int sentenceIndex = (sentenceNum - 1) % 3;
+
+        BookPage page = bookPageRepository.findByBook_idAndPageOrder(bookId, pageOrder)
+                .orElseThrow(() -> new CustomException(ErrorCode.PAGE_NOT_FOUND));
+
+        String originalText = page.getSentences().get(sentenceIndex);
+
+        fastApiStoryClient.analyzeReading(
+                audioFile,
+                originalText,
+                member.getId(),
+                bookId,
+                member.getLevel().toString()
+        );
     }
 
     protected BookReadingRecord getLatestRecord(Long memberId) {
