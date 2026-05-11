@@ -50,9 +50,7 @@ public class BookPage extends BaseTimeEntity {
     }
 
     public static BookPage of(Book book, FastApiPageResponse response) {
-        List<SentenceData> sentenceData = response.sentences().stream()
-                .map(SentenceData::ofText)
-                .toList();
+        List<SentenceData> sentenceData = response.sentences();
 
         return BookPage.builder()
                 .book(book)
