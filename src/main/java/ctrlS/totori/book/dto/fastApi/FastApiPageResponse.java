@@ -1,6 +1,8 @@
 package ctrlS.totori.book.dto.fastApi;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import ctrlS.totori.book.entity.SentenceData;
+
 import java.util.List;
 
 public record FastApiPageResponse(
@@ -10,5 +12,5 @@ public record FastApiPageResponse(
         @JsonProperty("image_prompt")
         String imagePrompt,
 
-        List<String> sentences
+        List<SentenceData> sentences
 ) { }
