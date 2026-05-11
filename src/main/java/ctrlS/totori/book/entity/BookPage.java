@@ -32,7 +32,7 @@ public class BookPage extends BaseTimeEntity {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "json", nullable = false)
-    private List<String> sentences = new ArrayList<>();
+    private List<SentenceData> sentences = new ArrayList<>();
 
     @Column(nullable = true)
     private String imageUrl;
@@ -41,7 +41,7 @@ public class BookPage extends BaseTimeEntity {
     private String imagePrompt;
 
     @Builder
-    public BookPage(Book book, int pageOrder, List<String> sentences, String imagePrompt, String imageUrl) {
+    public BookPage(Book book, int pageOrder, List<SentenceData> sentences, String imagePrompt, String imageUrl) {
         this.book = book;
         this.pageOrder = pageOrder;
         this.sentences = sentences != null ? new ArrayList<>(sentences) : new ArrayList<>();
@@ -50,10 +50,14 @@ public class BookPage extends BaseTimeEntity {
     }
 
     public static BookPage of(Book book, FastApiPageResponse response) {
+        List<SentenceData> sentenceData = response.sentences().stream()
+                .map(SentenceData::ofText)
+                .toList();
+
         return BookPage.builder()
                 .book(book)
                 .pageOrder(response.pageOrder())
-                .sentences(response.sentences())
+                .sentences(sentenceData)
                 .imagePrompt(response.imagePrompt())
                 .imageUrl(null)
                 .build();

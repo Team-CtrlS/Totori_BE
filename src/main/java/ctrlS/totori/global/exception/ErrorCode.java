@@ -29,6 +29,7 @@ public enum ErrorCode {
     // Book
     BOOK_NOT_EXIST(401, "해당 회원이 보유하고 있는 책이 없습니다."),
     BOOK_NOT_FOUND(404, "해당 책이 존재하지 않습니다."),
+    PAGE_NOT_FOUND(404, "해당 페이지가 존재하지 않습니다."),
 
     // Badge
     BADGE_NOT_FOUND(404, "보유한 뱃지가 없습니다."),
@@ -43,6 +44,11 @@ public enum ErrorCode {
     // image
     IMAGE_CREATE_ERROR(500, "이미지 생성에 실패했습니다."),
     IMAGE_UPLOAD_ERROR(500, "S3에 이미지를 업로드하는 데 실패했습니다."),
+
+    // tts
+    TTS_GENERATION_FAILED(500, "TTS 음성 생성에 실패했습니다."),
+    TTS_UPLOAD_FAILED(500, "TTS 음성 업로드에 실패했습니다."),
+    TTS_NOT_READY(404, "음성이 아직 준비되지 않았습니다."),
 
     // stt
     STT_FILE_READ_FAILED(500, "음성 파일 읽는 데 실패했습니다."),
