@@ -90,8 +90,8 @@ public class BookController {
     @PostMapping(value = "/{bookId}/reading/{sentenceNum}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponse<Void> forwardReadingAudio(
             @AuthenticationPrincipal CustomUserPrincipal principal,
-            @PathVariable Long bookId,
-            @PathVariable int sentenceNum,
+            @PathVariable("bookId") Long bookId,
+            @PathVariable("sentenceNum") int sentenceNum,
             @RequestPart("audio") MultipartFile audioFile
     ) {
         bookService.forwardReadingAudio(principal.memberId(), bookId, sentenceNum, audioFile);
