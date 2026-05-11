@@ -36,6 +36,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import ctrlS.totori.book.entity.SentenceData;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -172,11 +173,7 @@ public class BookService {
 
         List<BookPageDetailResponse> pageResponses = book.getPages().stream()
                 .sorted(Comparator.comparingInt(BookPage::getPageOrder))
-                .map(page -> {
-                    String presignedPageUrl = s3ImageStorageService
-                            .getPresignedUrl(BOOK_IMAGE_PREFIX, page.getImageUrl());
-                    return BookPageDetailResponse.of(page, presignedPageUrl);
-                })
+                .map(this::toPageDetailResponse)  // ★ private 메서드로 위임
                 .toList();
 
         return BookDetailResponse.of(cover, pageResponses);
@@ -288,8 +285,10 @@ public class BookService {
                 .map(page -> {
                     String presignedPageUrl = s3ImageStorageService.getPresignedUrl(
                             BOOK_IMAGE_PREFIX, page.getImageUrl());
-                    return BookPageResponse.of(
-                            page, presignedPageUrl, s3AudioStorageService, BOOK_AUDIO_PREFIX);
+                    List<SentenceResponse> sentences = page.getSentences().stream()
+                            .map(this::toSentenceResponse)
+                            .toList();
+                    return BookPageResponse.of(page, presignedPageUrl, sentences);
                 })
                 .toList();
 
@@ -330,5 +329,27 @@ public class BookService {
         }
 
         return BookCompleteResponse.of(book, acornCount, newlyAcquiredBadges);
+    }
+
+    private BookPageDetailResponse toPageDetailResponse(BookPage page) {
+        String presignedImageUrl = s3ImageStorageService.getPresignedUrl(
+                BOOK_IMAGE_PREFIX, page.getImageUrl());
+
+        List<SentenceResponse> sentences = page.getSentences().stream()
+                .map(this::toSentenceResponse)  // buildAndSaveBook에서도 쓰는 메서드
+                .toList();
+
+        return BookPageDetailResponse.of(page, presignedImageUrl, sentences);
+    }
+
+    private SentenceResponse toSentenceResponse(SentenceData data) {
+        String audioUrl = s3AudioStorageService.getPresignedUrl(
+                BOOK_AUDIO_PREFIX, data.getAudioS3Key());
+
+        return new SentenceResponse(
+                data.getText(),
+                audioUrl,
+                data.getDurationMs()
+        );
     }
 }
