@@ -135,7 +135,7 @@ public class BookService {
         BookPage page = bookPageRepository.findByBook_idAndPageOrder(bookId, pageOrder)
                 .orElseThrow(() -> new CustomException(ErrorCode.PAGE_NOT_FOUND));
 
-        String originalText = page.getSentences().get(sentenceIndex);
+        String originalText = page.getSentences().get(sentenceIndex).getText();
 
         fastApiStoryClient.analyzeReading(
                 audioFile,
