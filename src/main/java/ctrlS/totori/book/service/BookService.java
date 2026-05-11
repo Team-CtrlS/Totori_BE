@@ -6,10 +6,7 @@ import ctrlS.totori.book.client.FastApiStoryClient;
 import ctrlS.totori.book.dto.fastApi.FastApiGenerateStoryRequest;
 import ctrlS.totori.book.dto.fastApi.FastApiStoryResponse;
 import ctrlS.totori.book.dto.request.BookGenerateRequest;
-import ctrlS.totori.book.dto.response.BookGenerateResponse;
-import ctrlS.totori.book.dto.response.BookListResponse;
-import ctrlS.totori.book.dto.response.BookPageResponse;
-import ctrlS.totori.book.dto.response.MainPageResponse;
+import ctrlS.totori.book.dto.response.*;
 import ctrlS.totori.book.dto.summary.BookCardSummary;
 import ctrlS.totori.book.dto.summary.BookCoverSummary;
 import ctrlS.totori.book.entity.Book;
@@ -17,6 +14,8 @@ import ctrlS.totori.book.entity.BookPage;
 import ctrlS.totori.book.entity.BookReadingRecord;
 import ctrlS.totori.book.repository.BookReadingRecordRepository;
 import ctrlS.totori.book.repository.BookRepository;
+import ctrlS.totori.book.service.audio.S3AudioStorageService;
+import ctrlS.totori.book.service.audio.TtsService;
 import ctrlS.totori.book.service.image.PageImageAsyncService;
 import ctrlS.totori.book.service.image.S3ImageStorageService;
 import ctrlS.totori.global.exception.CustomException;
@@ -25,6 +24,7 @@ import ctrlS.totori.member.dto.response.AcornResponse;
 import ctrlS.totori.member.entity.Member;
 import ctrlS.totori.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -36,6 +36,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -48,8 +49,11 @@ public class BookService {
     private final FastApiStoryClient fastApiStoryClient;
     private final PageImageAsyncService pageImageAsyncService;
     private final S3ImageStorageService s3ImageStorageService;
+    private final TtsService ttsService;
+    private final S3AudioStorageService s3AudioStorageService;
 
     private final static String BOOK_IMAGE_PREFIX = "bookImages";
+    private final static String BOOK_AUDIO_PREFIX = "bookAudios";
 
     public BookGenerateResponse generateBook(Long memberId, BookGenerateRequest request) {
         Member member = memberService.findById(memberId);
@@ -85,7 +89,8 @@ public class BookService {
         // 대표 뱃지 조회
         MemberBadgeResponseDto badgeDto = badgeService.getRepresentativeBadge(memberId);
         // TODO: 레벨테스트 연결 시 수정
-        if (latestRecord == null) return new MainPageResponse(AcornResponse.from(member), null, badgeDto.badgeResponseDto());
+        if (latestRecord == null)
+            return new MainPageResponse(AcornResponse.from(member), null, badgeDto.badgeResponseDto());
 
         String presignedCoverUrl = s3ImageStorageService.getPresignedUrl(BOOK_IMAGE_PREFIX, latestRecord.getBook().getCoverImageUrl());
         BookCoverSummary currentBookDto = BookCoverSummary.of(latestRecord.getBook(), latestRecord, presignedCoverUrl);
@@ -105,8 +110,8 @@ public class BookService {
                 .collect(Collectors.toMap(r -> r.getBook().getId(), r -> r));
 
         Page<BookCardSummary> summaryPage = bookPage.map(book -> {
-                String presignedCoverUrl = s3ImageStorageService.getPresignedUrl(BOOK_IMAGE_PREFIX, book.getCoverImageUrl());
-                return BookCardSummary.of(book, latestRecordMap.get(book.getId()), presignedCoverUrl);
+            String presignedCoverUrl = s3ImageStorageService.getPresignedUrl(BOOK_IMAGE_PREFIX, book.getCoverImageUrl());
+            return BookCardSummary.of(book, latestRecordMap.get(book.getId()), presignedCoverUrl);
         });
         return BookListResponse.of(summaryPage);
     }
@@ -195,14 +200,25 @@ public class BookService {
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
 
         book.getPages().addAll(pages);
+
         Book savedBook = bookRepository.save(book);
+
+        try {
+            ttsService.generateAllAudios(savedBook);
+            bookRepository.save(savedBook);
+        } catch (Exception e) {
+            // TTS 실패해도 책 자체는 저장 (사용자가 글로 읽을 수는 있게)
+            log.error("책 TTS 생성 실패 (책은 정상 저장됨): bookId(미저장), error={}", e.getMessage());
+        }
 
         String presignedCoverUrl = s3ImageStorageService.getPresignedUrl(BOOK_IMAGE_PREFIX, savedBook.getCoverImageUrl());
 
         List<BookPageResponse> pageResponses = savedBook.getPages().stream()
                 .map(page -> {
-                    String presignedPageUrl = s3ImageStorageService.getPresignedUrl(BOOK_IMAGE_PREFIX, page.getImageUrl());
-                    return BookPageResponse.of(page, presignedPageUrl);
+                    String presignedPageUrl = s3ImageStorageService.getPresignedUrl(
+                            BOOK_IMAGE_PREFIX, page.getImageUrl());
+                    return BookPageResponse.of(
+                            page, presignedPageUrl, s3AudioStorageService, BOOK_AUDIO_PREFIX);
                 })
                 .toList();
 

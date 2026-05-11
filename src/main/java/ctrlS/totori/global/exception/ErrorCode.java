@@ -44,6 +44,11 @@ public enum ErrorCode {
     IMAGE_CREATE_ERROR(500, "이미지 생성에 실패했습니다."),
     IMAGE_UPLOAD_ERROR(500, "S3에 이미지를 업로드하는 데 실패했습니다."),
 
+    // tts
+    TTS_GENERATION_FAILED(500, "TTS 음성 생성에 실패했습니다."),
+    TTS_UPLOAD_FAILED(500, "TTS 음성 업로드에 실패했습니다."),
+    TTS_NOT_READY(404, "음성이 아직 준비되지 않았습니다."),
+
     // stt
     STT_FILE_READ_FAILED(500, "음성 파일 읽는 데 실패했습니다."),
     STT_TRANSCRIBE_FAILED(502, "STT 서버 요청에 실패했습니다."),
