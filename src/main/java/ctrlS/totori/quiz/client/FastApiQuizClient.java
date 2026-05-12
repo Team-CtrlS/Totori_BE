@@ -36,6 +36,23 @@ public class FastApiQuizClient {
                 .block();
     }
 
+    public FastApiAnalyzeQuizResponse analyzeQuiz(
+            MultipartFile audioFile,
+            String originalQuiz
+    ) {
+        MultipartBodyBuilder builder = buildQuizMultipartBody(audioFile, originalQuiz);
+
+        return fastApiSttWebClient.post()
+                .uri("/ai/quiz/analyze")
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(BodyInserters.fromMultipartData((builder.build())))
+                .retrieve()
+                .onStatus(HttpStatusCode::isError, clientResponse ->
+                        Mono.error(new CustomException(ErrorCode.QUIZ_ANALYZE_FAILED)))
+                .bodyToMono(FastApiAnalyzeQuizResponse.class)
+                .block();
+    }
+
     private MultipartBodyBuilder buildQuizMultipartBody(
             MultipartFile audioFile,
             String originalQuiz) {
