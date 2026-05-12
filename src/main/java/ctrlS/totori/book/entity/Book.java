@@ -2,6 +2,8 @@ package ctrlS.totori.book.entity;
 
 import ctrlS.totori.book.dto.fastApi.FastApiStoryResponse;
 import ctrlS.totori.global.entity.BaseTimeEntity;
+import ctrlS.totori.global.exception.CustomException;
+import ctrlS.totori.global.exception.ErrorCode;
 import ctrlS.totori.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -70,5 +72,13 @@ public class Book extends BaseTimeEntity {
 
     public boolean isFullyAcorned() {
         return this.receivedAcorn == MAX_ACORN_COUNT;
+    }
+
+    public void addAcorn() {
+        if (!isFullyAcorned()) {
+            receivedAcorn++;
+        } else {
+            throw new CustomException(ErrorCode.ACORN_COUNT_EXCEEDED);
+        }
     }
 }
