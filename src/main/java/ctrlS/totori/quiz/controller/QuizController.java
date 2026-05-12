@@ -56,4 +56,17 @@ public class QuizController {
             ) {
         return BaseResponse.ok(quizService.forwardQuizAudio(principal.memberId(), quizId, audioFile, originalQuiz));
     }
+
+    @Operation(summary = "퀴즈 조회", description = "퀴즈 한 세트를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "퀴즈 조회 성공", content = @Content)
+    })
+    @GetMapping(value = "/{quizId}")
+    public BaseResponse<QuizResponse> getQuiz(
+            @AuthenticationPrincipal CustomUserPrincipal principal,
+            @PathVariable("quizId") Long quizId
+    ) {
+        return BaseResponse.ok(quizService.getQuiz(principal.memberId(), quizId));
+    }
+
 }

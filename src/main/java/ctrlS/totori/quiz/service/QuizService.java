@@ -104,5 +104,19 @@ public class QuizService {
 
         return new QuizAnalyzeResponse(isCorrect, rewarded, member.getAcorn());
     }
+
+    // 퀴즈 조회
+    @Transactional(readOnly = true)
+    public QuizResponse getQuiz(Long memberId, Long quizId) {
+        Member member = memberService.findById(memberId);
+
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new CustomException(ErrorCode.QUIZ_NOT_FOUND));
+
+        if (!Objects.equals(quiz.getBook().getMember().getId(), member.getId())) {
+            throw new CustomException(ErrorCode.BOOK_ACCESS_DENIED);
+        }
+
+        return QuizResponse.from(quiz);
     }
 }
