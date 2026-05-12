@@ -63,4 +63,46 @@ public class QuizService {
 
         return new QuizResponse(savedQuiz.getId(), savedQuiz.getQuizItems());
     }
+
+    // 퀴즈 음성 전송
+    public QuizAnalyzeResponse forwardQuizAudio(
+            Long memberId, Long quizId, MultipartFile audioFile, String originalQuiz) {
+        audioFileValidator.validate(audioFile);
+
+        Member member = memberService.findById(memberId);
+
+        MemberStat stat = memberStatRepository.findByMember(member)
+                .orElseThrow(() -> new CustomException(ErrorCode.STAT_NOT_FOUND));
+
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new CustomException(ErrorCode.QUIZ_NOT_FOUND));
+
+        if (!Objects.equals(quiz.getBook().getMember().getId(), member.getId())) {
+            throw new CustomException(ErrorCode.BOOK_ACCESS_DENIED);
+        }
+
+        FastApiAnalyzeQuizResponse fastApiResponse = fastApiQuizClient.analyzeQuiz(
+                audioFile,
+                originalQuiz
+        );
+
+        boolean isCorrect = fastApiResponse.isCorrect();
+        boolean rewarded = false;
+
+        if (isCorrect) {
+            quiz.incrementCorrect();
+        }
+
+        if (quiz.isAllCorrect() && quiz.isRewardable()) {
+            quiz.markAsRewarded();
+            quiz.getBook().addAcorn();
+            member.earnAcorn();
+            stat.addAcquiredAcorn(1);
+            badgeService.checkAndGrantBadge(memberId, BadgeCategory.ACORN);
+            rewarded = true;
+        }
+
+        return new QuizAnalyzeResponse(isCorrect, rewarded, member.getAcorn());
+    }
+    }
 }

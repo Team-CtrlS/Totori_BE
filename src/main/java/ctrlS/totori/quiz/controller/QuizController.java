@@ -43,4 +43,17 @@ public class QuizController {
         return BaseResponse.ok(response);
     }
 
+    @Operation(summary = "퀴즈 음성 전송", description = "퀴즈 음성을 수신하여 AI 서버로 전송합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "퀴즈 음성 전송 성공", content = @Content)
+    })
+    @PostMapping(value = "/{quizId}/check", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public BaseResponse<QuizAnalyzeResponse> forwardQuizAudio(
+            @AuthenticationPrincipal CustomUserPrincipal principal,
+            @PathVariable("quizId") Long quizId,
+            @RequestPart("audio") MultipartFile audioFile,
+            @RequestPart("original_quiz") String originalQuiz
+            ) {
+        return BaseResponse.ok(quizService.forwardQuizAudio(principal.memberId(), quizId, audioFile, originalQuiz));
+    }
 }
