@@ -15,13 +15,8 @@ public record BookPageResponse(
     public static BookPageResponse of(
             BookPage page,
             String presignedImageUrl,
-            S3AudioStorageService s3AudioStorageService,
-            String audioPrefix
+            List<SentenceResponse> sentences
     ) {
-        List<SentenceResponse> sentences = page.getSentences().stream()
-                .map(s -> SentenceResponse.of(s, s3AudioStorageService, audioPrefix))
-                .toList();
-
         return new BookPageResponse(
                 page.getId(),
                 page.getPageOrder(),

@@ -81,4 +81,8 @@ public class Book extends BaseTimeEntity {
             throw new CustomException(ErrorCode.ACORN_COUNT_EXCEEDED);
         }
     }
+
+    public void addReceivedAcorn(int count) {
+        this.receivedAcorn = Math.min(this.receivedAcorn + count, MAX_ACORN_COUNT);
+    }
 }

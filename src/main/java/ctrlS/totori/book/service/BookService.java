@@ -1,10 +1,13 @@
 package ctrlS.totori.book.service;
 
+import ctrlS.totori.badge.dto.BadgeResponseDto;
 import ctrlS.totori.badge.dto.MemberBadgeResponseDto;
+import ctrlS.totori.badge.entity.BadgeCategory;
 import ctrlS.totori.badge.service.BadgeService;
 import ctrlS.totori.book.client.FastApiStoryClient;
 import ctrlS.totori.book.dto.fastApi.FastApiGenerateStoryRequest;
 import ctrlS.totori.book.dto.fastApi.FastApiStoryResponse;
+import ctrlS.totori.book.dto.request.BookCompleteRequest;
 import ctrlS.totori.book.dto.request.BookGenerateRequest;
 import ctrlS.totori.book.dto.response.*;
 import ctrlS.totori.book.dto.summary.BookCardSummary;
@@ -24,6 +27,8 @@ import ctrlS.totori.global.exception.ErrorCode;
 import ctrlS.totori.global.util.AudioFileValidator;
 import ctrlS.totori.member.dto.response.AcornResponse;
 import ctrlS.totori.member.entity.Member;
+import ctrlS.totori.member.entity.MemberStat;
+import ctrlS.totori.member.repository.MemberStatRepository;
 import ctrlS.totori.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +37,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import ctrlS.totori.book.entity.SentenceData;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -55,6 +61,8 @@ public class BookService {
     private final TtsService ttsService;
     private final S3AudioStorageService s3AudioStorageService;
     private final AudioFileValidator audioFileValidator;
+    private final MemberStatRepository memberStatRepository;
+
 
     private final static String BOOK_IMAGE_PREFIX = "bookImages";
     private final static String BOOK_AUDIO_PREFIX = "bookAudios";
@@ -148,6 +156,32 @@ public class BookService {
         );
     }
 
+    @Transactional
+    public BookDetailResponse getBookDetail(Long memberId, Long bookId) {
+        Book book = bookRepository.findByIdWithPages(bookId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_FOUND));
+
+        if (!book.getMember().getId().equals(memberId)) {
+            throw new CustomException(ErrorCode.BOOK_ACCESS_DENIED);
+        }
+
+        BookReadingRecord latestRecord = bookReadingRecordRepository
+                .findLatestRecord(bookId)
+                .orElse(null);
+
+        String presignedCoverUrl = s3ImageStorageService
+                .getPresignedUrl(BOOK_IMAGE_PREFIX, book.getCoverImageUrl());
+
+        BookCoverSummary cover = BookCoverSummary.of(book, latestRecord, presignedCoverUrl);
+
+        List<BookPageDetailResponse> pageResponses = book.getPages().stream()
+                .sorted(Comparator.comparingInt(BookPage::getPageOrder))
+                .map(this::toPageDetailResponse)  // ★ private 메서드로 위임
+                .toList();
+
+        return BookDetailResponse.of(cover, pageResponses);
+    }
+
     protected BookReadingRecord getLatestRecord(Long memberId) {
         return bookReadingRecordRepository
                 .findTopByBook_Member_IdOrderByUpdatedAtDesc(memberId)
@@ -217,6 +251,11 @@ public class BookService {
 
         Book savedBook = bookRepository.save(book);
 
+        MemberStat memberStat = memberStatRepository.findByMember(member)
+                .orElseThrow(() -> new CustomException(ErrorCode.STAT_NOT_FOUND));
+        memberStat.addCreatedBook();
+        badgeService.checkAndGrantBadge(member.getId(), BadgeCategory.BOOK_CREATED);
+
         try {
             ttsService.generateAllAudios(savedBook);
             bookRepository.save(savedBook);
@@ -231,11 +270,71 @@ public class BookService {
                 .map(page -> {
                     String presignedPageUrl = s3ImageStorageService.getPresignedUrl(
                             BOOK_IMAGE_PREFIX, page.getImageUrl());
-                    return BookPageResponse.of(
-                            page, presignedPageUrl, s3AudioStorageService, BOOK_AUDIO_PREFIX);
+                    List<SentenceResponse> sentences = page.getSentences().stream()
+                            .map(this::toSentenceResponse)
+                            .toList();
+                    return BookPageResponse.of(page, presignedPageUrl, sentences);
                 })
                 .toList();
 
         return BookGenerateResponse.of(savedBook, presignedCoverUrl, pageResponses);
+    }
+
+    @Transactional
+    public BookCompleteResponse completeBook(Long memberId, Long bookId, BookCompleteRequest request) {
+        Book book = bookRepository.findByIdAndMemberId(bookId, memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOOK_ACCESS_DENIED));
+
+        BookReadingRecord latestRecord = bookReadingRecordRepository.findLatestByBookId(bookId)
+                .orElseThrow(() -> new CustomException(ErrorCode.READING_RECORD_NOT_EXIST));
+
+        if (latestRecord.isCompleted()) {
+            return BookCompleteResponse.of(book, 0, List.of());
+        }
+
+        latestRecord.markAsCompleted();
+
+        int acornCount = request.acornCount();
+        book.addReceivedAcorn(acornCount);
+
+        Member member = memberService.findById(memberId);
+        MemberStat memberStat = memberStatRepository.findByMember(member)
+                .orElseThrow(() -> new CustomException(ErrorCode.STAT_NOT_FOUND));
+
+        memberStat.addReadBook();
+
+        if (acornCount > 0) {
+            memberStat.addAcquiredAcorn(acornCount);
+        }
+
+        List<BadgeResponseDto> newlyAcquiredBadges = new ArrayList<>();
+        newlyAcquiredBadges.addAll(badgeService.checkAndGrantBadge(memberId, BadgeCategory.BOOK_READ));
+        if (acornCount > 0) {
+            newlyAcquiredBadges.addAll(badgeService.checkAndGrantBadge(memberId, BadgeCategory.ACORN));
+        }
+
+        return BookCompleteResponse.of(book, acornCount, newlyAcquiredBadges);
+    }
+
+    private BookPageDetailResponse toPageDetailResponse(BookPage page) {
+        String presignedImageUrl = s3ImageStorageService.getPresignedUrl(
+                BOOK_IMAGE_PREFIX, page.getImageUrl());
+
+        List<SentenceResponse> sentences = page.getSentences().stream()
+                .map(this::toSentenceResponse)  // buildAndSaveBook에서도 쓰는 메서드
+                .toList();
+
+        return BookPageDetailResponse.of(page, presignedImageUrl, sentences);
+    }
+
+    private SentenceResponse toSentenceResponse(SentenceData data) {
+        String audioUrl = s3AudioStorageService.getPresignedUrl(
+                BOOK_AUDIO_PREFIX, data.getAudioS3Key());
+
+        return new SentenceResponse(
+                data.getText(),
+                audioUrl,
+                data.getDurationMs()
+        );
     }
 }
