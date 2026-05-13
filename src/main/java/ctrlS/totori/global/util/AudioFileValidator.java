@@ -18,8 +18,8 @@ public class AudioFileValidator {
             throw new CustomException(ErrorCode.INVALID_AUDIO_FILE);
         }
 
-        // 음성 파일 30MB 제한
-        if (audioFile.getSize() > 30 * 1024 * 1024) {
+        // 음성 파일 10MB 제한
+        if (audioFile.getSize() > 10 * 1024 * 1024) {
             throw new CustomException(ErrorCode.AUDIO_FILE_TOO_LARGE);
         }
     }
