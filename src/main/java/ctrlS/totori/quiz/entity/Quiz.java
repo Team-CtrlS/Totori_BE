@@ -52,7 +52,11 @@ public class Quiz extends BaseTimeEntity {
     private int correctCount = 0;
 
     @Builder
-    public Quiz(Book book, Member member, MemberLevel level, QuizType quizType, List<String> quizItems) {
+    public Quiz(Book book,
+                Member member,
+                MemberLevel level,
+                QuizType quizType,
+                List<String> quizItems) {
         this.book = book;
         this.member = member;
         this.level = level;
@@ -60,7 +64,9 @@ public class Quiz extends BaseTimeEntity {
         this.quizItems = quizItems != null ? new ArrayList<>(quizItems) : new ArrayList<>();
     }
 
-    public static Quiz of(Book book, Member member, FastApiGenerateQuizResponse response) {
+    public static Quiz of(Book book,
+                          Member member,
+                          FastApiGenerateQuizResponse response) {
         return Quiz.builder()
                 .book(book)
                 .member(member)
