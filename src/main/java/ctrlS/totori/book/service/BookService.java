@@ -12,6 +12,7 @@ import ctrlS.totori.book.dto.request.BookGenerateRequest;
 import ctrlS.totori.book.dto.response.*;
 import ctrlS.totori.book.dto.summary.BookCardSummary;
 import ctrlS.totori.book.dto.summary.BookCoverSummary;
+import ctrlS.totori.book.dto.summary.BookReportSummary;
 import ctrlS.totori.book.entity.Book;
 import ctrlS.totori.book.entity.BookPage;
 import ctrlS.totori.book.entity.BookReadingRecord;
@@ -38,6 +39,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import ctrlS.totori.book.entity.SentenceData;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
@@ -125,6 +129,24 @@ public class BookService {
             return BookCardSummary.of(book, latestRecordMap.get(book.getId()), presignedCoverUrl);
         });
         return BookListPagingResponse.of(summaryPage);
+    }
+
+    @Transactional(readOnly = true)
+    public BookWeeklyListResponse getWeeklyReport(Long memberId) {
+        LocalDateTime startDateTime = LocalDateTime.now().minusDays(6).with(LocalTime.MIN);
+
+        List<Book> weeklyBooks = bookRepository.findWeeklyBooks(memberId, startDateTime);
+
+        Map<LocalDate, List<BookReportSummary>> groupedData = weeklyBooks.stream()
+                .collect(Collectors.groupingBy(
+                        book -> book.getCreatedAt().toLocalDate(), // 날짜별로 그룹핑
+                        Collectors.mapping(book -> new BookReportSummary(
+                                book.getId(),
+                                book.getTitle(),
+                                book.getReceivedAcorn() == 3
+                        ), Collectors.toList())
+                ));
+        return BookWeeklyListResponse.from(groupedData);
     }
 
     // 동화 낭독 음성 전송

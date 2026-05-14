@@ -82,6 +82,19 @@ public class BookController {
         return BaseResponse.ok(response);
     }
 
+    @Operation(summary = "유저의 최근 1주일 동화 조회", description = "유저의 최근 1주일의 책을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "책 1주일 리스트 조회 성공",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BookWeeklyListResponse.class)))
+    })
+    @GetMapping("/week")
+    public BaseResponse<BookWeeklyListResponse> getBooks(
+            @AuthenticationPrincipal CustomUserPrincipal principal
+    ) {
+        BookWeeklyListResponse response = bookService.getWeeklyReport(principal.memberId());
+        return BaseResponse.ok(response);
+    }
+
     @Operation(summary = "동화 낭독 음성 전송", description = "페이지 낭독 음성을 수신하여 AI 서버로 전송합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "동화 낭독 음성 전송 성공", content = @Content)
