@@ -6,10 +6,7 @@ import ctrlS.totori.book.client.FastApiStoryClient;
 import ctrlS.totori.book.dto.fastApi.FastApiGenerateStoryRequest;
 import ctrlS.totori.book.dto.fastApi.FastApiStoryResponse;
 import ctrlS.totori.book.dto.request.BookGenerateRequest;
-import ctrlS.totori.book.dto.response.BookGenerateResponse;
-import ctrlS.totori.book.dto.response.BookListResponse;
-import ctrlS.totori.book.dto.response.BookPageResponse;
-import ctrlS.totori.book.dto.response.MainPageResponse;
+import ctrlS.totori.book.dto.response.*;
 import ctrlS.totori.book.dto.summary.BookCardSummary;
 import ctrlS.totori.book.dto.summary.BookCoverSummary;
 import ctrlS.totori.book.entity.Book;
@@ -94,7 +91,7 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
-    public BookListResponse getBookList(Long memberId, Pageable pageable) {
+    public BookListPagingResponse getBookList(Long memberId, Pageable pageable) {
         // 유저의 전체 책 id 리스트 (페이징)
         Page<Book> bookPage = bookRepository.findAllByMemberIdOrderByCreatedAtDesc(memberId, pageable);
         List<Long> bookIds = bookPage.getContent().stream().map(Book::getId).toList();
@@ -108,7 +105,7 @@ public class BookService {
                 String presignedCoverUrl = s3ImageStorageService.getPresignedUrl(BOOK_IMAGE_PREFIX, book.getCoverImageUrl());
                 return BookCardSummary.of(book, latestRecordMap.get(book.getId()), presignedCoverUrl);
         });
-        return BookListResponse.of(summaryPage);
+        return BookListPagingResponse.of(summaryPage);
     }
 
     protected BookReadingRecord getLatestRecord(Long memberId) {
