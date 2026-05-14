@@ -70,7 +70,6 @@ public class BadgeService {
         List<MemberBadge> myBadges = memberBadgeRepository.findAllByMember(member);
 
         if (myBadges.isEmpty()) {
-            //TODO: 보유한 뱃지가 없을 때 표시할 뱃지 설정하기
             throw new CustomException(ErrorCode.BADGE_NOT_FOUND);
         }
 
