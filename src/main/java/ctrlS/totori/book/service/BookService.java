@@ -110,7 +110,7 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
-    public BookListResponse getBookList(Long memberId, Pageable pageable) {
+    public BookListPagingResponse getBookList(Long memberId, Pageable pageable) {
         // 유저의 전체 책 id 리스트 (페이징)
         Page<Book> bookPage = bookRepository.findAllByMemberIdOrderByCreatedAtDesc(memberId, pageable);
         List<Long> bookIds = bookPage.getContent().stream().map(Book::getId).toList();
@@ -124,7 +124,7 @@ public class BookService {
             String presignedCoverUrl = s3ImageStorageService.getPresignedUrl(BOOK_IMAGE_PREFIX, book.getCoverImageUrl());
             return BookCardSummary.of(book, latestRecordMap.get(book.getId()), presignedCoverUrl);
         });
-        return BookListResponse.of(summaryPage);
+        return BookListPagingResponse.of(summaryPage);
     }
 
     // 동화 낭독 음성 전송

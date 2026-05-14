@@ -71,14 +71,14 @@ public class BookController {
     @Operation(summary = "유저의 전체 책 조회(페이징)", description = "유저의 전체 책을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "책 리스트 조회 성공",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BookListResponse.class)))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BookListPagingResponse.class)))
     })
     @GetMapping
-    public BaseResponse<BookListResponse> getBooks(
+    public BaseResponse<BookListPagingResponse> getBooks(
             @AuthenticationPrincipal CustomUserPrincipal principal,
             @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        BookListResponse response = bookService.getBookList(principal.memberId(), pageable);
+        BookListPagingResponse response = bookService.getBookList(principal.memberId(), pageable);
         return BaseResponse.ok(response);
     }
 
