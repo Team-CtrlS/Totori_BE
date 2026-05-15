@@ -25,6 +25,7 @@ import ctrlS.totori.book.service.image.PageImageAsyncService;
 import ctrlS.totori.book.service.image.S3ImageStorageService;
 import ctrlS.totori.global.exception.CustomException;
 import ctrlS.totori.global.exception.ErrorCode;
+import ctrlS.totori.global.util.AudioFileValidator;
 import ctrlS.totori.member.dto.response.AcornResponse;
 import ctrlS.totori.member.entity.Member;
 import ctrlS.totori.member.entity.MemberStat;
@@ -63,7 +64,9 @@ public class BookService {
     private final S3ImageStorageService s3ImageStorageService;
     private final TtsService ttsService;
     private final S3AudioStorageService s3AudioStorageService;
+    private final AudioFileValidator audioFileValidator;
     private final MemberStatRepository memberStatRepository;
+
 
     private final static String BOOK_IMAGE_PREFIX = "bookImages";
     private final static String BOOK_AUDIO_PREFIX = "bookAudios";
@@ -81,7 +84,7 @@ public class BookService {
 
     // 관심사 음성 기반 동화 생성
     public BookGenerateResponse generateBookFromVoice(Long memberId, MultipartFile audioFile) {
-        validateAudioFile(audioFile);
+        audioFileValidator.validate(audioFile);
 
         Member member = memberService.findById(memberId);
         BookReadingRecord latestRecord = getLatestRecord(memberId);
@@ -153,7 +156,7 @@ public class BookService {
     // 동화 낭독 음성 전송
     public void forwardReadingAudio(
             Long memberId, Long bookId, int sentenceNum, MultipartFile audioFile) {
-        validateAudioFile(audioFile);
+        audioFileValidator.validate(audioFile);
 
         Member member = memberService.findById(memberId);
         bookRepository.findById(bookId)
@@ -233,22 +236,6 @@ public class BookService {
                 .toList();
     }
 
-    private void validateAudioFile(MultipartFile audioFile) {
-        if (audioFile == null || audioFile.isEmpty()) {
-            throw new CustomException(ErrorCode.STT_EMPTY_RESULT);
-        }
-
-        String contentType = audioFile.getContentType();
-        if (!contentType.startsWith("audio/")) {
-            throw new CustomException(ErrorCode.INVALID_AUDIO_FILE);
-        }
-
-        // 음성 파일 30MB 제한
-        if (audioFile.getSize() > 30 * 1024 * 1024) {
-            throw new CustomException(ErrorCode.AUDIO_FILE_TOO_LARGE);
-        }
-    }
-
     private BookGenerateResponse buildAndSaveBook(Member member, FastApiStoryResponse fastApiResponse) {
         Book book = Book.of(member, fastApiResponse);
 
@@ -264,9 +251,7 @@ public class BookService {
         if (coverPrompt != null && !coverPrompt.isBlank()) {
             String coverFileName = UUID.randomUUID() + "_cover.png";
             CompletableFuture<Void> coverFuture = pageImageAsyncService.generateAndUpload(coverPrompt, bookSeed, coverFileName)
-                    .thenAccept(imageUrl -> {
-                        book.updateCoverImageUrl(imageUrl);
-                    });
+                    .thenAccept(book::updateCoverImageUrl);
 
             futures.add(coverFuture);
         }

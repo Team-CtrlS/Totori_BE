@@ -1,0 +1,72 @@
+package ctrlS.totori.quiz.controller;
+
+import ctrlS.totori.global.response.dto.BaseResponse;
+import ctrlS.totori.global.security.CustomUserPrincipal;
+import ctrlS.totori.quiz.dto.response.QuizAnalyzeResponse;
+import ctrlS.totori.quiz.dto.response.QuizResponse;
+import ctrlS.totori.quiz.service.QuizService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+@Tag(name = "퀴즈 API", description = "퀴즈 관련 API")
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/quiz")
+public class QuizController {
+
+    private final QuizService quizService;
+
+    @Operation(summary = "퀴즈 생성", description = "레벨에 따라 읽기 오류 바탕으로 퀴즈를 생성합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "퀴즈 생성 성공",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = QuizResponse.class))),
+            @ApiResponse(responseCode = "204", description = "퀴즈 없음", content = @Content)
+    })
+    @PostMapping("/generate")
+    public BaseResponse<?> generateQuizFromAudio(
+            @AuthenticationPrincipal CustomUserPrincipal principal,
+            @RequestParam("bookId") Long bookId) {
+        QuizResponse response = quizService.generateQuizFromAudio(principal.memberId(), bookId);
+
+        if (response == null) {
+            return BaseResponse.noContent();
+        }
+        return BaseResponse.ok(response);
+    }
+
+    @Operation(summary = "퀴즈 음성 전송", description = "퀴즈 음성을 수신하여 AI 서버로 전송합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "퀴즈 음성 전송 성공", content = @Content)
+    })
+    @PostMapping(value = "/{quizId}/check", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public BaseResponse<QuizAnalyzeResponse> forwardQuizAudio(
+            @AuthenticationPrincipal CustomUserPrincipal principal,
+            @PathVariable("quizId") Long quizId,
+            @RequestPart("audio") MultipartFile audioFile,
+            @RequestPart("original_quiz") String originalQuiz
+            ) {
+        return BaseResponse.ok(quizService.forwardQuizAudio(principal.memberId(), quizId, audioFile, originalQuiz));
+    }
+
+    @Operation(summary = "퀴즈 조회", description = "퀴즈 한 세트를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "퀴즈 조회 성공", content = @Content)
+    })
+    @GetMapping(value = "/{quizId}")
+    public BaseResponse<QuizResponse> getQuiz(
+            @AuthenticationPrincipal CustomUserPrincipal principal,
+            @PathVariable("quizId") Long quizId
+    ) {
+        return BaseResponse.ok(quizService.getQuiz(principal.memberId(), quizId));
+    }
+
+}

@@ -37,7 +37,7 @@ public class BookPage extends BaseTimeEntity {
     @Column(nullable = true)
     private String imageUrl;
 
-    @Column(nullable = false)
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String imagePrompt;
 
     @Builder
