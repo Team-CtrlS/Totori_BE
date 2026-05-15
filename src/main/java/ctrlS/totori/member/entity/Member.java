@@ -1,6 +1,7 @@
 package ctrlS.totori.member.entity;
 
 import ctrlS.totori.global.entity.BaseTimeEntity;
+import ctrlS.totori.quiz.entity.QuizType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
@@ -51,5 +52,9 @@ public class Member extends BaseTimeEntity {
         this.name = name;
         this.loginId = loginId;
         this.birthDate = birthdate;
+    }
+
+    public void earnAcorn() {
+        this.acorn++;
     }
 }

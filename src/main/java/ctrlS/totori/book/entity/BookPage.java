@@ -34,10 +34,10 @@ public class BookPage extends BaseTimeEntity {
     @Column(columnDefinition = "json", nullable = false)
     private List<SentenceData> sentences = new ArrayList<>();
 
-    @Column(nullable = true)
+    @Column(columnDefinition = "TEXT", nullable = true)
     private String imageUrl;
 
-    @Column(nullable = false)
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String imagePrompt;
 
     @Builder

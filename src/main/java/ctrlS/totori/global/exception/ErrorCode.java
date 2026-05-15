@@ -16,6 +16,7 @@ public enum ErrorCode {
     USER_NOT_FOUND(404, "존재하는 사용자가 없습니다."),
     FORBIDDEN_CHILD_ONLY(403, "아동 회원만 사용 가능합니다."),
     INVALID_ROLE(403, "유효하지 않은 역할입니다."),
+    ACORN_COUNT_EXCEEDED(400, "도토리 개수를 초과했습니다."),
 
     // auth
     DUPLICATE_LOGIN_ID(409, "이미 존재하는 아이디입니다."),
@@ -30,8 +31,9 @@ public enum ErrorCode {
     BOOK_NOT_EXIST(404, "해당 회원이 보유하고 있는 책이 없습니다."),
     BOOK_NOT_FOUND(404, "해당 책이 존재하지 않습니다."),
     PAGE_NOT_FOUND(404, "해당 페이지가 존재하지 않습니다."),
-    BOOK_ACCESS_DENIED(401, "해당 회원의 책이 아닙니다." ),
+    BOOK_ACCESS_DENIED(403, "해당 책의 소유자가 아닙니다."),
     READING_RECORD_NOT_EXIST(404, "낭독 정보가 존재하지 않습니다."),
+    INVALID_SENTENCE_NUM(400, "문장 번호는 0 이상이어야 합니다."),
 
     // Badge
     BADGE_NOT_FOUND(404, "보유한 뱃지가 없습니다."),
@@ -57,7 +59,12 @@ public enum ErrorCode {
     STT_TRANSCRIBE_FAILED(502, "STT 서버 요청에 실패했습니다."),
     STT_EMPTY_RESULT(422, "음성에서 텍스트를 인식하지 못했습니다."),
     INVALID_AUDIO_FILE(400, "유효하지 않은 음성 파일입니다."),
-    AUDIO_FILE_TOO_LARGE(400, "음성 파일의 크기가 너무 큽니다.");
+    AUDIO_FILE_TOO_LARGE(400, "음성 파일의 크기가 너무 큽니다."),
+
+    // quiz
+    QUIZ_NOT_FOUND(404, "해당 퀴즈가 존재하지 않습니다."),
+    QUIZ_GENERATE_FAILED(502, "퀴즈 생성 서버 요청에 실패했습니다."),
+    QUIZ_ANALYZE_FAILED(502, "퀴즈 분석 서버 요청에 실패했습니다.");
 
     private final int status;
     private final String message;
