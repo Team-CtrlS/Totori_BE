@@ -34,6 +34,8 @@ public enum ErrorCode {
     BOOK_ACCESS_DENIED(403, "해당 책의 소유자가 아닙니다."),
     READING_RECORD_NOT_EXIST(404, "낭독 정보가 존재하지 않습니다."),
     INVALID_SENTENCE_NUM(400, "문장 번호는 0 이상이어야 합니다."),
+    STORY_GENERATE_FAILED(502, "동화 생성 서버 요청에 실패했습니다."),
+    READING_COMPLETE_FAILED(502, "동화 낭독 완료 처리 서버 요청에 실패했습니다."),
 
     // Badge
     BADGE_NOT_FOUND(404, "보유한 뱃지가 없습니다."),
