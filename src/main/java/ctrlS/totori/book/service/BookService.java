@@ -162,8 +162,12 @@ public class BookService {
         bookRepository.findById(bookId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_FOUND));
 
-        int pageOrder = (sentenceNum - 1) / 3 + 1;
-        int sentenceIndex = (sentenceNum - 1) % 3;
+        if (sentenceNum < 0) {
+            throw new CustomException(ErrorCode.INVALID_SENTENCE_NUM);
+        }
+
+        int pageOrder = sentenceNum / 3 + 1;
+        int sentenceIndex = sentenceNum % 3;
 
         BookPage page = bookPageRepository.findByBook_idAndPageOrder(bookId, pageOrder)
                 .orElseThrow(() -> new CustomException(ErrorCode.PAGE_NOT_FOUND));

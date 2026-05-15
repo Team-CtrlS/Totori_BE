@@ -32,6 +32,7 @@ public class Book extends BaseTimeEntity {
     @Column(nullable = false)
     private String title;
 
+    @Column(columnDefinition = "TEXT")
     private String coverImageUrl;
 
     @Column(columnDefinition = "TEXT")
