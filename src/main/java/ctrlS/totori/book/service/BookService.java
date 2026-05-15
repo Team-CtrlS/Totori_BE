@@ -135,9 +135,10 @@ public class BookService {
 
     @Transactional(readOnly = true)
     public BookWeeklyListResponse getWeeklyReport(Long memberId) {
+        Member child = memberService.findChildByParentId(memberId);
         LocalDateTime startDateTime = LocalDateTime.now().minusDays(6).with(LocalTime.MIN);
 
-        List<Book> weeklyBooks = bookRepository.findWeeklyBooks(memberId, startDateTime);
+        List<Book> weeklyBooks = bookRepository.findWeeklyBooks(child.getId(), startDateTime);
 
         Map<LocalDate, List<BookReportSummary>> groupedData = weeklyBooks.stream()
                 .collect(Collectors.groupingBy(
