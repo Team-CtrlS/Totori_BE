@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface BookRepository extends JpaRepository<Book, Long> {
@@ -26,4 +28,13 @@ public interface BookRepository extends JpaRepository<Book, Long> {
         WHERE b.id = :bookId AND b.member.id = :memberId
         """)
     Optional<Book> findByIdAndMemberId(@Param("bookId") Long bookId, @Param("memberId") Long memberId);
+
+    @Query("SELECT b FROM Book b " +
+            "WHERE b.member.id = :memberId " +
+            "AND b.createdAt >= :startDate " +
+            "ORDER BY b.createdAt DESC")
+    List<Book> findWeeklyBooks(
+            @Param("memberId") Long memberId,
+            @Param("startDate") LocalDateTime startDate
+    );
 }
