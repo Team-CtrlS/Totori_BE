@@ -57,7 +57,7 @@ public class QuizService {
             return null;
         }
 
-        Quiz quiz = Quiz.of(book, member, fastApiResponse);
+        Quiz quiz = Quiz.of(book, member, fastApiResponse.quizItems());
 
         Quiz savedQuiz = quizRepository.save(quiz);
 

@@ -66,13 +66,13 @@ public class Quiz extends BaseTimeEntity {
 
     public static Quiz of(Book book,
                           Member member,
-                          FastApiGenerateQuizResponse response) {
+                          List<String> quizItems) {
         return Quiz.builder()
                 .book(book)
                 .member(member)
                 .level(member.getLevel())
                 .quizType(member.getLevel().toQuizType())
-                .quizItems(response.quizItems())
+                .quizItems(quizItems)
                 .build();
     }
 
