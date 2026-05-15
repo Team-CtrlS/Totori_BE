@@ -50,4 +50,13 @@ public interface BookReadingRecordRepository extends JpaRepository<BookReadingRe
             "               WHERE r2.book.id IN :bookIds " +
             "               GROUP BY r2.book.id)")
     List<BookReadingRecord> findLatestRecordsByBookIds(@Param("bookIds") List<Long> bookIds);
+
+    // 특정 책 ID의 최신 기록 조회
+    @Query("""
+        SELECT r FROM BookReadingRecord r
+        WHERE r.book.id = :bookId
+        ORDER BY r.updatedAt DESC
+        LIMIT 1
+        """)
+    Optional<BookReadingRecord> findLatestByBookId(@Param("bookId") Long bookId);
 }

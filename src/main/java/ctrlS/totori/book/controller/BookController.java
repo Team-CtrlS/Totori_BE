@@ -1,9 +1,8 @@
 package ctrlS.totori.book.controller;
 
+import ctrlS.totori.book.dto.request.BookCompleteRequest;
 import ctrlS.totori.book.dto.request.BookGenerateRequest;
-import ctrlS.totori.book.dto.response.BookGenerateResponse;
-import ctrlS.totori.book.dto.response.BookListResponse;
-import ctrlS.totori.book.dto.response.MainPageResponse;
+import ctrlS.totori.book.dto.response.*;
 import ctrlS.totori.book.service.BookService;
 import ctrlS.totori.global.response.dto.BaseResponse;
 import ctrlS.totori.global.security.CustomUserPrincipal;
@@ -72,14 +71,27 @@ public class BookController {
     @Operation(summary = "유저의 전체 책 조회(페이징)", description = "유저의 전체 책을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "책 리스트 조회 성공",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BookListResponse.class)))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BookListPagingResponse.class)))
     })
     @GetMapping
-    public BaseResponse<BookListResponse> getBooks(
+    public BaseResponse<BookListPagingResponse> getBooks(
             @AuthenticationPrincipal CustomUserPrincipal principal,
             @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        BookListResponse response = bookService.getBookList(principal.memberId(), pageable);
+        BookListPagingResponse response = bookService.getBookList(principal.memberId(), pageable);
+        return BaseResponse.ok(response);
+    }
+
+    @Operation(summary = "유저의 최근 1주일 동화 조회", description = "유저의 최근 1주일의 책을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "책 1주일 리스트 조회 성공",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BookWeeklyListResponse.class)))
+    })
+    @GetMapping("/week")
+    public BaseResponse<BookWeeklyListResponse> getBooks(
+            @AuthenticationPrincipal CustomUserPrincipal principal
+    ) {
+        BookWeeklyListResponse response = bookService.getWeeklyReport(principal.memberId());
         return BaseResponse.ok(response);
     }
 
@@ -96,5 +108,38 @@ public class BookController {
     ) {
         bookService.forwardReadingAudio(principal.memberId(), bookId, sentenceNum, audioFile);
         return BaseResponse.ok();
+    }
+
+    @Operation(summary = "동화 상세 조회", description = "특정 동화의 표지, 페이지 내용, 읽기 진행 정보를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "동화 상세 조회 성공",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = BookDetailResponse.class))),
+            @ApiResponse(responseCode = "403", description = "본인의 책이 아님", content = @Content),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 책", content = @Content)
+    })
+    @GetMapping("/{bookId}")
+    public BaseResponse<BookDetailResponse> getBookDetail(
+            @AuthenticationPrincipal CustomUserPrincipal principal,
+            @PathVariable Long bookId
+    ) {
+        return BaseResponse.ok(bookService.getBookDetail(principal.memberId(), bookId));
+    }
+
+    @Operation(summary = "책 완독 처리", description = "책 읽기를 완료하고 획득한 뱃지를 반환합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "완독 처리 성공",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = BookCompleteResponse.class))),
+            @ApiResponse(responseCode = "404", description = "책 또는 읽기 기록 없음", content = @Content),
+            @ApiResponse(responseCode = "409", description = "이미 완독된 책", content = @Content)
+    })
+    @PostMapping("/{bookId}/complete")
+    public BaseResponse<BookCompleteResponse> completeBook(
+            @AuthenticationPrincipal CustomUserPrincipal principal,
+            @PathVariable Long bookId,
+            @Valid @RequestBody BookCompleteRequest request
+    ) {
+        return BaseResponse.ok(bookService.completeBook(principal.memberId(), bookId, request));
     }
 }

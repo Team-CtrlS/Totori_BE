@@ -5,14 +5,14 @@ import org.springframework.data.domain.Page;
 
 import java.util.List;
 
-public record BookListResponse(
+public record BookListPagingResponse(
         List<BookCardSummary> books,
         int totalPages, // 전체 페이지 수
         long totalElements, // 전체 아이템 수
         boolean isLast  // 마지막 페이지 여부
 ) {
-    public static BookListResponse of(Page<BookCardSummary> page) {
-        return new BookListResponse(
+    public static BookListPagingResponse of(Page<BookCardSummary> page) {
+        return new BookListPagingResponse(
                 page.getContent(),
                 page.getTotalPages(),
                 page.getTotalElements(),

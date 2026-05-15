@@ -70,4 +70,8 @@ public class Book extends BaseTimeEntity {
     public boolean isFullyAcorned() {
         return this.receivedAcorn == MAX_ACORN_COUNT;
     }
+
+    public void addReceivedAcorn(int count) {
+        this.receivedAcorn = Math.min(this.receivedAcorn + count, MAX_ACORN_COUNT);
+    }
 }

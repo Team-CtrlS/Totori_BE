@@ -27,9 +27,11 @@ public enum ErrorCode {
     EXPIRED_TOKEN(401, "만료된 토큰입니다."),
 
     // Book
-    BOOK_NOT_EXIST(401, "해당 회원이 보유하고 있는 책이 없습니다."),
+    BOOK_NOT_EXIST(404, "해당 회원이 보유하고 있는 책이 없습니다."),
     BOOK_NOT_FOUND(404, "해당 책이 존재하지 않습니다."),
     PAGE_NOT_FOUND(404, "해당 페이지가 존재하지 않습니다."),
+    BOOK_ACCESS_DENIED(401, "해당 회원의 책이 아닙니다." ),
+    READING_RECORD_NOT_EXIST(404, "낭독 정보가 존재하지 않습니다."),
 
     // Badge
     BADGE_NOT_FOUND(404, "보유한 뱃지가 없습니다."),
