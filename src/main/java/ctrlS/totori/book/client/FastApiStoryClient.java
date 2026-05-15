@@ -78,6 +78,17 @@ public class FastApiStoryClient {
                 .block();
     }
 
+    // 동화 낭독 완료
+    public FastApiCompleteStoryResponse completeReading(Long childId, Long bookId) {
+        return fastApiWebClient.post()
+                .uri("/ai/reading/complete/{child_id}/{book_id}",childId, bookId)
+                .retrieve()
+                .onStatus(HttpStatusCode::isError, clientResponse ->
+                        Mono.error(new CustomException(ErrorCode.READING_COMPLETE_FAILED)))
+                .bodyToMono(FastApiCompleteStoryResponse.class)
+                .block();
+    }
+
     private MultipartBodyBuilder buildMultipartBody(
             MultipartFile audioFile,
             String level,
