@@ -31,9 +31,9 @@ public enum ErrorCode {
     BOOK_NOT_EXIST(404, "해당 회원이 보유하고 있는 책이 없습니다."),
     BOOK_NOT_FOUND(404, "해당 책이 존재하지 않습니다."),
     PAGE_NOT_FOUND(404, "해당 페이지가 존재하지 않습니다."),
-
     BOOK_ACCESS_DENIED(403, "해당 책의 소유자가 아닙니다."),
     READING_RECORD_NOT_EXIST(404, "낭독 정보가 존재하지 않습니다."),
+    INVALID_SENTENCE_NUM(400, "문장 번호는 0 이상이어야 합니다."),
 
     // Badge
     BADGE_NOT_FOUND(404, "보유한 뱃지가 없습니다."),
