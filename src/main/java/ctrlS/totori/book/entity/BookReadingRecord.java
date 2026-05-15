@@ -63,4 +63,9 @@ public class BookReadingRecord extends BaseTimeEntity {
         this.isCompleted = true;
         this.readPages = this.book.getTotalPages();
     }
+
+    public void updateReadingStat(float wcpm, Map<String, Integer> mistakes) {
+        this.wcpm = wcpm;
+        this.mistakes = mistakes;
+    }
 }
