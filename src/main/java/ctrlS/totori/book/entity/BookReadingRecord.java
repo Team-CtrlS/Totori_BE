@@ -68,4 +68,8 @@ public class BookReadingRecord extends BaseTimeEntity {
         this.wcpm = wcpm;
         this.mistakes = mistakes;
     }
+
+    public void updateReadPages(int readPages) {
+        this.readPages = Math.max(this.readPages, readPages);
+    }
 }
