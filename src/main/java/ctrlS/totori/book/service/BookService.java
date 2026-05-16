@@ -349,6 +349,18 @@ public class BookService {
 
         Book savedBook = bookRepository.save(book);
 
+        BookReadingRecord record = BookReadingRecord.builder()
+                .book(savedBook)
+                .readPages(0)
+                .isCompleted(false)
+                .wcpm(0f)
+                .totalWordCount(0)
+                .wrongWordCount(0)
+                .wrongWords(null)
+                .build();
+
+        bookReadingRecordRepository.save(record);
+
         MemberStat memberStat = memberStatRepository.findByMember(member)
                 .orElseThrow(() -> new CustomException(ErrorCode.STAT_NOT_FOUND));
         memberStat.addCreatedBook();
