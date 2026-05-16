@@ -184,6 +184,11 @@ public class BookService {
                 bookId,
                 member.getLevel().toString()
         );
+
+        BookReadingRecord record = bookReadingRecordRepository.findLatestByBookId(bookId)
+                .orElseThrow(() -> new CustomException(ErrorCode.READING_RECORD_NOT_EXIST));
+
+        record.updateReadPages(sentenceNum + 1);
     }
 
     public BookDetailResponse getBookDetail(Long memberId, Long bookId) {
