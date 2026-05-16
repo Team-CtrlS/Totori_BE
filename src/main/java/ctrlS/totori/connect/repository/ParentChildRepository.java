@@ -9,11 +9,13 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface ParentChildRepository extends JpaRepository<ParentChild, Long> {
-
     boolean existsByParentAndChild(Member parent, Member child);
+    boolean existsByParent_Id(Long parentId);
     void deleteByParentId(Long parentId);
     void deleteByChildId(Long childId);
 
     @Query("SELECT pc.child FROM ParentChild pc WHERE pc.parent.id = :parentId")
     List<Member> findChildrenByParentId(@Param("parentId") Long parentId);
+
+
 }
