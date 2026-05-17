@@ -5,8 +5,11 @@ import ctrlS.totori.badge.dto.MemberBadgeResponseDto;
 import ctrlS.totori.badge.entity.BadgeCategory;
 import ctrlS.totori.badge.service.BadgeService;
 import ctrlS.totori.book.client.FastApiStoryClient;
+import ctrlS.totori.book.dto.fastApi.FastApiCompleteStoryResponse;
 import ctrlS.totori.book.dto.fastApi.FastApiGenerateStoryRequest;
 import ctrlS.totori.book.dto.fastApi.FastApiStoryResponse;
+import ctrlS.totori.book.dto.fastApi.reading.FastApiJosaError;
+import ctrlS.totori.book.dto.fastApi.reading.FastApiPhonemeError;
 import ctrlS.totori.book.dto.request.BookCompleteRequest;
 import ctrlS.totori.book.dto.request.BookGenerateRequest;
 import ctrlS.totori.book.dto.response.*;
@@ -183,14 +186,20 @@ public class BookService {
                 bookId,
                 member.getLevel().toString()
         );
+
+        BookReadingRecord record = bookReadingRecordRepository.findLatestByBookId(bookId)
+                .orElseThrow(() -> new CustomException(ErrorCode.READING_RECORD_NOT_EXIST));
+
+        record.updateReadPages(sentenceNum + 1);
     }
 
-    @Transactional
     public BookDetailResponse getBookDetail(Long memberId, Long bookId) {
+        Member member = memberService.findById(memberId);
+
         Book book = bookRepository.findByIdWithPages(bookId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_FOUND));
 
-        if (!book.getMember().getId().equals(memberId)) {
+        if (!book.getMember().getId().equals(member.getId())) {
             throw new CustomException(ErrorCode.BOOK_ACCESS_DENIED);
         }
 
@@ -211,13 +220,79 @@ public class BookService {
         return BookDetailResponse.of(cover, pageResponses);
     }
 
+    public BookCompleteResponse completeBook(Long memberId, Long bookId, BookCompleteRequest request) {
+        Member member = memberService.findById(memberId);
+
+        Book book = bookRepository.findByIdAndMemberId(bookId, member.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.BOOK_ACCESS_DENIED));
+
+        BookReadingRecord latestRecord = bookReadingRecordRepository.findLatestByBookId(bookId)
+                .orElseThrow(() -> new CustomException(ErrorCode.READING_RECORD_NOT_EXIST));
+
+        if (latestRecord.isCompleted()) {
+            return BookCompleteResponse.of(book, 0, List.of());
+        }
+
+        latestRecord.markAsCompleted();
+        FastApiCompleteStoryResponse fastApiResponse = fastApiStoryClient.completeReading(member.getId(), bookId);
+
+        if (fastApiResponse != null) {
+            float wcpm = fastApiResponse.avgWcpm() != null ? fastApiResponse.avgWcpm() : 0f;
+
+            // phoneme 수집
+            Map<String, Integer> phonemeMistakes = fastApiResponse.errors().stream()
+                    .filter(e -> e instanceof FastApiPhonemeError)
+                    .map(e -> (FastApiPhonemeError) e)
+                    .collect(Collectors.groupingBy(
+                            e -> "phoneme:" + e.getPattern(),
+                            Collectors.summingInt(e -> 1)
+                    ));
+
+            // josa 수집
+            Map<String, Integer> josaMistakes = fastApiResponse.errors().stream()
+                    .filter(e -> e instanceof FastApiJosaError)
+                    .map(e -> (FastApiJosaError) e)
+                            .collect(Collectors.groupingBy(
+                                    e -> "josa:" + e.getKind(),
+                                    Collectors.summingInt(e -> 1)
+                            ));
+
+            Map<String, Integer> mistakes = new HashMap<>();
+            mistakes.putAll(phonemeMistakes);
+            mistakes.putAll(josaMistakes);
+
+            latestRecord.updateReadingStat(wcpm, mistakes);
+        }
+
+        int acornCount = request.acornCount();
+        book.addReceivedAcorn(acornCount);
+
+        MemberStat memberStat = memberStatRepository.findByMember(member)
+                .orElseThrow(() -> new CustomException(ErrorCode.STAT_NOT_FOUND));
+
+        memberStat.addReadBook();
+
+        if (acornCount > 0) {
+            memberStat.addAcquiredAcorn(acornCount);
+        }
+
+        List<BadgeResponseDto> newlyAcquiredBadges = new ArrayList<>();
+        newlyAcquiredBadges.addAll(badgeService.checkAndGrantBadge(memberId, BadgeCategory.BOOK_READ));
+        if (acornCount > 0) {
+            newlyAcquiredBadges.addAll(badgeService.checkAndGrantBadge(memberId, BadgeCategory.ACORN));
+        }
+
+        return BookCompleteResponse.of(book, acornCount, newlyAcquiredBadges);
+    }
+
     protected BookReadingRecord getLatestRecord(Long memberId) {
         return bookReadingRecordRepository
                 .findTopByBook_Member_IdOrderByUpdatedAtDesc(memberId)
                 .orElse(null);
     }
 
-    private FastApiGenerateStoryRequest createFastApiRequest(BookGenerateRequest request, Member member, BookReadingRecord latestRecord) {
+    private FastApiGenerateStoryRequest createFastApiRequest(
+            BookGenerateRequest request, Member member, BookReadingRecord latestRecord) {
         float recentWcpm = latestRecord != null ? latestRecord.getWcpm() : 0f;
         List<String> weakPhonemes = extractWeakPhonemes(latestRecord);
 
@@ -230,15 +305,16 @@ public class BookService {
     }
 
     private List<String> extractWeakPhonemes(BookReadingRecord latestRecord) {
-        if (latestRecord == null || latestRecord.getMistakes() == null || latestRecord.getMistakes().isEmpty()) {
+        if (latestRecord == null || latestRecord.getMistakes() == null) {
             return List.of();
         }
 
         return latestRecord.getMistakes().entrySet().stream()
+                .filter(entry -> entry.getKey().startsWith("phoneme:"))
                 .filter(entry -> entry.getValue() != null && entry.getValue() > 0)
-                .sorted(Map.Entry.<String, Integer>comparingByValue(Comparator.reverseOrder()))
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .limit(3)
-                .map(Map.Entry::getKey)
+                .map(entry -> entry.getKey().replace("phoneme", ""))
                 .toList();
     }
 
@@ -280,6 +356,10 @@ public class BookService {
 
         Book savedBook = bookRepository.save(book);
 
+        BookReadingRecord record = BookReadingRecord.of(savedBook);
+
+        bookReadingRecordRepository.save(record);
+
         MemberStat memberStat = memberStatRepository.findByMember(member)
                 .orElseThrow(() -> new CustomException(ErrorCode.STAT_NOT_FOUND));
         memberStat.addCreatedBook();
@@ -307,42 +387,6 @@ public class BookService {
                 .toList();
 
         return BookGenerateResponse.of(savedBook, presignedCoverUrl, pageResponses);
-    }
-
-    @Transactional
-    public BookCompleteResponse completeBook(Long memberId, Long bookId, BookCompleteRequest request) {
-        Book book = bookRepository.findByIdAndMemberId(bookId, memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.BOOK_ACCESS_DENIED));
-
-        BookReadingRecord latestRecord = bookReadingRecordRepository.findLatestByBookId(bookId)
-                .orElseThrow(() -> new CustomException(ErrorCode.READING_RECORD_NOT_EXIST));
-
-        if (latestRecord.isCompleted()) {
-            return BookCompleteResponse.of(book, 0, List.of());
-        }
-
-        latestRecord.markAsCompleted();
-
-        int acornCount = request.acornCount();
-        book.addReceivedAcorn(acornCount);
-
-        Member member = memberService.findById(memberId);
-        MemberStat memberStat = memberStatRepository.findByMember(member)
-                .orElseThrow(() -> new CustomException(ErrorCode.STAT_NOT_FOUND));
-
-        memberStat.addReadBook();
-
-        if (acornCount > 0) {
-            memberStat.addAcquiredAcorn(acornCount);
-        }
-
-        List<BadgeResponseDto> newlyAcquiredBadges = new ArrayList<>();
-        newlyAcquiredBadges.addAll(badgeService.checkAndGrantBadge(memberId, BadgeCategory.BOOK_READ));
-        if (acornCount > 0) {
-            newlyAcquiredBadges.addAll(badgeService.checkAndGrantBadge(memberId, BadgeCategory.ACORN));
-        }
-
-        return BookCompleteResponse.of(book, acornCount, newlyAcquiredBadges);
     }
 
     private BookPageDetailResponse toPageDetailResponse(BookPage page) {
