@@ -63,7 +63,9 @@ public class Book extends BaseTimeEntity {
                 .title(response.title())
                 .coverImageUrl(null)
                 .coverImagePrompt(response.coverImagePrompt())
-                .totalPages(response.pages().size())
+                .totalPages(response.pages().stream()
+                        .mapToInt(page -> page.sentences().size())
+                        .sum())
                 .build();
     }
 
