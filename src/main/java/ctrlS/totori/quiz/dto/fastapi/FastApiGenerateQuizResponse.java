@@ -6,6 +6,8 @@ import java.util.List;
 
 public record FastApiGenerateQuizResponse(
         @JsonProperty("quiz_items")
-        List<String> quizItems
+        List<String> quizItems,
+        @JsonProperty("audio_data")
+        List<String> audioData
 ) {
 }
