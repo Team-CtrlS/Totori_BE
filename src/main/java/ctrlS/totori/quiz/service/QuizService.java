@@ -144,7 +144,7 @@ public class QuizService {
             }
             byte[] audioBytes = Base64.getDecoder().decode(base64);
             String fileName = String.format("quiz_%d_%d.mp3", quizId, i);
-            s3AudioStorageService.uploadAudio(audioBytes, QUIZ_AUDIO_PREFIX + "/" + fileName);
+            s3AudioStorageService.uploadAudio(audioBytes, fileName);
             keys.add(fileName);
         }
         return keys;
@@ -152,7 +152,7 @@ public class QuizService {
 
     private List<String> resolveAudioUrls(List<String> audioKeys) {
         return audioKeys.stream()
-                .map(key -> key.isBlank() ? "" : s3AudioStorageService.getPresignedUrl(QUIZ_AUDIO_PREFIX, key))
+                .map(key -> key.isBlank() ? "" : s3AudioStorageService.getPresignedUrl("bookAudios", key))
                 .toList();
     }
 }
