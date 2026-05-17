@@ -45,6 +45,13 @@ public class Quiz extends BaseTimeEntity {
     @OrderColumn(name = "item_order")
     private List<String> quizItems;
 
+    @ElementCollection
+    @CollectionTable(name = "quiz_audio_keys",
+            joinColumns = @JoinColumn(name = "quiz_id"))
+    @Column(name = "audio_key")
+    @OrderColumn(name = "audio_order")
+    private List<String> audioKeys;
+
     @Column(nullable = false)
     private boolean rewarded = false;
 
@@ -56,23 +63,27 @@ public class Quiz extends BaseTimeEntity {
                 Member member,
                 MemberLevel level,
                 QuizType quizType,
-                List<String> quizItems) {
+                List<String> quizItems,
+                List<String> audioKeys) {
         this.book = book;
         this.member = member;
         this.level = level;
         this.quizType = quizType;
         this.quizItems = quizItems != null ? new ArrayList<>(quizItems) : new ArrayList<>();
+        this.audioKeys = audioKeys != null ? new ArrayList<>(audioKeys) : new ArrayList<>();
     }
 
     public static Quiz of(Book book,
                           Member member,
-                          List<String> quizItems) {
+                          List<String> quizItems,
+                          List<String> audioKeys) {
         return Quiz.builder()
                 .book(book)
                 .member(member)
                 .level(member.getLevel())
                 .quizType(member.getLevel().toQuizType())
                 .quizItems(quizItems)
+                .audioKeys(audioKeys)
                 .build();
     }
 
