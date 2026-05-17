@@ -6,12 +6,14 @@ import java.util.List;
 
 public record QuizResponse(
         Long quizId,
-        List<String> quizItems
+        List<String> quizItems,
+        List<String> audioUrls
 ) {
-    public static QuizResponse from(Quiz quiz) {
+    public static QuizResponse of(Quiz quiz, List<String> audioUrls) {
         return new QuizResponse(
                 quiz.getId(),
-                quiz.getQuizItems()
+                quiz.getQuizItems(),
+                audioUrls
         );
     }
 }
