@@ -4,6 +4,7 @@ import ctrlS.totori.badge.entity.BadgeCategory;
 import ctrlS.totori.badge.service.BadgeService;
 import ctrlS.totori.book.entity.Book;
 import ctrlS.totori.book.repository.BookRepository;
+import ctrlS.totori.book.service.audio.S3AudioStorageService;
 import ctrlS.totori.global.exception.CustomException;
 import ctrlS.totori.global.exception.ErrorCode;
 import ctrlS.totori.global.util.AudioFileValidator;
@@ -24,6 +25,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -31,11 +35,14 @@ import java.util.Objects;
 @Transactional
 public class QuizService {
 
+    private static final String QUIZ_AUDIO_PREFIX = "quizAudios";
+
     private final MemberService memberService;
     private final MemberStatRepository memberStatRepository;
     private final BookRepository bookRepository;
     private final QuizRepository quizRepository;
     private final FastApiQuizClient fastApiQuizClient;
+    private final S3AudioStorageService s3AudioStorageService;
     private final AudioFileValidator audioFileValidator;
     private final BadgeService badgeService;
 
@@ -57,11 +64,17 @@ public class QuizService {
             return null;
         }
 
-        Quiz quiz = Quiz.of(book, member, fastApiResponse.quizItems());
-
+        // 퀴즈 내용 먼저 저장
+        Quiz quiz = Quiz.of(book, member, fastApiResponse.quizItems(), new ArrayList<>());
         Quiz savedQuiz = quizRepository.save(quiz);
 
-        return new QuizResponse(savedQuiz.getId(), savedQuiz.getQuizItems());
+        // base64 디코딩 후 S3 업로드
+        List<String> audioKeys = uploadQuizAudios(savedQuiz.getId(), fastApiResponse.audioData());
+        savedQuiz.getAudioKeys().addAll(audioKeys);
+
+        List<String> audioUrls = resolveAudioUrls(audioKeys);
+
+        return QuizResponse.of(savedQuiz, audioUrls);
     }
 
     // 퀴즈 음성 전송
@@ -117,6 +130,29 @@ public class QuizService {
             throw new CustomException(ErrorCode.BOOK_ACCESS_DENIED);
         }
 
-        return QuizResponse.from(quiz);
+        List<String> audioUrls = resolveAudioUrls(quiz.getAudioKeys());
+        return QuizResponse.of(quiz, audioUrls);
+    }
+
+    private List<String> uploadQuizAudios(Long quizId, List<String> audioData) {
+        List<String> keys = new ArrayList<>();
+        for (int i = 0; i < audioData.size(); i++) {
+            String base64 = audioData.get(i);
+            if (base64 == null || base64.isBlank()) {
+                keys.add("");
+                continue;
+            }
+            byte[] audioBytes = Base64.getDecoder().decode(base64);
+            String fileName = String.format("quiz_%d_%d.mp3", quizId, i);
+            s3AudioStorageService.uploadAudio(audioBytes, fileName);
+            keys.add(fileName);
+        }
+        return keys;
+    }
+
+    private List<String> resolveAudioUrls(List<String> audioKeys) {
+        return audioKeys.stream()
+                .map(key -> key.isBlank() ? "" : s3AudioStorageService.getPresignedUrl(QUIZ_AUDIO_PREFIX, key))
+                .toList();
     }
 }
