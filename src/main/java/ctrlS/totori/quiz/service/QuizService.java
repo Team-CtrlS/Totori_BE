@@ -152,7 +152,7 @@ public class QuizService {
 
     private List<String> resolveAudioUrls(List<String> audioKeys) {
         return audioKeys.stream()
-                .map(key -> key.isBlank() ? "" : s3AudioStorageService.getPresignedUrl(QUIZ_AUDIO_PREFIX, key))
+                .map(key -> key.isBlank() ? "" : s3AudioStorageService.getPresignedUrl("bookAudios", key))
                 .toList();
     }
 }
