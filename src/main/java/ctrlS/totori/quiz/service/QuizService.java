@@ -144,7 +144,7 @@ public class QuizService {
             }
             byte[] audioBytes = Base64.getDecoder().decode(base64);
             String fileName = String.format("quiz_%d_%d.mp3", quizId, i);
-            s3AudioStorageService.uploadAudio(audioBytes, fileName);
+            s3AudioStorageService.uploadAudio(audioBytes, QUIZ_AUDIO_PREFIX + "/" + fileName);
             keys.add(fileName);
         }
         return keys;
