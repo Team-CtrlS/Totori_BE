@@ -354,15 +354,7 @@ public class BookService {
 
         Book savedBook = bookRepository.save(book);
 
-        BookReadingRecord record = BookReadingRecord.builder()
-                .book(savedBook)
-                .readPages(0)
-                .isCompleted(false)
-                .wcpm(0f)
-                .totalWordCount(0)
-                .wrongWordCount(0)
-                .wrongWords(null)
-                .build();
+        BookReadingRecord record = BookReadingRecord.of(savedBook);
 
         bookReadingRecordRepository.save(record);
 
