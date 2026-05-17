@@ -1,10 +1,13 @@
 package ctrlS.totori.auth.service;
 
+import ctrlS.totori.auth.dto.LoginResponse;
+import ctrlS.totori.connect.repository.ParentChildRepository;
 import ctrlS.totori.global.exception.CustomException;
 import ctrlS.totori.global.exception.ErrorCode;
 import ctrlS.totori.member.entity.LoginType;
 import ctrlS.totori.member.entity.Member;
 import ctrlS.totori.member.entity.MemberStat;
+import ctrlS.totori.member.entity.Role;
 import ctrlS.totori.member.repository.MemberRepository;
 import ctrlS.totori.auth.dto.LoginRequest;
 import ctrlS.totori.auth.dto.SignUpRequest;
@@ -24,6 +27,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthRedisService authRedisService;
+    private final ParentChildRepository parentChildRepository;
 
     @Transactional
     public void signUp(SignUpRequest request) {
@@ -50,7 +54,7 @@ public class AuthService {
     }
 
     @Transactional(readOnly = true)
-    public TokenResponse login(LoginRequest request) {
+    public LoginResponse login(LoginRequest request) {
         // DB에서 아이디로 회원 찾기
         Member member = memberRepository.findByLoginId(request.getLoginId())
                 .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_ID_NOT_FOUND));
@@ -69,8 +73,13 @@ public class AuthService {
 
         authRedisService.saveRefreshToken(member.getId(), refreshToken);
 
+        Boolean hasConnected = null;
+        if (member.getRole() == Role.PARENT) {
+            hasConnected = parentChildRepository.existsByParent_Id(member.getId());
+        }
+
         // 토큰과 권한 정보 반환
-        return new TokenResponse(accessToken, refreshToken, role);
+        return new LoginResponse(accessToken, refreshToken, role, hasConnected);
     }
 
     public void logout(String bearerToken) {
