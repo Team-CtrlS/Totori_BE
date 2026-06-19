@@ -34,7 +34,7 @@
 | <img width="120" alt="정윤아 GitHub 프로필" src="https://avatars.githubusercontent.com/u/166522604?v=4" /> | <img width="120" alt="복지희 GitHub 프로필" src="https://avatars.githubusercontent.com/u/129582481?v=4" /> | <img width="120" alt="정유진 GitHub 프로필" src="https://avatars.githubusercontent.com/u/127232686?v=4" /> |
 | [`@laura-jung`](https://github.com/laura-jung) | [`@jettieb`](https://github.com/jettieb) | [`@nomellc`](https://github.com/nomellc) |
 | **Backend Developer** | **Backend Developer** | **Backend·AI Developer** |
-| 동화 이미지 생성 외부 API 및 비동기 처리,<br> elevenLabs API 연결,<br> 뱃지 API 담당,<br> 동화 낭독 완료 API<br> S3 세팅 |  |  |
+| 동화 이미지 생성 외부 API 및 비동기 처리,<br> elevenLabs API 연결,<br> 뱃지 API 담당,<br> 동화 낭독 완료 API<br> S3 세팅 |  | AI 동화 생성 및 낭독 기능 개발,<br>퀴즈 학습 관련 백엔드 API 구현,<br>자체/소셜 로그인 기반 인증·인가 기능 구현,<br>회원 관리 및 아동-보호자 연결 기능 개발 |
 
 ## ⚒️ 기술 스택
 
