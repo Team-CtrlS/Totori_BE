@@ -213,10 +213,6 @@ AI 서버의 기본 주소는 `http://localhost:8000`입니다. 다른 호스트
 
 ## API 문서
 
-서버 실행 후 다음 주소에서 확인할 수 있습니다.
-
-- Swagger UI: <http://localhost:8080/swagger-ui/index.html>
-
 주요 API 그룹:
 
 ```text
