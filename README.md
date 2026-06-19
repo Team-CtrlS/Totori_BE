@@ -34,7 +34,7 @@
 | <img width="120" alt="정윤아 GitHub 프로필" src="https://avatars.githubusercontent.com/u/166522604?v=4" /> | <img width="120" alt="복지희 GitHub 프로필" src="https://avatars.githubusercontent.com/u/129582481?v=4" /> | <img width="120" alt="정유진 GitHub 프로필" src="https://avatars.githubusercontent.com/u/127232686?v=4" /> |
 | [`@laura-jung`](https://github.com/laura-jung) | [`@jettieb`](https://github.com/jettieb) | [`@nomellc`](https://github.com/nomellc) |
 | **Backend Developer** | **Backend Developer** | **Backend·AI Developer** |
-|  |  |  |
+| 동화 이미지 생성 외부 API 및 비동기 처리,<br> elevenLabs API 연결,<br> 뱃지 API 담당,<br> 동화 낭독 완료 API<br> S3 세팅 |  |  |
 
 ## ⚒️ 기술 스택
 
@@ -111,71 +111,8 @@ docker run --name totori-redis \
 ### 3. 애플리케이션 설정
 
 `src/main/resources/application.yml`을 생성합니다. 이 파일과 환경별 설정 파일은 `.gitignore`에 포함되어 있습니다.
-
-```yaml
-server:
-  port: 8080
-
-spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/totori?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: root
-    password: totori
-  jpa:
-    hibernate:
-      ddl-auto: update
-    open-in-view: false
-  data:
-    redis:
-      host: localhost
-      port: 6379
-  security:
-    oauth2:
-      client:
-        registration:
-          kakao:
-            client-id: your-kakao-rest-api-key
-            client-secret: your-kakao-client-secret
-            client-authentication-method: client_secret_post
-            authorization-grant-type: authorization_code
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-            scope: profile_nickname, account_email
-        provider:
-          kakao:
-            authorization-uri: https://kauth.kakao.com/oauth/authorize
-            token-uri: https://kauth.kakao.com/oauth/token
-            user-info-uri: https://kapi.kakao.com/v2/user/me
-            user-name-attribute: id
-
-jwt:
-  secret: replace-with-base64-secret
-
-fastapi:
-  base-url: http://localhost:8000
-
-cloud:
-  aws:
-    credentials:
-      access-key: your-aws-access-key
-      secret-key: your-aws-secret-key
-    region:
-      static: ap-northeast-2
-    s3:
-      bucket: your-s3-bucket
-
-stability:
-  api-key: your-stability-api-key
-
-elevenlabs:
-  api-key: your-elevenlabs-api-key
-  base-url: https://api.elevenlabs.io/v1
-  default-voice-id: your-voice-id
-  default-model-id: eleven_multilingual_v2
-  timeout-seconds: 60
-
-tts:
-  parallelism: 3
-```
+application.yml 파일의 예시는 아래 링크에서 확인 가능합니다. \
+[`application.yml`](https://picayune-neon-796.notion.site/application-yml-384d0ccedfad80729998df4ae282cf30?source=copy_link)
 
 JWT 키는 256비트 이상의 값을 Base64로 인코딩해야 합니다.
 
